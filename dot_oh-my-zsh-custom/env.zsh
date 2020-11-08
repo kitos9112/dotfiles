@@ -13,6 +13,9 @@ export PYENV_ROOT="$HOME/.pyenv"
 # You may need to manually set your language environment
 export LANG=en_GB.UTF-8
 
+# Fix gpg: signing failed: Inappropiate ioctl for device
+export GPG_TTY=$(tty)
+
 # Other alterations to PATH
 export PATH=$HOME/.local/bin:$HOME/bin:$HOME/.linuxbrew/bin:$PATH
 

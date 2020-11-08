@@ -1,0 +1,13 @@
+{{- if (eq .chezmoi.os "linux") -}}
+#! /usr/bin/env bash
+
+set -ev pipefail 
+
+# Install Homebrew
+which -a brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+
+brew update
+brew install pyenv \
+             poetry
+
+{{- end -}}

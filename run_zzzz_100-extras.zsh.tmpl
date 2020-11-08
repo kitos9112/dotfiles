@@ -1,9 +1,6 @@
 {{- if (eq .chezmoi.os "linux") -}}
 #! /bin/zsh
 
-# 0-Update Chezmoi completions
-chezmoi completion zsh --output ${HOME}/.oh-my-zsh-custom/plugins/chezmoi/_chezmoi
-
 # 1-Install or update Git repositories for
 ## powerlevel10k
 ## ZSH Syntax highlighting
