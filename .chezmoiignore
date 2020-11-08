@@ -1,4 +1,5 @@
 README.md
+LICENSE
 Makefile
 install.sh
 *.deb
@@ -6,3 +7,6 @@ install.sh
 .vscode
 settings.json
 .ssh
+.oh-my-zsh-custom/themes/powerlevel10k/**
+.oh-my-zsh-custom/plugins/zsh-syntax-highlighting/**
+tests/

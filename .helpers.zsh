@@ -1,14 +1,5 @@
 #!/usr/bin/env zsh
 
-architecture() {
-  if uname -a | grep -q x86; then echo 'amd'
-  elif uname -a | grep -q armv; then echo 'arm'
-  else
-    echo 'Unknown architecture'
-    exit 1
-  fi
-}
-
 is_installed() {
   [[ -x "$(command -v $1)" ]]
 }

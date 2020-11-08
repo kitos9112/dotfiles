@@ -1,0 +1,31 @@
+{{- if (eq .chezmoi.os "linux") -}}
+#! /bin/zsh
+
+# 0-Update Chezmoi completions
+chezmoi completion zsh --output ${HOME}/.oh-my-zsh-custom/plugins/chezmoi/_chezmoi
+
+# 1-Install or update Git repositories for
+## powerlevel10k
+## ZSH Syntax highlighting
+
+declare -A plugins_map
+
+P10K_DIR="${HOME}/.oh-my-zsh-custom/themes/powerlevel10k"
+P10K_URL="https://github.com/romkatv/powerlevel10k.git"
+
+plugins_map[$P10K_DIR]=$P10K_URL
+ZSH_SYNTAX_DIR="${HOME}/.oh-my-zsh-custom/plugins/zsh-syntax-highlighting"
+ZSH_SYNTAX_URL="https://github.com/zsh-users/zsh-syntax-highlighting.git"
+
+plugins_map[$ZSH_SYNTAX_DIR]=$ZSH_SYNTAX_URL
+
+for key in "${(@k)plugins_map}"; do
+  echo "Checking $key directory..."
+  if [ ! -d $key ]; then
+    git clone $plugins_map[$key] ${key}
+  else
+    cd ${key} && git pull --rebase
+  fi
+done
+
+{{- end -}}

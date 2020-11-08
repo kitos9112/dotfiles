@@ -1,10 +1,8 @@
 {{- if (eq .chezmoi.os "linux") -}}
 #! /usr/bin/env bash
 
-{{- if (eq .chezmoi.osRelease.idLike "debian") -}}
-  apt-get install zsh -y
-  sudo chsh -s /bin/zsh $USER
-{{- end -}}
+set -ev pipefail 
+{{- if (eq .chezmoi.osRelease.idLike "debian") -}}sudo apt install -y zsh{{- end -}}
 
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --unattended"
 

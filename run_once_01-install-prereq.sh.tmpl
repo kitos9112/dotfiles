@@ -1,0 +1,15 @@
+{{- if (eq .chezmoi.os "linux") -}}
+#! /usr/bin/env bash
+set -ev pipefail
+
+{{- if (eq .chezmoi.osRelease.idLike "debian") -}}
+sudo apt update
+sudo apt upgrade -y
+sudo apt-get install -y \
+              curl \
+              direnv \
+              jq \
+              vim
+
+{{- end -}}
+{{- end -}}

@@ -1,0 +1,16 @@
+[user]
+	name = "{{ .name }}"
+	email = "{{ .email }}"
+	signingKey = "{{ .signing_key }}"
+[credential]
+	helper = store
+[alias]
+  plog = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
+  vfc = verify-commit
+  st = status
+[diff]
+    ignoreSubmodules = dirty
+[pull]
+    rebase = true
+[commit]
+    gpgsign = true
