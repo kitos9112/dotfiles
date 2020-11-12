@@ -2,8 +2,6 @@
 #! /usr/bin/env bash
 
 set -ev pipefail 
-{{- if (eq .chezmoi.osRelease.idLike "debian") -}}sudo apt install -y zsh{{- end -}}
-
 # Run autoinstalling OMZ script
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --unattended" ||
 # Update Chezmoi completions
