@@ -6,7 +6,7 @@ set -ev pipefail
 # Install Homebrew
 which -a brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 
-export $PATH=${HOME}/.linuxbrew/bin:${PATH}
+export PATH=${HOME}/.linuxbrew/bin:${PATH}
 brew update
 brew install pyenv \
              poetry
