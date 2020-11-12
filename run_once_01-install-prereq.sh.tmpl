@@ -2,7 +2,7 @@
 #! /usr/bin/env bash
 set -ev pipefail
 
-{{- if (eq .chezmoi.osRelease.idLike "debian") -}}
+{{- if (eq .chezmoi.osRelease.id "ubuntu") -}}
 sudo apt update
 sudo apt upgrade -y
 sudo apt-get install -y \
