@@ -4,10 +4,6 @@ is_installed() {
   [[ -x "$(command -v $1)" ]]
 }
 
-is_cask_installed() {
-  [[ -n "$(brew cask ls | grep $1)" ]]
-}
-
 is_brew_installed() {
   [[ -n "$(brew ls | grep $1)" ]]
 }
@@ -80,7 +76,7 @@ capitalize() {
 check_sudo() {
   echo "Testing sudo, you may need to enter your password:"
   sudo echo "✅  sudo is good"
-    if [[ $? != 0 ]]; then
+  if [[ $? != 0 ]]; then
     echo "💥  sudo auth failed"
     exit 1
   fi

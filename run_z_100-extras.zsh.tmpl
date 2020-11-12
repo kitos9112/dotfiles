@@ -1,6 +1,7 @@
 {{- if (eq .chezmoi.os "linux") -}}
 #! /bin/zsh
 
+source {{ .chezmoi.sourceDir }}/.helpers.zsh
 # 1-Install or update Git repositories for ZSH or others
 ## powerlevel10k
 ## ZSH Syntax highlighting
@@ -22,11 +23,16 @@ TMUX_PLUGIN_URL="https://github.com/gpakosz/.tmux.git"
 plugins_map[$TMUX_PLUGIN_DIR]=$TMUX_PLUGIN_URL
 
 for key in "${(@k)plugins_map}"; do
-  echo "Checking $key directory..."
+  started "Checking whether $key directory exists..."
   if [ ! -d $key ]; then
+    started "Running: git clone $plugins_map[$key] ${key}"
     git clone $plugins_map[$key] ${key}
+    success "Git repo $plugins_map[$key] Cloned!"
   else
-    cd ${key} && git pull --rebase
+    started "Running: cd ${key} && git pull --rebase"
+    cd ${key}
+    git pull --rebase
+    success "Git repo $plugins_map[$key] Pulled [--rebase]!"
   fi
 done
 

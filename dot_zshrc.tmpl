@@ -2,12 +2,15 @@
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
 {{- if .is_work }}
-	export no_proxy=0,1,2,3,4,5,6,7,8,9
-	export NO_PROXY=0,1,2,3,4,5,6,7,8,9
-	export HTTP_PROXY=http://{{ .http_proxy }}
-	export http_proxy=http://{{ .http_proxy }}
-	export HTTPS_PROXY=http://{{ .http_proxy }}
-	export https_proxy=http://{{ .http_proxy }}
+PROXY=http://{{ .http_proxy }}
+export no_proxy=0,1,2,3,4,5,6,7,8,9
+export NO_PROXY=0,1,2,3,4,5,6,7,8,9
+export HTTP_PROXY=$PROXY
+export http_proxy=$PROXY
+export HTTPS_PROXY=$PROXY
+export https_proxy=$PROXY
+export all_proxy=$PROXY
+export ALL_PROXY=$PROXY
 {{- end }}
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"

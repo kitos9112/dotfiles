@@ -1,7 +1,6 @@
 #compdef _chezmoi chezmoi
 
-
-function _chezmoi {
+function _chezmoi() {
   local -a commands
 
   _arguments -C \
@@ -157,7 +156,7 @@ function _chezmoi {
   esac
 }
 
-function _chezmoi_add {
+function _chezmoi_add() {
   _arguments \
     '(-a --autotemplate)'{-a,--autotemplate}'[auto generate the template when adding files as templates]' \
     '(-e --empty)'{-e,--empty}'[add empty files]' \
@@ -186,7 +185,7 @@ function _chezmoi_add {
     '8: :_files '
 }
 
-function _chezmoi_apply {
+function _chezmoi_apply() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -207,7 +206,7 @@ function _chezmoi_apply {
     '8: :_files '
 }
 
-function _chezmoi_archive {
+function _chezmoi_archive() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -220,7 +219,7 @@ function _chezmoi_archive {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_cat {
+function _chezmoi_cat() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -241,7 +240,7 @@ function _chezmoi_cat {
     '8: :_files '
 }
 
-function _chezmoi_cd {
+function _chezmoi_cd() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -254,7 +253,7 @@ function _chezmoi_cd {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_chattr {
+function _chezmoi_chattr() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -276,7 +275,7 @@ function _chezmoi_chattr {
     '9: :_files '
 }
 
-function _chezmoi_completion {
+function _chezmoi_completion() {
   _arguments \
     '(-h --help)'{-h,--help}'[help for completion]' \
     '(-o --output)'{-o,--output}'[output filename]:filename:_files' \
@@ -292,7 +291,7 @@ function _chezmoi_completion {
     '1: :("bash" "fish" "zsh")'
 }
 
-function _chezmoi_data {
+function _chezmoi_data() {
   _arguments \
     '(-f --format)'{-f,--format}'[format (JSON, TOML, or YAML)]:' \
     '--color[colorize diffs]:' \
@@ -306,7 +305,7 @@ function _chezmoi_data {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_diff {
+function _chezmoi_diff() {
   _arguments \
     '(-f --format)'{-f,--format}'[format, "chezmoi" or "git"]:' \
     '--no-pager[disable pager]' \
@@ -329,7 +328,7 @@ function _chezmoi_diff {
     '8: :_files '
 }
 
-function _chezmoi_docs {
+function _chezmoi_docs() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -342,7 +341,7 @@ function _chezmoi_docs {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_doctor {
+function _chezmoi_doctor() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -355,7 +354,7 @@ function _chezmoi_doctor {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_dump {
+function _chezmoi_dump() {
   _arguments \
     '(-f --format)'{-f,--format}'[format (JSON, TOML, or YAML)]:' \
     '(-r --recursive)'{-r,--recursive}'[recursive]' \
@@ -378,7 +377,7 @@ function _chezmoi_dump {
     '8: :_files '
 }
 
-function _chezmoi_edit {
+function _chezmoi_edit() {
   _arguments \
     '(-a --apply)'{-a,--apply}'[apply edit after editing]' \
     '(-d --diff)'{-d,--diff}'[print diff after editing]' \
@@ -402,7 +401,7 @@ function _chezmoi_edit {
     '8: :_files '
 }
 
-function _chezmoi_edit-config {
+function _chezmoi_edit-config() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -415,7 +414,7 @@ function _chezmoi_edit-config {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_execute-template {
+function _chezmoi_execute-template() {
   _arguments \
     '(-i --init)'{-i,--init}'[simulate chezmoi init]' \
     '(-o --output)'{-o,--output}'[output filename]:' \
@@ -431,7 +430,7 @@ function _chezmoi_execute-template {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_forget {
+function _chezmoi_forget() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -452,7 +451,7 @@ function _chezmoi_forget {
     '8: :_files '
 }
 
-function _chezmoi_git {
+function _chezmoi_git() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -465,7 +464,7 @@ function _chezmoi_git {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_help {
+function _chezmoi_help() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -478,7 +477,7 @@ function _chezmoi_help {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_hg {
+function _chezmoi_hg() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -491,7 +490,7 @@ function _chezmoi_hg {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_import {
+function _chezmoi_import() {
   _arguments \
     '(-x --exact)'{-x,--exact}'[import directories exactly]' \
     '(-r --remove-destination)'{-r,--remove-destination}'[remove destination before import]' \
@@ -508,7 +507,7 @@ function _chezmoi_import {
     '1: :_files -g "*.tar" -g "*.tar.bz2" -g "*.tar.gz" -g "*.tgz"'
 }
 
-function _chezmoi_init {
+function _chezmoi_init() {
   _arguments \
     '--apply[update destination directory]' \
     '--color[colorize diffs]:' \
@@ -522,7 +521,7 @@ function _chezmoi_init {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_managed {
+function _chezmoi_managed() {
   _arguments \
     '(*-i *--include)'{\*-i,\*--include}'[include]:' \
     '--color[colorize diffs]:' \
@@ -536,7 +535,7 @@ function _chezmoi_managed {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_merge {
+function _chezmoi_merge() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -557,7 +556,7 @@ function _chezmoi_merge {
     '8: :_files '
 }
 
-function _chezmoi_purge {
+function _chezmoi_purge() {
   _arguments \
     '(-f --force)'{-f,--force}'[remove without prompting]' \
     '--color[colorize diffs]:' \
@@ -571,7 +570,7 @@ function _chezmoi_purge {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_remove {
+function _chezmoi_remove() {
   _arguments \
     '(-f --force)'{-f,--force}'[remove without prompting]' \
     '--color[colorize diffs]:' \
@@ -593,8 +592,7 @@ function _chezmoi_remove {
     '8: :_files '
 }
 
-
-function _chezmoi_secret {
+function _chezmoi_secret() {
   local -a commands
 
   _arguments -C \
@@ -658,7 +656,7 @@ function _chezmoi_secret {
   esac
 }
 
-function _chezmoi_secret_bitwarden {
+function _chezmoi_secret_bitwarden() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -671,7 +669,7 @@ function _chezmoi_secret_bitwarden {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_secret_generic {
+function _chezmoi_secret_generic() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -684,7 +682,7 @@ function _chezmoi_secret_generic {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_secret_gopass {
+function _chezmoi_secret_gopass() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -697,7 +695,7 @@ function _chezmoi_secret_gopass {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_secret_keepassxc {
+function _chezmoi_secret_keepassxc() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -710,8 +708,7 @@ function _chezmoi_secret_keepassxc {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-
-function _chezmoi_secret_keyring {
+function _chezmoi_secret_keyring() {
   local -a commands
 
   _arguments -C \
@@ -749,7 +746,7 @@ function _chezmoi_secret_keyring {
   esac
 }
 
-function _chezmoi_secret_keyring_get {
+function _chezmoi_secret_keyring_get() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -764,7 +761,7 @@ function _chezmoi_secret_keyring_get {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_secret_keyring_set {
+function _chezmoi_secret_keyring_set() {
   _arguments \
     '--password[password]:' \
     '--color[colorize diffs]:' \
@@ -780,7 +777,7 @@ function _chezmoi_secret_keyring_set {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_secret_lastpass {
+function _chezmoi_secret_lastpass() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -793,7 +790,7 @@ function _chezmoi_secret_lastpass {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_secret_onepassword {
+function _chezmoi_secret_onepassword() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -806,7 +803,7 @@ function _chezmoi_secret_onepassword {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_secret_pass {
+function _chezmoi_secret_pass() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -819,7 +816,7 @@ function _chezmoi_secret_pass {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_secret_vault {
+function _chezmoi_secret_vault() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -832,7 +829,7 @@ function _chezmoi_secret_vault {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_source {
+function _chezmoi_source() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -845,7 +842,7 @@ function _chezmoi_source {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_source-path {
+function _chezmoi_source-path() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -866,7 +863,7 @@ function _chezmoi_source-path {
     '8: :_files '
 }
 
-function _chezmoi_unmanaged {
+function _chezmoi_unmanaged() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -879,7 +876,7 @@ function _chezmoi_unmanaged {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_update {
+function _chezmoi_update() {
   _arguments \
     '(-a --apply)'{-a,--apply}'[apply after pulling]' \
     '--color[colorize diffs]:' \
@@ -893,7 +890,7 @@ function _chezmoi_update {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_upgrade {
+function _chezmoi_upgrade() {
   _arguments \
     '(-f --force)'{-f,--force}'[force upgrade]' \
     '(-m --method)'{-m,--method}'[set method]:' \
@@ -910,7 +907,7 @@ function _chezmoi_upgrade {
     '(-v --verbose)'{-v,--verbose}'[verbose]'
 }
 
-function _chezmoi_verify {
+function _chezmoi_verify() {
   _arguments \
     '--color[colorize diffs]:' \
     '(-c --config)'{-c,--config}'[config file]:' \
@@ -930,4 +927,3 @@ function _chezmoi_verify {
     '7: :_files ' \
     '8: :_files '
 }
-
