@@ -17,4 +17,16 @@ sudo apt-get install -y \
               zsh \
               tmux
 {{- end -}}
+{{- if (eq .chezmoi.osRelease.idLike "fedora") -}}
+sudo dnf update
+sudo dnf upgrade -y
+sudo dnf install -y \
+              curl \
+              file \
+              git \
+              jq \
+              vim \
+              libxcrypt-compat \
+              zsh
+{{- end -}}
 {{- end -}}
