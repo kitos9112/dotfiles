@@ -1,6 +1,14 @@
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
+{{- if .is_work }}
+	export no_proxy=0,1,2,3,4,5,6,7,8,9
+	export NO_PROXY=0,1,2,3,4,5,6,7,8,9
+	export HTTP_PROXY=http://{{ .http_proxy }}
+	export http_proxy=http://{{ .http_proxy }}
+	export HTTPS_PROXY=http://{{ .http_proxy }}
+	export https_proxy=http://{{ .http_proxy }}
+{{- end }}
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
@@ -53,7 +61,7 @@ ZSH_CUSTOM=$HOME/.oh-my-zsh-custom
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git 
+plugins=(git
 	 git-flow
 	 history
 	 dotenv
