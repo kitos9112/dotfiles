@@ -6,7 +6,7 @@
 {{- $workName := "Marcos Soutullo Rodriguez" -}}
 {{- $workEmail := "marcos.soutullo@vodafone.com" -}}
 
-{{- $isWork := or (contains "work" (lower .chezmoi.fullHostname)) (contains "vodafone" (lower .chezmoi.fullHostname)) (contains "vf" (lower .chezmoi.fullHostname)) (contains "msr" (lower .chezmoi.fullHostname)) -}}
+{{- $isWork := or (contains "vodafone" (lower .chezmoi.fullHostname)) (contains "vf" (lower .chezmoi.fullHostname)) (contains "MSR" (lower .chezmoi.fullHostname)) -}}
 {{- $isPersonal := not $isWork -}}
 
 {{- $isWsl := or (env "WSL_DISTRO_NAME") (env "IS_WSL") | not | not -}}
@@ -19,7 +19,7 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
 
   personal_name = "{{ $personalName }}"
   personal_email = "{{ $personalEmail }}"
-
+  
   work_name = "{{ $workName }}"
   work_email = "{{ $workEmail }}"
 
@@ -30,9 +30,12 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
   {{- if $isPersonal }}
   name = "{{ $personalName }}"
   email = "{{ $personalEmail }}"
+  signing_key = "F31B8FF845AFAFDF"
+  
   {{- else }}
   name = "{{ $workName }}"
   email = "{{ $workEmail }}"
+  signing_key = "473E049DD4211D4E"
   {{- end }}
 
   {{- if or (lookPath "code") }}
