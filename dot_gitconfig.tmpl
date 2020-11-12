@@ -1,7 +1,7 @@
 [user]
-	name = "{{ .name }}"
-	email = "{{ .email }}"
-	signingKey = "{{ .signing_key }}"
+	name = {{ .name }}
+	email = {{ .email }}
+	signingKey = {{ .signing_key }}
 [credential]
 	helper = store
 [alias]
@@ -16,3 +16,8 @@
 	gpgsign = true
 [gpg]
 	program = gpg
+{{- if .is_work }}
+[http]
+        proxy = http://{{ .http_proxy }}
+        sslVerify = true
+{{- end }}
