@@ -17,7 +17,7 @@ export LANG=en_GB.UTF-8
 export GPG_TTY=$TTY
 
 # Other alterations to PATH
-export PATH=$HOME/.local/bin:$HOME/bin:$HOME/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/bin:$PATH
+export PATH=$HOME/.local/bin:$HOME/bin:$HOME/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH
 
 # Pyenv-related envs
 eval "$(pyenv init -)"

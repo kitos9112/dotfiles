@@ -72,6 +72,8 @@ plugins=(git
 	 chezmoi
 	 pyenv
 	 poetry
+	 pip
+	 aws
 	 # ALWAYS the LAST!!!
 	 zsh-syntax-highlighting
 	)
@@ -80,6 +82,8 @@ source $ZSH/oh-my-zsh.sh
 
 autoload -Uz compinit
 compinit -u
+
+aws --version | grep -q "aws-cli/2" && source /usr/local/bin/aws_zsh_completer.sh
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
