@@ -27,7 +27,7 @@ You will have to clone the repo and execute the `install.sh` script
 Leveraging Chezmoi capabilities
 
 ```bash
-> chezmoi init https://github.com/kitos9112/dotfiles.git "$HOME/.dotfiles" && "$HOME/.dotfiles/install.sh"
+> chezmoi init --apply --verbose https://github.com/kitos9112/dotfiles.git
 ```
 
 ## Security considerations
