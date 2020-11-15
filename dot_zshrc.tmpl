@@ -85,7 +85,7 @@ compinit -u
 
 #aws --version | grep -q "aws-cli/2" && source /usr/local/bin/aws_zsh_completer.sh
 # Kubectl autocomplete
-echo "if [ $commands[kubectl] ]; then source <(kubectl completion zsh); fi"
+if [ $commands[kubectl] ]; then source <(kubectl completion zsh); fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
