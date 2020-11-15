@@ -83,7 +83,7 @@ source $ZSH/oh-my-zsh.sh
 autoload -Uz compinit
 compinit -u
 
-aws --version | grep -q "aws-cli/2" && source /usr/local/bin/aws_zsh_completer.sh
+#aws --version | grep -q "aws-cli/2" && source /usr/local/bin/aws_zsh_completer.sh
 # Kubectl autocomplete
 echo "if [ $commands[kubectl] ]; then source <(kubectl completion zsh); fi"
 
