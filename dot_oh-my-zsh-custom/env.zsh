@@ -18,6 +18,7 @@ export GPG_TTY=$TTY
 
 # Other alterations to PATH
 export PATH=$HOME/.local/bin:$HOME/bin:$HOME/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH
+export PATH=${TG_ENV_DIR}/bin:${TF_ENV_DIR}/bin:${PATH}
 
 # Pyenv-related envs
 eval "$(pyenv init -)"
