@@ -1,0 +1,39 @@
+{{- if (eq .chezmoi.os "linux") -}}
+#! /bin/zsh
+
+source {{ .chezmoi.sourceDir }}/.helpers.zsh
+# 1-Install or update Git repositories for ZSH or others
+## powerlevel10k
+## ZSH Syntax highlighting
+## TMUX custom plugin
+
+declare -A plugins_map
+
+P10K_PLUGIN_DIR="${HOME}/.oh-my-zsh-custom/themes/powerlevel10k"
+P10K_PLUGIN_URL="https://github.com/romkatv/powerlevel10k.git"
+
+plugins_map[$P10K_PLUGIN_DIR]=$P10K_PLUGIN_URL
+
+ZSH_PLUGIN_SYNTAX_DIR="${HOME}/.oh-my-zsh-custom/plugins/zsh-syntax-highlighting"
+ZSH_PLUGIN_SYNTAX_URL="https://github.com/zsh-users/zsh-syntax-highlighting.git"
+plugins_map[$ZSH_PLUGIN_SYNTAX_DIR]=$ZSH_PLUGIN_SYNTAX_URL
+
+TMUX_PLUGIN_DIR="${HOME}/.tmux"
+TMUX_PLUGIN_URL="https://github.com/gpakosz/.tmux.git"
+plugins_map[$TMUX_PLUGIN_DIR]=$TMUX_PLUGIN_URL
+
+for key in "${(@k)plugins_map}"; do
+  started "Checking whether $key directory exists..."
+  if [ ! -d $key ]; then
+    started "Running: git clone $plugins_map[$key] ${key}"
+    git clone $plugins_map[$key] ${key}
+    success "Git repo $plugins_map[$key] Cloned!"
+  else
+    started "Running: cd ${key} && git pull --rebase"
+    cd ${key}
+    git pull --rebase
+    success "Git repo $plugins_map[$key] Pulled [--rebase]!"
+  fi
+done
+
+{{- end -}}
