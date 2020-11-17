@@ -1,5 +1,6 @@
 # Full list of logical env.variables to me!
 export ZSH_CUSTOM=$ZSH_CUSTOM
+export EDITOR="/usr/bin/vim"
 
 # Go-related envs
 export GOPATH=$HOME/Go

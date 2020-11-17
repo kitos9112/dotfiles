@@ -18,9 +18,9 @@ sudo apt-get install -y \
               tmux
 {{- end -}}
 {{- if (eq .chezmoi.osRelease.id "rhel") -}}
-sudo dnf update
-sudo dnf upgrade -y
-sudo dnf install -y \
+sudo yum update
+sudo yum upgrade -y
+sudo yum install -y \
               curl \
               file \
               git \
@@ -51,7 +51,14 @@ sudo dnf install -y \
               openssl-devel \
               tk-devel \
               xz \
-              libffi-devel
+              g++ \
+              patch \
+              bison \
+              libffi-devel \
+              dnf-automatic
+
+# TODO - Modify `apply_updates = yes` in /etc/dnf/automatic.conf
+## And `systemctl enable --now dnf-automatic.timer`
 
 {{- end -}}
 {{- end -}}
