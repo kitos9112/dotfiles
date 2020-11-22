@@ -6,6 +6,8 @@ source {{ .chezmoi.sourceDir }}/.helpers.zsh
 ## powerlevel10k
 ## ZSH Syntax highlighting
 ## TMUX custom plugin
+## TFENV
+## TGENV
 
 declare -A plugins_map
 
@@ -22,18 +24,27 @@ TMUX_PLUGIN_DIR="${HOME}/.tmux"
 TMUX_PLUGIN_URL="https://github.com/gpakosz/.tmux.git"
 plugins_map[$TMUX_PLUGIN_DIR]=$TMUX_PLUGIN_URL
 
+TGENV_DIR="${HOME}/.tgenv"
+TGENV_URL="https://github.com/cunymatthieu/tgenv.git"
+plugins_map[$TGENV_DIR]=$TGENV_URL
+
+TFENV_DIR="${HOME}/.tfenv"
+TFENV_URL="https://github.com/tfutils/tfenv.git"
+plugins_map[$TFENV_DIR]=$TFENV_URL
+
 for key in "${(@k)plugins_map}"; do
   started "Checking whether $key directory exists..."
   if [ ! -d $key ]; then
     started "Running: git clone $plugins_map[$key] ${key}"
-    git clone $plugins_map[$key] ${key}
+    git clone $plugins_map[$key] ${key} >/dev/null 2>&1
     success "Git repo $plugins_map[$key] Cloned!"
   else
     started "Running: cd ${key} && git pull --rebase"
     cd ${key}
-    git pull --rebase
+    git pull --rebase >/dev/null 2>&1
     success "Git repo $plugins_map[$key] Pulled [--rebase]!"
   fi
 done
+
 
 {{- end -}}

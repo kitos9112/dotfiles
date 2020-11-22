@@ -1,0 +1,11 @@
+{{- if (eq .chezmoi.os "linux") -}}
+#! /bin/zsh
+
+source {{ .chezmoi.sourceDir }}/.helpers.zsh
+
+# Ensure we use the latest Terragrunt and Terraform by default
+
+echo -e "latest" > ${HOME}/.terraform-version
+echo -e "latest" > ${HOME}/.terragrunt-version
+
+{{- end -}}

@@ -11,6 +11,10 @@ export PATH=$GOBIN:$PATH
 export MANPATH="/usr/local/man:$MANPATH"
 export PYENV_ROOT="$HOME/.pyenv"
 
+# IaC-related
+export TFENV_AUTO_INSTAL=true
+export TGENV_AUTO_INSTALL=true
+
 # You may need to manually set your language environment
 export LANG=en_GB.UTF-8
 
