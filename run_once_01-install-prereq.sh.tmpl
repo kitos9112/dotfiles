@@ -55,8 +55,10 @@ sudo dnf install -y \
               patch \
               bison \
               libffi-devel \
-              dnf-automatic
-
+              dnf-automatic \
+              cronie \
+              cronie-anacron
+              
 # TODO - Modify `apply_updates = yes` in /etc/dnf/automatic.conf
 ## And `systemctl enable --now dnf-automatic.timer`
 
