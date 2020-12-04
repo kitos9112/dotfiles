@@ -15,5 +15,6 @@ brew install pyenv \
              kops \
              helm \
              k9s \
-             docker-credential-helper-ecr
+             docker-credential-helper-ecr || echo "Catching some errors"
+brew upgrade
 {{- end -}}
