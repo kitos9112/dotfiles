@@ -5,7 +5,7 @@ alias get-public-ip-dns="host myip.opendns.com resolver1.opendns.com | grep -oP 
 # Another cool way using `dig` --> dig TXT +short o-o.myaddr.l.google.com @ns1.google.com | awk -F'"' '{ print $2}'
 alias get-public-ip-wget="wget -qO- http://ipecho.net/plain | xargs echo"
 # AWS
-alias aws-get-instanceid='export AWS_EC2_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${AWS_EC2_INSTANCE_NAME}" --output text --query "Reservations[*].Instances[*].InstanceId") && echo ${AWS_EC2_INSTANCE_ID}'
+alias aws-get-instanceid="export AWS_EC2_INSTANCE_ID=\`aws ec2 describe-instances --filters \"Name=tag:Name,Values=${AWS_EC2_INSTANCE_NAME}\" --output text --query \"Reservations[*].Instances[*].InstanceId\"\` && echo ${AWS_EC2_INSTANCE_ID}"
 
 
 # Make an ssh key if not exists, and copy ssh key to clipboard
