@@ -6,7 +6,8 @@ alias get-public-ip-dns="host myip.opendns.com resolver1.opendns.com | grep -oP 
 alias get-public-ip-wget="wget -qO- http://ipecho.net/plain | xargs echo"
 # AWS
 alias aws-get-instanceid="export AWS_EC2_INSTANCE_ID=\`aws ec2 describe-instances --filters \"Name=tag:Name,Values=${AWS_EC2_INSTANCE_NAME}\" --output text --query \"Reservations[*].Instances[*].InstanceId\"\` && echo ${AWS_EC2_INSTANCE_ID}"
-
+# GIT
+alias git-tidyup='git branch --merged master | grep -v "^[ *]*master$" | xargs git branch -d'
 
 # Make an ssh key if not exists, and copy ssh key to clipboard
 # needs xclip to copy to system clipboard
