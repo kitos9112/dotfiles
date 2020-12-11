@@ -24,6 +24,7 @@ if [ ! "$(command -v chezmoi)" ]; then
   else
     error "To install chezmoi, you must have curl or wget."
   fi
+  export PATH=${bin_dir}:${PATH}
 else
   chezmoi=chezmoi
 fi
