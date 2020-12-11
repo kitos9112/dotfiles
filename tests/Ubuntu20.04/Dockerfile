@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM ubuntu:20.04
 
 ENV GIT_REPO=https://github.com/kitos9112/dotfiles.git
 ENV DEBIAN_FRONTEND=noninteractive
@@ -31,9 +31,8 @@ RUN mkdir -p /docker/.config/chezmoi \
 
 COPY ./tests/chezmoi.toml /docker/.config/chezmoi/
 
-ENTRYPOINT [ "/docker/entrypoint.sh" ]
-
 WORKDIR /docker
 
-ENV PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
-CMD ["sh", "-c", "chezmoi init --apply "]
+ENV PATH="/home/linuxbrew/.linuxbrew/bin:${HOME}/.local/bin:$PATH"
+
+ENTRYPOINT [ "/docker/entrypoint.sh" ]

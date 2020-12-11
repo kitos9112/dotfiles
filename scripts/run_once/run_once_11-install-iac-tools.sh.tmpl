@@ -1,17 +1,19 @@
 {{- if (eq .chezmoi.os "linux") -}}
 #! /bin/zsh
 
-source {{ .chezmoi.sourceDir }}/.helpers.zsh
+source {{ .chezmoi.sourceDir }}/scripts/.helpers.zsh
 
 # Ensure we use the latest Terragrunt and Terraform by default
 
+started "Configure the latest version of Terragrunt and Terraform"
 echo -e "latest" > ${HOME}/.terraform-version
 echo -e "latest" > ${HOME}/.terragrunt-version
 
-
 {{- if (eq .chezmoi.osRelease.id "fedora") -}}
+  started "Download the latest version of session-manager-plugin for AWS SSM"
   curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/linux_64bit/session-manager-plugin.rpm" -o "session-manager-plugin.rpm"
   sudo yum install -y session-manager-plugin.rpm
   rm -rf session-manager-plugin.rpm
+  success "Session-manager-plugin was correctly installed"
 {{- end -}}
 {{- end -}}

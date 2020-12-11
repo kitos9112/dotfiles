@@ -1,4 +1,4 @@
-FROM fedora
+FROM fedora:33
 
 RUN dnf update -y && dnf install -y \
     git \
@@ -21,13 +21,8 @@ USER docker
 
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
 
-RUN mkdir -p /docker/.config/chezmoi \
-    && curl -sfL https://git.io/chezmoi | sudo sh
-
-COPY ./tests/chezmoi.toml /docker/.config/chezmoi/
-
-ENTRYPOINT [ "/docker/entrypoint.sh" ]
-
 WORKDIR /docker
 
-CMD ["sh", "-c", "chezmoi apply"]
+ENV PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
+
+ENTRYPOINT [ "/docker/entrypoint.sh" ]

@@ -1,7 +1,7 @@
 # The following variables are only available within this file
 
 {{ $personalName := "Marcos Soutullo" -}}
-{{- $personalEmail := "marcossoutullo@gmail.com" -}}
+{{- $personalEmail := "marcos.soutullo91@gmail.com" -}}
 
 {{- $workName := "Marcos Soutullo Rodriguez" -}}
 {{- $workEmail := "marcos.soutullo@vodafone.com" -}}
@@ -40,9 +40,9 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
 
   {{- if or (lookPath "code") }}
   editor = "code --wait"
-  {{- else if lookPath "nano" }}
-  editor = "vim"
   {{- else if lookPath "vim" }}
+  editor = "vim"
+  {{- else if lookPath "nano" }}
   editor = "nano"
   {{- else }}
   editor = "vi"

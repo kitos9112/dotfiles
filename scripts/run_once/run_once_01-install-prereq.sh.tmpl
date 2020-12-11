@@ -6,17 +6,19 @@ set -ev pipefail
 sudo apt update
 sudo apt upgrade -y
 sudo apt-get install -y \
-              curl \
+              curl wget \
               file \
               git \
               direnv \
               jq \
               vim \
-              build-essential \
-              zlib1g-dev \
-              software-properties-common \
+              build-essential llvm liblzma-dev tk-dev lib1g-dev \
+              zlib1g-dev libbz2-dev libxmlsec1-dev xz-utils \
+              libreadline-dev libsqlite3-dev libxml2-dev \
+              software-properties-common libncurses5-dev \
               zsh \
               tmux
+
 {{- end -}}
 {{- if (eq .chezmoi.osRelease.id "rhel") -}}
 sudo yum update
