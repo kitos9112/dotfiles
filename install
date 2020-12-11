@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 echo_task() {
   printf "\033[0;34m--> %s\033[0m\n" "$*"

@@ -36,4 +36,4 @@ ENTRYPOINT [ "/docker/entrypoint.sh" ]
 WORKDIR /docker
 
 ENV PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
-CMD ["sh", "-c", "chezmoi apply"]
+CMD ["sh", "-c", "chezmoi init --apply "]
