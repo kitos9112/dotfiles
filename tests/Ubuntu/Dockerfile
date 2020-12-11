@@ -5,16 +5,16 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
 RUN apt-get -y install \
-                curl \
-                build-essential \
-                file \
-                git \
-                sudo \
-                sed \
-                findutils \
-                software-properties-common \
-                zsh
-                
+    curl \
+    build-essential \
+    file \
+    git \
+    sudo \
+    sed \
+    findutils \
+    software-properties-common \
+    zsh
+
 RUN useradd -m -s /bin/zsh -d /docker docker
 RUN echo "docker ALL=NOPASSWD: ALL" >> /etc/sudoers
 
@@ -35,4 +35,5 @@ ENTRYPOINT [ "/docker/entrypoint.sh" ]
 
 WORKDIR /docker
 
+ENV PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
 CMD ["sh", "-c", "chezmoi apply"]
