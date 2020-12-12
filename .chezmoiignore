@@ -12,3 +12,4 @@ settings.json
 tests/
 scripts/00_run_once/*
 scripts/99_run/*
+scripts/install_dotfiles.sh
