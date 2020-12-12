@@ -1,7 +1,7 @@
 README.md
 LICENSE
 Makefile
-install.sh
+install
 *.deb
 *.tar.gz
 .vscode
