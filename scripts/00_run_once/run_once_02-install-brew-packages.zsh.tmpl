@@ -8,13 +8,10 @@ which -a brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Ho
 
 # Ensure brew has been installed in its default place
 export PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}
-brew update
-brew install pyenv \
-             poetry \
-             kubernetes-cli \
-             kops \
-             helm \
-             k9s \
-             docker-credential-helper-ecr || echo "Catching some errors"
+brew update && brew install kubernetes-cli \
+                            kops \
+                            helm \
+                            k9s \
+                            docker-credential-helper-ecr || echo "Catching some errors"
 brew upgrade
 {{- end -}}

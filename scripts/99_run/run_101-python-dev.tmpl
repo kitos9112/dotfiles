@@ -1,0 +1,21 @@
+{{- if and (eq .chezmoi.os "linux") -}}
+#! /usr/bin/env bash
+
+set -ev pipefail
+
+SYSTEM_PYTHON_VERSION=3.8.6
+pyenv=${HOME}/.pyenv/bin/pyenv
+
+# Install if version not met
+if [[ $(${pyenv} version | awk '{print $1}') != $SYSTEM_PYTHON_VERSION ]]; then
+  ${pyenv} install ${SYSTEM_PYTHON_VERSION}
+  echo "${SYSTEM_PYTHON_VERSION}" > ${HOME}/.pyenv/version
+fi
+
+if [ ! -d $(${pyenv} root)/plugins/pyenv-virtualenv ]; then
+  git clone https://github.com/pyenv/pyenv-virtualenv.git $(${pyenv} root)/plugins/pyenv-virtualenv
+fi
+
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | ${HOME}/.pyenv/shims/python -
+
+{{- end -}}

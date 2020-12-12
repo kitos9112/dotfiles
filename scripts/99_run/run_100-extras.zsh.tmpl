@@ -33,6 +33,10 @@ TFENV_DIR="${HOME}/.tfenv"
 TFENV_URL="https://github.com/tfutils/tfenv.git"
 plugins_map[$TFENV_DIR]=$TFENV_URL
 
+PYENV_DIR="${HOME}/.pyenv"
+PYENV_URL="https://github.com/pyenv/pyenv.git"
+plugins_map[$PYENV_DIR]=$PYENV_URL
+
 for key in "${(@k)plugins_map}"; do
   started "Checking whether $key directory exists..."
   if [ ! -d $key ]; then
