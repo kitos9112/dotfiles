@@ -10,6 +10,4 @@ settings.json
 .oh-my-zsh-custom/themes/powerlevel10k/**
 .oh-my-zsh-custom/plugins/zsh-syntax-highlighting/**
 tests/
-scripts/00_run_once/*
-scripts/99_run/*
 scripts/install_dotfiles.sh
