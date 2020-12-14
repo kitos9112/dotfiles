@@ -32,6 +32,9 @@ export PATH=${HOME}/.tfenv/bin:${HOME}/.tgenv/bin:$HOME/.poetry/bin:${PATH}
 # Pyenv-related envs
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
+
+# direnv
+eval "$(direnv hook zsh)"
 if $(uname -a | grep -qPe "(M|m)icrosoft"); then
   # Hitting a WSL system :)
   export DISPLAY="$(/sbin/ip route | awk '/default/ { print $3 }'):0"
