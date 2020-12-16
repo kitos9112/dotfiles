@@ -16,6 +16,7 @@ if [ ! -d $(${pyenv} root)/plugins/pyenv-virtualenv ]; then
   git clone https://github.com/pyenv/pyenv-virtualenv.git $(${pyenv} root)/plugins/pyenv-virtualenv
 fi
 
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | ${HOME}/.pyenv/shims/python -
+python=$(which python)
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | ${python} -
 
 {{- end -}}
