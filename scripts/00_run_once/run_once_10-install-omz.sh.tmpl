@@ -12,5 +12,6 @@ fi
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --unattended" ||
 
 # Update Chezmoi completions
+mkdir -pv ${HOME}/.oh-my-zsh-custom/plugins/chezmoi
 chezmoi completion zsh --output ${HOME}/.oh-my-zsh-custom/plugins/chezmoi/_chezmoi
 {{- end -}}

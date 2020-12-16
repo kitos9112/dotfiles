@@ -21,6 +21,6 @@
 	program = gpg
 {{- if .is_work }}
 [http]
-        proxy = http://{{ .http_proxy }}
-        sslVerify = true
+  proxy = http://{{ .http_proxy }}
+  sslVerify = true
 {{- end }}
