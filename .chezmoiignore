@@ -7,6 +7,7 @@ install
 .vscode
 settings.json
 .ssh
+renovate.json
 .oh-my-zsh-custom/themes/powerlevel10k/**
 .oh-my-zsh-custom/plugins/zsh-syntax-highlighting/**
 tests/
