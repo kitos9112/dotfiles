@@ -1,0 +1,2102 @@
+#compdef _flux flux
+
+
+function _flux {
+  local -a commands
+
+  _arguments -C \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "bootstrap:Bootstrap toolkit components"
+      "check:Check requirements and installation"
+      "completion:Generates completion scripts for various shells"
+      "create:Create or update sources and resources"
+      "delete:Delete sources and resources"
+      "export:Export resources in YAML format"
+      "get:Get sources and resources"
+      "help:Help about any command"
+      "install:Install the toolkit components"
+      "reconcile:Reconcile sources and resources"
+      "resume:Resume suspended resources"
+      "suspend:Suspend resources"
+      "uninstall:Uninstall the toolkit components"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  bootstrap)
+    _flux_bootstrap
+    ;;
+  check)
+    _flux_check
+    ;;
+  completion)
+    _flux_completion
+    ;;
+  create)
+    _flux_create
+    ;;
+  delete)
+    _flux_delete
+    ;;
+  export)
+    _flux_export
+    ;;
+  get)
+    _flux_get
+    ;;
+  help)
+    _flux_help
+    ;;
+  install)
+    _flux_install
+    ;;
+  reconcile)
+    _flux_reconcile
+    ;;
+  resume)
+    _flux_resume
+    ;;
+  suspend)
+    _flux_suspend
+    ;;
+  uninstall)
+    _flux_uninstall
+    ;;
+  esac
+}
+
+
+function _flux_bootstrap {
+  local -a commands
+
+  _arguments -C \
+    '--arch[cluster architecture, available options are: (amd64, arm, arm64)]:' \
+    '--branch[default branch (for GitHub this must match the default branch setting for the organization)]:' \
+    '--cluster-domain[internal cluster domain]:' \
+    '*--components[list of components, accepts comma-separated values]:' \
+    '*--components-extra[list of components in addition to those supplied or defaulted, accepts comma-separated values]:' \
+    '--image-pull-secret[Kubernetes secret name used for pulling the toolkit images from a private registry]:' \
+    '--log-level[log level, available options are: (debug, info, error)]:' \
+    '--network-policy[deny ingress access to the toolkit controllers from other namespaces using network policies]' \
+    '--registry[container registry where the toolkit images are published]:' \
+    '--token-auth[when enabled, the personal access token will be used instead of SSH deploy key]' \
+    '(-v --version)'{-v,--version}'[toolkit version]:' \
+    '--watch-all-namespaces[watch for custom resources in all namespaces, if set to false it will only watch the namespace where the toolkit is installed]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "github:Bootstrap toolkit components in a GitHub repository"
+      "gitlab:Bootstrap toolkit components in a GitLab repository"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  github)
+    _flux_bootstrap_github
+    ;;
+  gitlab)
+    _flux_bootstrap_gitlab
+    ;;
+  esac
+}
+
+function _flux_bootstrap_github {
+  _arguments \
+    '--hostname[GitHub hostname]:' \
+    '--interval[sync interval]:' \
+    '--owner[GitHub user or organization name]:' \
+    '--path[path relative to the repository root, when specified the cluster sync will be scoped to this path]:' \
+    '--personal[is personal repository]' \
+    '--private[is private repository]' \
+    '--repository[GitHub repository name]:' \
+    '--ssh-hostname[GitHub SSH hostname, to be used when the SSH host differs from the HTTPS one]:' \
+    '*--team[GitHub team to be given maintainer access]:' \
+    '--arch[cluster architecture, available options are: (amd64, arm, arm64)]:' \
+    '--branch[default branch (for GitHub this must match the default branch setting for the organization)]:' \
+    '--cluster-domain[internal cluster domain]:' \
+    '*--components[list of components, accepts comma-separated values]:' \
+    '*--components-extra[list of components in addition to those supplied or defaulted, accepts comma-separated values]:' \
+    '--context[kubernetes context to use]:' \
+    '--image-pull-secret[Kubernetes secret name used for pulling the toolkit images from a private registry]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '--log-level[log level, available options are: (debug, info, error)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--network-policy[deny ingress access to the toolkit controllers from other namespaces using network policies]' \
+    '--registry[container registry where the toolkit images are published]:' \
+    '--timeout[timeout for this operation]:' \
+    '--token-auth[when enabled, the personal access token will be used instead of SSH deploy key]' \
+    '--verbose[print generated objects]' \
+    '(-v --version)'{-v,--version}'[toolkit version]:' \
+    '--watch-all-namespaces[watch for custom resources in all namespaces, if set to false it will only watch the namespace where the toolkit is installed]'
+}
+
+function _flux_bootstrap_gitlab {
+  _arguments \
+    '--hostname[GitLab hostname]:' \
+    '--interval[sync interval]:' \
+    '--owner[GitLab user or group name]:' \
+    '--path[path relative to the repository root, when specified the cluster sync will be scoped to this path]:' \
+    '--personal[is personal repository]' \
+    '--private[is private repository]' \
+    '--repository[GitLab repository name]:' \
+    '--ssh-hostname[GitLab SSH hostname, to be used when the SSH host differs from the HTTPS one]:' \
+    '--arch[cluster architecture, available options are: (amd64, arm, arm64)]:' \
+    '--branch[default branch (for GitHub this must match the default branch setting for the organization)]:' \
+    '--cluster-domain[internal cluster domain]:' \
+    '*--components[list of components, accepts comma-separated values]:' \
+    '*--components-extra[list of components in addition to those supplied or defaulted, accepts comma-separated values]:' \
+    '--context[kubernetes context to use]:' \
+    '--image-pull-secret[Kubernetes secret name used for pulling the toolkit images from a private registry]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '--log-level[log level, available options are: (debug, info, error)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--network-policy[deny ingress access to the toolkit controllers from other namespaces using network policies]' \
+    '--registry[container registry where the toolkit images are published]:' \
+    '--timeout[timeout for this operation]:' \
+    '--token-auth[when enabled, the personal access token will be used instead of SSH deploy key]' \
+    '--verbose[print generated objects]' \
+    '(-v --version)'{-v,--version}'[toolkit version]:' \
+    '--watch-all-namespaces[watch for custom resources in all namespaces, if set to false it will only watch the namespace where the toolkit is installed]'
+}
+
+function _flux_check {
+  _arguments \
+    '*--components[list of components, accepts comma-separated values]:' \
+    '--pre[only run pre-installation checks]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_completion {
+  local -a commands
+
+  _arguments -C \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "bash:Generates bash completion scripts"
+      "fish:Generates fish completion scripts"
+      "powershell:Generates powershell completion scripts"
+      "zsh:Generates zsh completion scripts"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  bash)
+    _flux_completion_bash
+    ;;
+  fish)
+    _flux_completion_fish
+    ;;
+  powershell)
+    _flux_completion_powershell
+    ;;
+  zsh)
+    _flux_completion_zsh
+    ;;
+  esac
+}
+
+function _flux_completion_bash {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_completion_fish {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_completion_powershell {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_completion_zsh {
+  _arguments \
+    '(-h --help)'{-h,--help}'[help for zsh]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_create {
+  local -a commands
+
+  _arguments -C \
+    '--export[export in YAML format to stdout]' \
+    '--interval[source sync interval]:' \
+    '*--label[set labels on the resource (can specify multiple labels with commas: label1=value1,label2=value2)]:' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "alert:Create or update a Alert resource"
+      "alert-provider:Create or update a Provider resource"
+      "helmrelease:Create or update a HelmRelease resource"
+      "image:Create or update resources dealing with image automation"
+      "kustomization:Create or update a Kustomization resource"
+      "receiver:Create or update a Receiver resource"
+      "secret:Create or update Kubernetes secrets"
+      "source:Create or update sources"
+      "tenant:Create or update a tenant"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  alert)
+    _flux_create_alert
+    ;;
+  alert-provider)
+    _flux_create_alert-provider
+    ;;
+  helmrelease)
+    _flux_create_helmrelease
+    ;;
+  image)
+    _flux_create_image
+    ;;
+  kustomization)
+    _flux_create_kustomization
+    ;;
+  receiver)
+    _flux_create_receiver
+    ;;
+  secret)
+    _flux_create_secret
+    ;;
+  source)
+    _flux_create_source
+    ;;
+  tenant)
+    _flux_create_tenant
+    ;;
+  esac
+}
+
+function _flux_create_alert {
+  _arguments \
+    '--event-severity[severity of events to send alerts for]:' \
+    '*--event-source[sources that should generate alerts (<kind>/<name>)]:' \
+    '--provider-ref[reference to provider]:' \
+    '--context[kubernetes context to use]:' \
+    '--export[export in YAML format to stdout]' \
+    '--interval[source sync interval]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '*--label[set labels on the resource (can specify multiple labels with commas: label1=value1,label2=value2)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_create_alert-provider {
+  _arguments \
+    '--address[path to either the git repository, chat provider or webhook]:' \
+    '--channel[channel to send messages to in the case of a chat provider]:' \
+    '--secret-ref[name of secret containing authentication token]:' \
+    '--type[type of provider]:' \
+    '--username[bot username used by the provider]:' \
+    '--context[kubernetes context to use]:' \
+    '--export[export in YAML format to stdout]' \
+    '--interval[source sync interval]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '*--label[set labels on the resource (can specify multiple labels with commas: label1=value1,label2=value2)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_create_helmrelease {
+  _arguments \
+    '--chart[Helm chart name or path]:' \
+    '--chart-version[Helm chart version, accepts a semver range (ignored for charts from GitRepository sources)]:' \
+    '*--depends-on[HelmReleases that must be ready before this release can be installed, supported formats '\''<name>'\'' and '\''<namespace>/<name>'\'']:' \
+    '--release-name[name used for the Helm release, defaults to a composition of '\''[<target-namespace>-]<HelmRelease-name>'\'']:' \
+    '--service-account[the name of the service account to impersonate when reconciling this HelmRelease]:' \
+    '--source[source that contains the chart in the format '\''<kind>/<name>'\'', where kind must be one of: (HelmRepository, GitRepository, Bucket)]:' \
+    '--target-namespace[namespace to install this release, defaults to the HelmRelease namespace]:' \
+    '--values[local path to the values.yaml file]:' \
+    '--values-from[Kubernetes object reference that contains the values.yaml data key in the format '\''<kind>/<name>'\'', where kind must be one of: (Secret, ConfigMap)]:' \
+    '--context[kubernetes context to use]:' \
+    '--export[export in YAML format to stdout]' \
+    '--interval[source sync interval]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '*--label[set labels on the resource (can specify multiple labels with commas: label1=value1,label2=value2)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_create_image {
+  local -a commands
+
+  _arguments -C \
+    '--context[kubernetes context to use]:' \
+    '--export[export in YAML format to stdout]' \
+    '--interval[source sync interval]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '*--label[set labels on the resource (can specify multiple labels with commas: label1=value1,label2=value2)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "policy:Create or update an ImagePolicy object"
+      "repository:Create or update an ImageRepository object"
+      "update:Create or update an ImageUpdateAutomation object"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  policy)
+    _flux_create_image_policy
+    ;;
+  repository)
+    _flux_create_image_repository
+    ;;
+  update)
+    _flux_create_image_update
+    ;;
+  esac
+}
+
+function _flux_create_image_policy {
+  _arguments \
+    '--image-ref[the name of an image repository object]:' \
+    '--semver[a semver range to apply to tags; e.g., '\''1.x'\'']:' \
+    '--context[kubernetes context to use]:' \
+    '--export[export in YAML format to stdout]' \
+    '--interval[source sync interval]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '*--label[set labels on the resource (can specify multiple labels with commas: label1=value1,label2=value2)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_create_image_repository {
+  _arguments \
+    '--image[the image repository to scan; e.g., library/alpine]:' \
+    '--scan-timeout[a timeout for scanning; this defaults to the interval if not set]:' \
+    '--secret-ref[the name of a docker-registry secret to use for credentials]:' \
+    '--context[kubernetes context to use]:' \
+    '--export[export in YAML format to stdout]' \
+    '--interval[source sync interval]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '*--label[set labels on the resource (can specify multiple labels with commas: label1=value1,label2=value2)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_create_image_update {
+  _arguments \
+    '--author-email[the email to use for commit author]:' \
+    '--author-name[the name to use for commit author]:' \
+    '--branch[the branch to push commits to]:' \
+    '--commit-template[a template for commit messages]:' \
+    '--git-repo-ref[the name of a GitRepository resource with details of the upstream git repository]:' \
+    '--context[kubernetes context to use]:' \
+    '--export[export in YAML format to stdout]' \
+    '--interval[source sync interval]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '*--label[set labels on the resource (can specify multiple labels with commas: label1=value1,label2=value2)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_create_kustomization {
+  _arguments \
+    '--decryption-provider[decryption provider, available options are: (sops)]:' \
+    '--decryption-secret[set the Kubernetes secret name that contains the OpenPGP private keys used for sops decryption]:' \
+    '*--depends-on[Kustomization that must be ready before this Kustomization can be applied, supported formats '\''<name>'\'' and '\''<namespace>/<name>'\'']:' \
+    '*--health-check[workload to be included in the health assessment, in the format '\''<kind>/<name>.<namespace>'\'']:' \
+    '--health-check-timeout[timeout of health checking operations]:' \
+    '--path[path to the directory containing a kustomization.yaml file]:' \
+    '--prune[enable garbage collection]' \
+    '--service-account[the name of the service account to impersonate when reconciling this Kustomization]:' \
+    '--source[source that contains the Kubernetes manifests in the format '\''[<kind>/]<name>'\'', where kind must be one of: (GitRepository, Bucket), if kind is not specified it defaults to GitRepository]:' \
+    '--target-namespace[overrides the namespace of all Kustomization objects reconciled by this Kustomization]:' \
+    '--validation[validate the manifests before applying them on the cluster, can be '\''client'\'' or '\''server'\'']:' \
+    '--context[kubernetes context to use]:' \
+    '--export[export in YAML format to stdout]' \
+    '--interval[source sync interval]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '*--label[set labels on the resource (can specify multiple labels with commas: label1=value1,label2=value2)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_create_receiver {
+  _arguments \
+    '*--event[]:' \
+    '*--resource[]:' \
+    '--secret-ref[]:' \
+    '--type[]:' \
+    '--context[kubernetes context to use]:' \
+    '--export[export in YAML format to stdout]' \
+    '--interval[source sync interval]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '*--label[set labels on the resource (can specify multiple labels with commas: label1=value1,label2=value2)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_create_secret {
+  local -a commands
+
+  _arguments -C \
+    '--context[kubernetes context to use]:' \
+    '--export[export in YAML format to stdout]' \
+    '--interval[source sync interval]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '*--label[set labels on the resource (can specify multiple labels with commas: label1=value1,label2=value2)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "git:Create or update a Kubernetes secret for Git authentication"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  git)
+    _flux_create_secret_git
+    ;;
+  esac
+}
+
+function _flux_create_secret_git {
+  _arguments \
+    '(-p --password)'{-p,--password}'[basic authentication password]:' \
+    '--ssh-ecdsa-curve[SSH ECDSA public key curve (p256, p384, p521)]:' \
+    '--ssh-key-algorithm[SSH public key algorithm (rsa, ecdsa, ed25519)]:' \
+    '--ssh-rsa-bits[SSH RSA public key bit size (multiplies of 8)]:' \
+    '--url[git address, e.g. ssh://git@host/org/repository]:' \
+    '(-u --username)'{-u,--username}'[basic authentication username]:' \
+    '--context[kubernetes context to use]:' \
+    '--export[export in YAML format to stdout]' \
+    '--interval[source sync interval]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '*--label[set labels on the resource (can specify multiple labels with commas: label1=value1,label2=value2)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_create_source {
+  local -a commands
+
+  _arguments -C \
+    '--context[kubernetes context to use]:' \
+    '--export[export in YAML format to stdout]' \
+    '--interval[source sync interval]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '*--label[set labels on the resource (can specify multiple labels with commas: label1=value1,label2=value2)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "bucket:Create or update a Bucket source"
+      "git:Create or update a GitRepository source"
+      "helm:Create or update a HelmRepository source"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  bucket)
+    _flux_create_source_bucket
+    ;;
+  git)
+    _flux_create_source_git
+    ;;
+  helm)
+    _flux_create_source_helm
+    ;;
+  esac
+}
+
+function _flux_create_source_bucket {
+  _arguments \
+    '--access-key[the bucket access key]:' \
+    '--bucket-name[the bucket name]:' \
+    '--endpoint[the bucket endpoint address]:' \
+    '--insecure[for when connecting to a non-TLS S3 HTTP endpoint]' \
+    '--provider[the S3 compatible storage provider name, available options are: (generic, aws)]:' \
+    '--region[the bucket region]:' \
+    '--secret-key[the bucket secret key]:' \
+    '--secret-ref[the name of an existing secret containing credentials]:' \
+    '--context[kubernetes context to use]:' \
+    '--export[export in YAML format to stdout]' \
+    '--interval[source sync interval]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '*--label[set labels on the resource (can specify multiple labels with commas: label1=value1,label2=value2)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_create_source_git {
+  _arguments \
+    '--branch[git branch]:' \
+    '--git-implementation[the git implementation to use, can be '\''go-git'\'' or '\''libgit2'\'']:' \
+    '(-p --password)'{-p,--password}'[basic authentication password]:' \
+    '--secret-ref[the name of an existing secret containing SSH or basic credentials]:' \
+    '--ssh-ecdsa-curve[SSH ECDSA public key curve (p256, p384, p521)]:' \
+    '--ssh-key-algorithm[SSH public key algorithm (rsa, ecdsa, ed25519)]:' \
+    '--ssh-rsa-bits[SSH RSA public key bit size (multiplies of 8)]:' \
+    '--tag[git tag]:' \
+    '--tag-semver[git tag semver range]:' \
+    '--url[git address, e.g. ssh://git@host/org/repository]:' \
+    '(-u --username)'{-u,--username}'[basic authentication username]:' \
+    '--context[kubernetes context to use]:' \
+    '--export[export in YAML format to stdout]' \
+    '--interval[source sync interval]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '*--label[set labels on the resource (can specify multiple labels with commas: label1=value1,label2=value2)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_create_source_helm {
+  _arguments \
+    '--ca-file[TLS authentication CA file path]:' \
+    '--cert-file[TLS authentication cert file path]:' \
+    '--key-file[TLS authentication key file path]:' \
+    '(-p --password)'{-p,--password}'[basic authentication password]:' \
+    '--secret-ref[the name of an existing secret containing TLS or basic auth credentials]:' \
+    '--url[Helm repository address]:' \
+    '(-u --username)'{-u,--username}'[basic authentication username]:' \
+    '--context[kubernetes context to use]:' \
+    '--export[export in YAML format to stdout]' \
+    '--interval[source sync interval]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '*--label[set labels on the resource (can specify multiple labels with commas: label1=value1,label2=value2)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_create_tenant {
+  _arguments \
+    '--cluster-role[cluster role of the tenant role binding]:' \
+    '*--with-namespace[namespace belonging to this tenant]:' \
+    '--context[kubernetes context to use]:' \
+    '--export[export in YAML format to stdout]' \
+    '--interval[source sync interval]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '*--label[set labels on the resource (can specify multiple labels with commas: label1=value1,label2=value2)]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_delete {
+  local -a commands
+
+  _arguments -C \
+    '(-s --silent)'{-s,--silent}'[delete resource without asking for confirmation]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "alert:Delete a Alert resource"
+      "alert-provider:Delete a Provider resource"
+      "auto:Delete automation objects"
+      "helmrelease:Delete a HelmRelease resource"
+      "kustomization:Delete a Kustomization resource"
+      "receiver:Delete a Receiver resource"
+      "source:Delete sources"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  alert)
+    _flux_delete_alert
+    ;;
+  alert-provider)
+    _flux_delete_alert-provider
+    ;;
+  auto)
+    _flux_delete_auto
+    ;;
+  helmrelease)
+    _flux_delete_helmrelease
+    ;;
+  kustomization)
+    _flux_delete_kustomization
+    ;;
+  receiver)
+    _flux_delete_receiver
+    ;;
+  source)
+    _flux_delete_source
+    ;;
+  esac
+}
+
+function _flux_delete_alert {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '(-s --silent)'{-s,--silent}'[delete resource without asking for confirmation]' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_delete_alert-provider {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '(-s --silent)'{-s,--silent}'[delete resource without asking for confirmation]' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_delete_auto {
+  local -a commands
+
+  _arguments -C \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '(-s --silent)'{-s,--silent}'[delete resource without asking for confirmation]' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "image-policy:Delete an ImagePolicy object"
+      "image-repository:Delete an ImageRepository object"
+      "image-update:Delete an ImageUpdateAutomation object"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  image-policy)
+    _flux_delete_auto_image-policy
+    ;;
+  image-repository)
+    _flux_delete_auto_image-repository
+    ;;
+  image-update)
+    _flux_delete_auto_image-update
+    ;;
+  esac
+}
+
+function _flux_delete_auto_image-policy {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '(-s --silent)'{-s,--silent}'[delete resource without asking for confirmation]' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_delete_auto_image-repository {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '(-s --silent)'{-s,--silent}'[delete resource without asking for confirmation]' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_delete_auto_image-update {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '(-s --silent)'{-s,--silent}'[delete resource without asking for confirmation]' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_delete_helmrelease {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '(-s --silent)'{-s,--silent}'[delete resource without asking for confirmation]' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_delete_kustomization {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '(-s --silent)'{-s,--silent}'[delete resource without asking for confirmation]' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_delete_receiver {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '(-s --silent)'{-s,--silent}'[delete resource without asking for confirmation]' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_delete_source {
+  local -a commands
+
+  _arguments -C \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '(-s --silent)'{-s,--silent}'[delete resource without asking for confirmation]' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "bucket:Delete a Bucket source"
+      "git:Delete a GitRepository source"
+      "helm:Delete a HelmRepository source"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  bucket)
+    _flux_delete_source_bucket
+    ;;
+  git)
+    _flux_delete_source_git
+    ;;
+  helm)
+    _flux_delete_source_helm
+    ;;
+  esac
+}
+
+function _flux_delete_source_bucket {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '(-s --silent)'{-s,--silent}'[delete resource without asking for confirmation]' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_delete_source_git {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '(-s --silent)'{-s,--silent}'[delete resource without asking for confirmation]' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_delete_source_helm {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '(-s --silent)'{-s,--silent}'[delete resource without asking for confirmation]' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_export {
+  local -a commands
+
+  _arguments -C \
+    '--all[select all resources]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "alert:Export Alert resources in YAML format"
+      "alert-provider:Export Provider resources in YAML format"
+      "helmrelease:Export HelmRelease resources in YAML format"
+      "image:Export image automation objects"
+      "kustomization:Export Kustomization resources in YAML format"
+      "receiver:Export Receiver resources in YAML format"
+      "source:Export sources"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  alert)
+    _flux_export_alert
+    ;;
+  alert-provider)
+    _flux_export_alert-provider
+    ;;
+  helmrelease)
+    _flux_export_helmrelease
+    ;;
+  image)
+    _flux_export_image
+    ;;
+  kustomization)
+    _flux_export_kustomization
+    ;;
+  receiver)
+    _flux_export_receiver
+    ;;
+  source)
+    _flux_export_source
+    ;;
+  esac
+}
+
+function _flux_export_alert {
+  _arguments \
+    '--all[select all resources]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_export_alert-provider {
+  _arguments \
+    '--all[select all resources]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_export_helmrelease {
+  _arguments \
+    '--all[select all resources]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_export_image {
+  local -a commands
+
+  _arguments -C \
+    '--all[select all resources]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "policy:Export ImagePolicy resources in YAML format"
+      "repository:Export ImageRepository resources in YAML format"
+      "update:Export ImageUpdateAutomation resources in YAML format"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  policy)
+    _flux_export_image_policy
+    ;;
+  repository)
+    _flux_export_image_repository
+    ;;
+  update)
+    _flux_export_image_update
+    ;;
+  esac
+}
+
+function _flux_export_image_policy {
+  _arguments \
+    '--all[select all resources]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_export_image_repository {
+  _arguments \
+    '--all[select all resources]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_export_image_update {
+  _arguments \
+    '--all[select all resources]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_export_kustomization {
+  _arguments \
+    '--all[select all resources]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_export_receiver {
+  _arguments \
+    '--all[select all resources]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_export_source {
+  local -a commands
+
+  _arguments -C \
+    '--with-credentials[include credential secrets]' \
+    '--all[select all resources]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "bucket:Export Bucket sources in YAML format"
+      "git:Export GitRepository sources in YAML format"
+      "helm:Export HelmRepository sources in YAML format"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  bucket)
+    _flux_export_source_bucket
+    ;;
+  git)
+    _flux_export_source_git
+    ;;
+  helm)
+    _flux_export_source_helm
+    ;;
+  esac
+}
+
+function _flux_export_source_bucket {
+  _arguments \
+    '--all[select all resources]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    '--with-credentials[include credential secrets]'
+}
+
+function _flux_export_source_git {
+  _arguments \
+    '--all[select all resources]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    '--with-credentials[include credential secrets]'
+}
+
+function _flux_export_source_helm {
+  _arguments \
+    '--all[select all resources]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    '--with-credentials[include credential secrets]'
+}
+
+
+function _flux_get {
+  local -a commands
+
+  _arguments -C \
+    '(-A --all-namespaces)'{-A,--all-namespaces}'[list the requested object(s) across all namespaces]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "alert-providers:Get Provider statuses"
+      "alerts:Get Alert statuses"
+      "helmreleases:Get HelmRelease statuses"
+      "image:Get image automation object status"
+      "kustomizations:Get Kustomization statuses"
+      "receivers:Get Receiver statuses"
+      "sources:Get source statuses"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  alert-providers)
+    _flux_get_alert-providers
+    ;;
+  alerts)
+    _flux_get_alerts
+    ;;
+  helmreleases)
+    _flux_get_helmreleases
+    ;;
+  image)
+    _flux_get_image
+    ;;
+  kustomizations)
+    _flux_get_kustomizations
+    ;;
+  receivers)
+    _flux_get_receivers
+    ;;
+  sources)
+    _flux_get_sources
+    ;;
+  esac
+}
+
+function _flux_get_alert-providers {
+  _arguments \
+    '(-A --all-namespaces)'{-A,--all-namespaces}'[list the requested object(s) across all namespaces]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_get_alerts {
+  _arguments \
+    '(-A --all-namespaces)'{-A,--all-namespaces}'[list the requested object(s) across all namespaces]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_get_helmreleases {
+  _arguments \
+    '(-A --all-namespaces)'{-A,--all-namespaces}'[list the requested object(s) across all namespaces]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_get_image {
+  local -a commands
+
+  _arguments -C \
+    '(-A --all-namespaces)'{-A,--all-namespaces}'[list the requested object(s) across all namespaces]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "policy:Get ImagePolicy status"
+      "repository:Get ImageRepository status"
+      "update:Get ImageUpdateAutomation status"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  policy)
+    _flux_get_image_policy
+    ;;
+  repository)
+    _flux_get_image_repository
+    ;;
+  update)
+    _flux_get_image_update
+    ;;
+  esac
+}
+
+function _flux_get_image_policy {
+  _arguments \
+    '(-A --all-namespaces)'{-A,--all-namespaces}'[list the requested object(s) across all namespaces]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_get_image_repository {
+  _arguments \
+    '(-A --all-namespaces)'{-A,--all-namespaces}'[list the requested object(s) across all namespaces]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_get_image_update {
+  _arguments \
+    '(-A --all-namespaces)'{-A,--all-namespaces}'[list the requested object(s) across all namespaces]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_get_kustomizations {
+  _arguments \
+    '(-A --all-namespaces)'{-A,--all-namespaces}'[list the requested object(s) across all namespaces]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_get_receivers {
+  _arguments \
+    '(-A --all-namespaces)'{-A,--all-namespaces}'[list the requested object(s) across all namespaces]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_get_sources {
+  local -a commands
+
+  _arguments -C \
+    '(-A --all-namespaces)'{-A,--all-namespaces}'[list the requested object(s) across all namespaces]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "bucket:Get Bucket source statuses"
+      "chart:Get HelmChart statuses"
+      "git:Get GitRepository source statuses"
+      "helm:Get HelmRepository source statuses"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  bucket)
+    _flux_get_sources_bucket
+    ;;
+  chart)
+    _flux_get_sources_chart
+    ;;
+  git)
+    _flux_get_sources_git
+    ;;
+  helm)
+    _flux_get_sources_helm
+    ;;
+  esac
+}
+
+function _flux_get_sources_bucket {
+  _arguments \
+    '(-A --all-namespaces)'{-A,--all-namespaces}'[list the requested object(s) across all namespaces]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_get_sources_chart {
+  _arguments \
+    '(-A --all-namespaces)'{-A,--all-namespaces}'[list the requested object(s) across all namespaces]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_get_sources_git {
+  _arguments \
+    '(-A --all-namespaces)'{-A,--all-namespaces}'[list the requested object(s) across all namespaces]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_get_sources_helm {
+  _arguments \
+    '(-A --all-namespaces)'{-A,--all-namespaces}'[list the requested object(s) across all namespaces]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_help {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_install {
+  _arguments \
+    '--arch[cluster architecture, available options are: (amd64, arm, arm64)]:' \
+    '--cluster-domain[internal cluster domain]:' \
+    '*--components[list of components, accepts comma-separated values]:' \
+    '*--components-extra[list of components in addition to those supplied or defaulted, accepts comma-separated values]:' \
+    '--dry-run[only print the object that would be applied]' \
+    '--export[write the install manifests to stdout and exit]' \
+    '--image-pull-secret[Kubernetes secret name used for pulling the toolkit images from a private registry]:' \
+    '--log-level[log level, available options are: (debug, info, error)]:' \
+    '--network-policy[deny ingress access to the toolkit controllers from other namespaces using network policies]' \
+    '--registry[container registry where the toolkit images are published]:' \
+    '(-v --version)'{-v,--version}'[toolkit version]:' \
+    '--watch-all-namespaces[watch for custom resources in all namespaces, if set to false it will only watch the namespace where the toolkit is installed]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_reconcile {
+  local -a commands
+
+  _arguments -C \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "alert:Reconcile an Alert"
+      "alert-provider:Reconcile a Provider"
+      "helmrelease:Reconcile a HelmRelease resource"
+      "image:Reconcile image automation objects"
+      "kustomization:Reconcile a Kustomization resource"
+      "receiver:Reconcile a Receiver"
+      "source:Reconcile sources"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  alert)
+    _flux_reconcile_alert
+    ;;
+  alert-provider)
+    _flux_reconcile_alert-provider
+    ;;
+  helmrelease)
+    _flux_reconcile_helmrelease
+    ;;
+  image)
+    _flux_reconcile_image
+    ;;
+  kustomization)
+    _flux_reconcile_kustomization
+    ;;
+  receiver)
+    _flux_reconcile_receiver
+    ;;
+  source)
+    _flux_reconcile_source
+    ;;
+  esac
+}
+
+function _flux_reconcile_alert {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_reconcile_alert-provider {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_reconcile_helmrelease {
+  _arguments \
+    '--with-source[reconcile HelmRelease source]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_reconcile_image {
+  local -a commands
+
+  _arguments -C \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "repository:Reconcile an ImageRepository"
+      "update:Reconcile an ImageUpdateAutomation"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  repository)
+    _flux_reconcile_image_repository
+    ;;
+  update)
+    _flux_reconcile_image_update
+    ;;
+  esac
+}
+
+function _flux_reconcile_image_repository {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_reconcile_image_update {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_reconcile_kustomization {
+  _arguments \
+    '--with-source[reconcile Kustomization source]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_reconcile_receiver {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_reconcile_source {
+  local -a commands
+
+  _arguments -C \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "bucket:Reconcile a Bucket source"
+      "git:Reconcile a GitRepository source"
+      "helm:Reconcile a HelmRepository source"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  bucket)
+    _flux_reconcile_source_bucket
+    ;;
+  git)
+    _flux_reconcile_source_git
+    ;;
+  helm)
+    _flux_reconcile_source_helm
+    ;;
+  esac
+}
+
+function _flux_reconcile_source_bucket {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_reconcile_source_git {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_reconcile_source_helm {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_resume {
+  local -a commands
+
+  _arguments -C \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "alert:Resume a suspended Alert"
+      "helmrelease:Resume a suspended HelmRelease"
+      "image:Resume image automation objects"
+      "kustomization:Resume a suspended Kustomization"
+      "receiver:Resume a suspended Receiver"
+      "source:Resume sources"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  alert)
+    _flux_resume_alert
+    ;;
+  helmrelease)
+    _flux_resume_helmrelease
+    ;;
+  image)
+    _flux_resume_image
+    ;;
+  kustomization)
+    _flux_resume_kustomization
+    ;;
+  receiver)
+    _flux_resume_receiver
+    ;;
+  source)
+    _flux_resume_source
+    ;;
+  esac
+}
+
+function _flux_resume_alert {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_resume_helmrelease {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_resume_image {
+  local -a commands
+
+  _arguments -C \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "repository:Resume a suspended ImageRepository"
+      "update:Resume a suspended ImageUpdateAutomation"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  repository)
+    _flux_resume_image_repository
+    ;;
+  update)
+    _flux_resume_image_update
+    ;;
+  esac
+}
+
+function _flux_resume_image_repository {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_resume_image_update {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_resume_kustomization {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_resume_receiver {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_resume_source {
+  local -a commands
+
+  _arguments -C \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "bucket:Resume a suspended Bucket"
+      "chart:Resume a suspended HelmChart"
+      "git:Resume a suspended GitRepository"
+      "helm:Resume a suspended HelmRepository"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  bucket)
+    _flux_resume_source_bucket
+    ;;
+  chart)
+    _flux_resume_source_chart
+    ;;
+  git)
+    _flux_resume_source_git
+    ;;
+  helm)
+    _flux_resume_source_helm
+    ;;
+  esac
+}
+
+function _flux_resume_source_bucket {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_resume_source_chart {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_resume_source_git {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_resume_source_helm {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_suspend {
+  local -a commands
+
+  _arguments -C \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "alert:Suspend reconciliation of Alert"
+      "helmrelease:Suspend reconciliation of HelmRelease"
+      "image:Suspend image automation objects"
+      "kustomization:Suspend reconciliation of Kustomization"
+      "receiver:Suspend reconciliation of Receiver"
+      "source:Suspend sources"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  alert)
+    _flux_suspend_alert
+    ;;
+  helmrelease)
+    _flux_suspend_helmrelease
+    ;;
+  image)
+    _flux_suspend_image
+    ;;
+  kustomization)
+    _flux_suspend_kustomization
+    ;;
+  receiver)
+    _flux_suspend_receiver
+    ;;
+  source)
+    _flux_suspend_source
+    ;;
+  esac
+}
+
+function _flux_suspend_alert {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_suspend_helmrelease {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_suspend_image {
+  local -a commands
+
+  _arguments -C \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "repository:Suspend reconciliation of an ImageRepository"
+      "update:Suspend reconciliation of an ImageUpdateAutomation"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  repository)
+    _flux_suspend_image_repository
+    ;;
+  update)
+    _flux_suspend_image_update
+    ;;
+  esac
+}
+
+function _flux_suspend_image_repository {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_suspend_image_update {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_suspend_kustomization {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_suspend_receiver {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+
+function _flux_suspend_source {
+  local -a commands
+
+  _arguments -C \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "bucket:Suspend reconciliation of a Bucket"
+      "chart:Suspend reconciliation of a HelmChart"
+      "git:Suspend reconciliation of a GitRepository"
+      "helm:Suspend reconciliation of a HelmRepository"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  bucket)
+    _flux_suspend_source_bucket
+    ;;
+  chart)
+    _flux_suspend_source_chart
+    ;;
+  git)
+    _flux_suspend_source_git
+    ;;
+  helm)
+    _flux_suspend_source_helm
+    ;;
+  esac
+}
+
+function _flux_suspend_source_bucket {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_suspend_source_chart {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_suspend_source_git {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_suspend_source_helm {
+  _arguments \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
+function _flux_uninstall {
+  _arguments \
+    '--crds[removes all CRDs previously installed]' \
+    '--dry-run[only print the object that would be deleted]' \
+    '--resources[removes custom resources such as Kustomizations, GitRepositories and HelmRepositories]' \
+    '(-s --silent)'{-s,--silent}'[delete components without asking for confirmation]' \
+    '--context[kubernetes context to use]:' \
+    '--kubeconfig[path to the kubeconfig file]:' \
+    '(-n --namespace)'{-n,--namespace}'[the namespace scope for this operation]:' \
+    '--timeout[timeout for this operation]:' \
+    '--verbose[print generated objects]'
+}
+
