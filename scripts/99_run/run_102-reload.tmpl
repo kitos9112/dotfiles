@@ -1,0 +1,8 @@
+{{- if and (eq .chezmoi.os "linux") -}}
+#! /usr/bin/env zsh
+
+set -ev pipefail
+
+source ~/.zshrc
+
+{{- end -}}
