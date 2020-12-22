@@ -12,6 +12,10 @@ brew update && brew install kubernetes-cli \
                             kops \
                             helm \
                             k9s \
+                            sops \
+                            git-crypt \
+                            yq \
+                            gomplate \
                             docker-credential-helper-ecr || echo "Catching some errors"
 brew upgrade
 {{- end -}}
