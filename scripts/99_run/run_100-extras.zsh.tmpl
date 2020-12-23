@@ -8,34 +8,46 @@ source {{ .chezmoi.sourceDir }}/scripts/.helpers.zsh
 ## TMUX custom plugin
 ## TFENV
 ## TGENV
-
+## Pyenv
+## Kubetail
 
 declare -A plugins_map
 
+# powerlevel10k
 P10K_PLUGIN_DIR="${HOME}/.oh-my-zsh-custom/themes/powerlevel10k"
 P10K_PLUGIN_URL="https://github.com/romkatv/powerlevel10k.git"
 
 plugins_map[$P10K_PLUGIN_DIR]=$P10K_PLUGIN_URL
 
+# OMZ Syntax highlighting
 ZSH_PLUGIN_SYNTAX_DIR="${HOME}/.oh-my-zsh-custom/plugins/zsh-syntax-highlighting"
 ZSH_PLUGIN_SYNTAX_URL="https://github.com/zsh-users/zsh-syntax-highlighting.git"
 plugins_map[$ZSH_PLUGIN_SYNTAX_DIR]=$ZSH_PLUGIN_SYNTAX_URL
 
+# Txmux
 TMUX_PLUGIN_DIR="${HOME}/.tmux"
 TMUX_PLUGIN_URL="https://github.com/gpakosz/.tmux.git"
 plugins_map[$TMUX_PLUGIN_DIR]=$TMUX_PLUGIN_URL
 
+# TGenv
 TGENV_DIR="${HOME}/.tgenv"
 TGENV_URL="https://github.com/cunymatthieu/tgenv.git"
 plugins_map[$TGENV_DIR]=$TGENV_URL
 
+# TFenv
 TFENV_DIR="${HOME}/.tfenv"
 TFENV_URL="https://github.com/tfutils/tfenv.git"
 plugins_map[$TFENV_DIR]=$TFENV_URL
 
+# Pyenv
 PYENV_DIR="${HOME}/.pyenv"
 PYENV_URL="https://github.com/pyenv/pyenv.git"
 plugins_map[$PYENV_DIR]=$PYENV_URL
+
+# Kubetail
+KUBETAIL_DIR="${HOME}/.oh-my-zsh-custom/plugins/kubetail"
+KUBETAIL_URL="https://github.com/johanhaleby/kubetail.git"
+plugins_map[$KUBETAIL_DIR]=$KUBETAIL_URL
 
 for key in "${(@k)plugins_map}"; do
   started "Checking whether $key directory exists..."
@@ -44,9 +56,8 @@ for key in "${(@k)plugins_map}"; do
     git clone $plugins_map[$key] ${key} >/dev/null 2>&1
     success "Git repo $plugins_map[$key] Cloned!"
   else
-    started "Running: cd ${key} && git pull --rebase"
-    cd ${key}
-    git pull --rebase >/dev/null 2>&1
+    started "Running: git --work-tree=${key} --git-dir=${key} pull --rebase"
+    git --work-tree=${key} --git-dir=${key} pull --rebase >/dev/null 2>&1
     success "Git repo $plugins_map[$key] Pulled [--rebase]!"
   fi
 done
