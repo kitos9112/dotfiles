@@ -10,6 +10,7 @@ source {{ .chezmoi.sourceDir }}/scripts/.helpers.zsh
 ## TGENV
 ## Pyenv
 ## Kubetail
+# 2- Installs a handy SH script to rotate AWS Access Keys
 
 declare -A plugins_map
 
@@ -61,5 +62,12 @@ for key in "${(@k)plugins_map}"; do
     success "Git repo $plugins_map[$key] Pulled [--rebase]!"
   fi
 done
+
+# Check whether `aws-rotate-iam-keys` is currently installed. If not, install it
+if ! is_installed aws-rotate-iam-keys; then
+  git clone https://github.com/rhyeal/aws-rotate-iam-keys.git /tmp/aws-rotate-keys
+  sudo install /tmp/aws-rotate-keys/src/bin/aws-rotate-iam-keys /usr/local/bin
+  rm -rf /tmp/aws-rotate-keys
+fi
 
 {{- end -}}

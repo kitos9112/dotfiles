@@ -1,7 +1,9 @@
 {{- if and (eq .chezmoi.os "linux") -}}
 #! /usr/bin/env bash
 
-set -ev pipefail
+set -e pipefail
+
+source {{ .chezmoi.sourceDir }}/scripts/.helpers.sh
 
 SYSTEM_PYTHON_VERSION=3.8.6
 pyenv=${HOME}/.pyenv/bin/pyenv
@@ -22,6 +24,13 @@ python=$(which python)
 curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | ${python} -
 
 # Install pre-commit tool
-curl https://pre-commit.com/install-local.py | ${python} -
-
+if ! is_installed pre-commit; then
+  curl https://pre-commit.com/install-local.py | ${python} -
+else
+  installed_version=$(pre-commit --version | awk '{print $2}')
+  latest_version=$(get_latest_github_release pre-commit pre-commit)
+  if [[ ${installed_version} != ${latest_version} ]]; then
+    curl https://pre-commit.com/install-local.py | ${python} -
+  fi
+fi 
 {{- end -}}

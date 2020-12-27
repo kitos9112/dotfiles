@@ -81,3 +81,16 @@ check_sudo() {
     exit 1
   fi
 }
+
+get_latest_github_release() {
+  local repo_owner=$1
+  local repo_name=$2
+	curl -s -N https://api.github.com/repos/${repo_owner}/${repo_name}/releases/latest | grep -oP '"tag_name": "[v]\K(.*)(?=")'
+}
+
+get_latest_github_tag() {
+  local repo_owner=$1
+  local repo_name=$2
+	curl -s -N https://api.github.com/repos/${repo_owner}/${repo_name}/tags | grep -m1 -oP '"name": "\K(.*)(?=")'
+  # If we don't disable the output stream (-N option), we avoid getting an Error 23 when grep closes the read pipe before Curl had finished its operation
+}
