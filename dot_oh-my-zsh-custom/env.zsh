@@ -39,4 +39,6 @@ if $(uname -a | grep -qPe "(M|m)icrosoft"); then
   # Hitting a WSL system :)
   export DISPLAY="$(/sbin/ip route | awk '/default/ { print $3 }'):0"
   export PATH=$PATH:/mnt/c/Windows/System32
+  DockerResourcesBin="/mnt/c/Program Files/Docker/Docker/resources/bin"
+  export PATH=${PATH}:${DockerResourcesBin}
 fi

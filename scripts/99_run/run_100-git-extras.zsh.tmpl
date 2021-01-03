@@ -58,7 +58,7 @@ for key in "${(@k)plugins_map}"; do
     success "Git repo $plugins_map[$key] Cloned!"
   else
     started "Running: git --work-tree=${key} --git-dir=${key} pull --rebase"
-    git --work-tree=${key} --git-dir=${key} pull --rebase >/dev/null 2>&1
+    git --work-tree=${key} --git-dir="${key}/.git" pull --rebase >/dev/null 2>&1
     success "Git repo $plugins_map[$key] Pulled [--rebase]!"
   fi
 done
