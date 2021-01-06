@@ -1,4 +1,3 @@
-#!/usr/bin/env zsh
 
 is_installed() {
   [[ -x "$(command -v $1)" ]]
