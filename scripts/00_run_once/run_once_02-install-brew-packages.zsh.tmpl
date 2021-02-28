@@ -18,6 +18,8 @@ brew update && brew install kubernetes-cli \
                             yq \
                             gomplate \
                             kustomize \
+                            kubeseal \
+                            fluxcd/tap/flux \
                             docker-credential-helper-ecr || echo "Catching some errors"
 brew upgrade
 {{- end -}}
