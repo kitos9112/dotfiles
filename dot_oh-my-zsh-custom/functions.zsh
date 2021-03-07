@@ -1,4 +1,7 @@
 # Create a Poetry Python directory within VSCODE
+kalpinepod () {
+    kubectl run -it --rm --restart=Never --image=alpine handytools --c -n ${1:-default} -- /bin/ash
+}
 mkpoetryproj () {
     if [ $# -eq 1 ]; then
         poetry new "$1"
