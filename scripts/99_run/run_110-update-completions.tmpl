@@ -1,0 +1,18 @@
+{{- if and (eq .chezmoi.os "linux") -}}
+#! /usr/bin/env zsh
+
+set -ev pipefail
+
+# 1. Update `chezmoi` ZSH completions
+chezmoi completion zsh --output="$(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/chezmoi/_chezmoi"
+
+# 2. Update `flux-gitops` ZSH completions
+flux completion zsh > $(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/flux-gitops/_flux-gitops
+
+# 3. Update kustomize ZSH completions
+kustomize completion zsh > $(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/kustomize/_kustomize
+
+# 4. Update Poetry ZSH completions
+poetry completion zsh > $(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/poetry/_poetry
+
+{{- end -}}

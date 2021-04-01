@@ -12,7 +12,7 @@ function _kustomize {
   case $state in
   cmnds)
     commands=(
-      "build:Print configuration per contents of kustomization.yaml"
+      "build:Build a kustomization target from a directory or URL."
       "cfg:Commands for reading and writing configuration."
       "completion:Generate shell completion script"
       "create:Create a new kustomization in the current directory"
@@ -83,20 +83,17 @@ function _kustomize {
 
 function _kustomize_build {
   _arguments \
-    '--allow_id_changes[enable changes to a resourceId]' \
-    '--enable-exec[enable support for exec functions -- note: exec functions run arbitrary code -- do not use for untrusted configs!!! (Alpha)]' \
+    '--allow-id-changes[enable changes to a resourceId]' \
+    '--enable-alpha-plugins[enable kustomize plugins]' \
+    '--enable-exec[enable support for exec functions (raw executables); do not use for untrusted configs! (Alpha)]' \
+    '--enable-managedby-label[enable adding app.kubernetes.io/managed-by]' \
     '--enable-star[enable support for starlark functions. (Alpha)]' \
-    '--enable_alpha_plugins[enable plugins, an alpha feature.
-See https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/README.md
-]' \
-    '--enable_kyaml[enable dependence on kyaml instead of k8sdeps.]' \
-    '--enable_managedby_label[enable adding app.kubernetes.io/managed-by]' \
     '(*-e *--env)'{\*-e,\*--env}'[a list of environment variables to be used by functions]:' \
-    '--load_restrictor[if set to '\''LoadRestrictionsNone'\'', local kustomizations may load files from outside their root. This does, however, break the relocatability of the kustomization.]:' \
+    '--load-restrictor[if set to '\''LoadRestrictionsNone'\'', local kustomizations may load files from outside their root. This does, however, break the relocatability of the kustomization.]:' \
     '*--mount[a list of storage options read from the filesystem]:' \
     '--network[enable network access for functions that declare it]' \
     '--network-name[the docker network to run the container in]:' \
-    '(-o --output)'{-o,--output}'[If specified, write the build output to this path.]:' \
+    '(-o --output)'{-o,--output}'[If specified, write output to this path.]:' \
     '--reorder[Reorder the resources just before output. Use '\''legacy'\'' to apply a legacy reordering (Namespaces first, Webhooks last, etc). Use '\''none'\'' to suppress a final reordering.]:' \
     '--stack-trace[print a stack-trace on error]'
 }

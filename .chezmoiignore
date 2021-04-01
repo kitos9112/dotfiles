@@ -1,14 +1,21 @@
+# Do not apply the following files that live in my dotfiles repo
 README.md
 LICENSE
 Makefile
 install
-*.deb
-*.tar.gz
-.vscode
 settings.json
+
+tests/
+
+.vscode
 .ssh
-renovate.json
 .oh-my-zsh-custom/themes/powerlevel10k/**
 .oh-my-zsh-custom/plugins/zsh-syntax-highlighting/**
-tests/
+
 scripts/install_dotfiles.sh
+
+*.deb
+*.tar.gz
+
+# Renovate bot configuration
+renovate.json
