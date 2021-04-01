@@ -1,53 +1,53 @@
 # Create a Poetry Python directory within VSCODE
-kalpinepod () {
-    kubectl run -it --rm --restart=Never --image=alpine handytools --c -n ${1:-default} -- /bin/ash
+kalpinepod() {
+	kubectl run -it --rm --restart=Never --image=alpine handytools -n ${1:-default} -- /bin/ash
 }
-mkpoetryproj () {
-    if [ $# -eq 1 ]; then
-        poetry new "$1"
-        cd "$1" || exit
-        # get gitignore
-        curl https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore -o .gitignore
-        {
-            echo ""
-            echo ".vscode/"
-        } >> .gitignore
-        mkdir -p .vscode
-        touch .vscode/settings.json
-        {
-            echo "{"
-            echo "    \"python.pythonPath\": \"$(poetry env info -p)/bin/python\","
-            echo "    \"terminal.integrated.shellArgs.linux\": [\"poetry shell\"],"
-            echo "    \"files.exclude\": {"
-            echo "        \"**/.git\": true,"
-            echo "        \"**/.DS_Store\": true,"
-            echo "        \"**/*.pyc\": true,"
-            echo "        \"**/__pycache__\": true,"
-            echo "        \"**/.mypy_cache\": true"
-            echo "    },"
-            echo "    \"python.linting.enabled\": true,"
-            echo "    \"python.linting.mypyEnabled\": true,"
-            echo "    \"python.formatting.provider\": \"black\""
-            echo "}"
-        } >> .vscode/settings.json
-        poetry add -D black mypy
-        git init && git add . && git commit -m "ready to start"
-        # shellcheck source=/dev/null
-        source "$(poetry env info -p)/bin/activate"  --prompt "poetry env"
-        code .
-    else
-        echo "usage: mkpoetryproj FOLDER_TO_MAKE"
-        echo ""
-        echo "This inits a new project folder with poetry"
-        echo "It adds the GitHub recommended .gitignore, connects VSCode to the poetry venv,"
-        echo "and adds black and mypy, and makes sure VSCode knows about them"
-        echo "it then inits a git repo, adds everything and commits it, then opens VSCode"
-    fi
+mkpoetryproj() {
+	if [ $# -eq 1 ]; then
+		poetry new "$1"
+		cd "$1" || exit
+		# get gitignore
+		curl https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore -o .gitignore
+		{
+			echo ""
+			echo ".vscode/"
+		} >>.gitignore
+		mkdir -p .vscode
+		touch .vscode/settings.json
+		{
+			echo "{"
+			echo "    \"python.pythonPath\": \"$(poetry env info -p)/bin/python\","
+			echo "    \"terminal.integrated.shellArgs.linux\": [\"poetry shell\"],"
+			echo "    \"files.exclude\": {"
+			echo "        \"**/.git\": true,"
+			echo "        \"**/.DS_Store\": true,"
+			echo "        \"**/*.pyc\": true,"
+			echo "        \"**/__pycache__\": true,"
+			echo "        \"**/.mypy_cache\": true"
+			echo "    },"
+			echo "    \"python.linting.enabled\": true,"
+			echo "    \"python.linting.mypyEnabled\": true,"
+			echo "    \"python.formatting.provider\": \"black\""
+			echo "}"
+		} >>.vscode/settings.json
+		poetry add -D black mypy
+		git init && git add . && git commit -m "ready to start"
+		# shellcheck source=/dev/null
+		source "$(poetry env info -p)/bin/activate" --prompt "poetry env"
+		code .
+	else
+		echo "usage: mkpoetryproj FOLDER_TO_MAKE"
+		echo ""
+		echo "This inits a new project folder with poetry"
+		echo "It adds the GitHub recommended .gitignore, connects VSCode to the poetry venv,"
+		echo "and adds black and mypy, and makes sure VSCode knows about them"
+		echo "it then inits a git repo, adds everything and commits it, then opens VSCode"
+	fi
 }
 
 # Determine size of a file or total size of a directory
 fs() {
-	if du -b /dev/null > /dev/null 2>&1; then
+	if du -b /dev/null >/dev/null 2>&1; then
 		local arg=-sbh
 	else
 		local arg=-sh
@@ -66,16 +66,16 @@ targz() {
 	tar -cvf "${tmpFile}" --exclude=".DS_Store" "${1}" || return 1
 
 	size=$(
-	stat -f"%z" "${tmpFile}" 2> /dev/null; # OS X `stat`
-	stat -c"%s" "${tmpFile}" 2> /dev/null # GNU `stat`
+		stat -f"%z" "${tmpFile}" 2>/dev/null # OS X `stat`
+		stat -c"%s" "${tmpFile}" 2>/dev/null # GNU `stat`
 	)
 
 	local cmd=""
-	if (( size < 52428800 )) && hash zopfli 2> /dev/null; then
+	if ((size < 52428800)) && hash zopfli 2>/dev/null; then
 		# the .tar file is smaller than 50 MB and Zopfli is available; use it
 		cmd="zopfli"
 	else
-		if hash pigz 2> /dev/null; then
+		if hash pigz 2>/dev/null; then
 			cmd="pigz"
 		else
 			cmd="gzip"
@@ -106,7 +106,7 @@ server() {
 	python -c $'import SimpleHTTPServer;\nmap = SimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map;\nmap[""] = "text/plain";\nfor key, value in map.items():\n\tmap[key] = value + ";charset=UTF-8";\nSimpleHTTPServer.test();' "$port"
 }
 
-restart_gpgagent(){
+restart_gpgagent() {
 	# Restart the gpg agent.
 	echo "Restarting gpg-agent and scdaemon..."
 	echo -e "\tgpg-agent: $(pgrep gpg-agent) | scdaemon: $(pgrep scdaemon)"
