@@ -1,6 +1,7 @@
 {{- if (eq .chezmoi.os "linux") -}}
 #! /bin/zsh
 
+set -e pipefail
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
 # 1-Install or update Git repositories for ZSH or others
 ## powerlevel10k
@@ -53,12 +54,14 @@ plugins_map[$KUBETAIL_DIR]=$KUBETAIL_URL
 for key in "${(@k)plugins_map}"; do
   started "Checking whether $key directory exists..."
   if [ ! -d $key ]; then
-    started "Running: git clone $plugins_map[$key] ${key}"
-    git clone $plugins_map[$key] ${key} >/dev/null 2>&1
+    cmd="git clone $plugins_map[$key] ${key}"
+    started "Running: ${cmd}"
+    eval ${cmd} >/dev/null 2>&1
     success "Git repo $plugins_map[$key] Cloned!"
   else
-    started "Running: git --work-tree=${key} --git-dir=${key} pull --rebase"
-    git --work-tree=${key} --git-dir="${key}/.git" pull --rebase >/dev/null 2>&1
+    cmd="git --git-dir ${key}/.git --work-tree ${key} pull --rebase --force"
+    started "Running: $cmd"
+    eval $cmd >/dev/null
     success "Git repo $plugins_map[$key] Pulled [--rebase]!"
   fi
 done

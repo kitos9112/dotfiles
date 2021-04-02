@@ -6,7 +6,7 @@
 {{- $workName := "Marcos Soutullo Rodriguez" -}}
 {{- $workEmail := "marcos.soutullo@vodafone.com" -}}
 
-{{- $isWork := or (contains "vodafone" (lower .chezmoi.fullHostname)) (contains "vf" (lower .chezmoi.fullHostname)) (contains "ukfed-msr" (lower .chezmoi.fullHostname)) -}}
+{{- $isWork := or (contains "vodafone" (lower .chezmoi.fqdnHostname)) (contains "vf" (lower .chezmoi.fqdnHostname)) (contains "ukfed-msr" (lower .chezmoi.fqdnHostname)) -}}
 {{- $isPersonal := not $isWork -}}
 
 {{- $isWsl := or (env "WSL_DISTRO_NAME") (env "IS_WSL") | not | not -}}

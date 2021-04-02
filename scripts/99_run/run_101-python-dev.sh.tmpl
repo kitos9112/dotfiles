@@ -5,7 +5,7 @@ set -e pipefail
 
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
 
-SYSTEM_PYTHON_VERSION=3.8.6
+SYSTEM_PYTHON_VERSION=3.8.8
 pyenv=${HOME}/.pyenv/bin/pyenv
 
 # Install if version not met
@@ -32,5 +32,5 @@ else
   if [[ ${installed_version} != ${latest_version} ]]; then
     curl https://pre-commit.com/install-local.py | ${python} -
   fi
-fi 
+fi
 {{- end -}}
