@@ -3,9 +3,9 @@
 set -ev pipefail
 
 {{- if or (eq .chezmoi.osRelease.id "ubuntu") (eq .chezmoi.osRelease.id "debian") -}}
-sudo apt update
-sudo apt upgrade -y
-sudo apt-get install -y \
+DEBIAN_FRONTEND=noninteractive sudo -E apt update
+DEBIAN_FRONTEND=noninteractive sudo -E apt upgrade -y
+DEBIAN_FRONTEND=noninteractive sudo -E apt-get install -y \
               curl wget \
               file \
               git \
@@ -23,9 +23,9 @@ sudo apt-get install -y \
 
 {{- end -}}
 {{- if (eq .chezmoi.osRelease.id "rhel") -}}
-sudo yum update
-sudo yum upgrade -y
-sudo yum install -y \
+sudo -E yum update
+sudo -E yum upgrade -y
+sudo -E yum install -y \
               curl \
               file \
               git \
@@ -33,9 +33,9 @@ sudo yum install -y \
               vim
 {{- end -}}
 {{- if (eq .chezmoi.osRelease.id "fedora") -}}
-sudo dnf update
-sudo dnf upgrade -y
-sudo dnf install -y \
+sudo -E dnf update
+sudo -E dnf upgrade -y
+sudo -E dnf install -y \
               curl \
               file \
               git \
