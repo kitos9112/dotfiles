@@ -16,10 +16,13 @@ brew update && brew install kubernetes-cli \
                             hub \
                             git-crypt \
                             yq \
+                            fzf \
                             gomplate \
                             kustomize \
                             kubeseal \
                             fluxcd/tap/flux \
                             docker-credential-helper-ecr || echo "Catching some errors"
 brew upgrade
+#  Download fzf binary and update configuration files non interactively
+$(brew --prefix)/opt/fzf/install --all
 {{- end -}}
