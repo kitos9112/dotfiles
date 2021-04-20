@@ -83,12 +83,13 @@ function _kustomize {
 
 function _kustomize_build {
   _arguments \
-    '--allow-id-changes[enable changes to a resourceId]' \
     '--enable-alpha-plugins[enable kustomize plugins]' \
     '--enable-exec[enable support for exec functions (raw executables); do not use for untrusted configs! (Alpha)]' \
+    '--enable-helm[Enable use of the Helm chart inflator generator.]' \
     '--enable-managedby-label[enable adding app.kubernetes.io/managed-by]' \
     '--enable-star[enable support for starlark functions. (Alpha)]' \
     '(*-e *--env)'{\*-e,\*--env}'[a list of environment variables to be used by functions]:' \
+    '--helm-command[helm command (path to executable)]:' \
     '--load-restrictor[if set to '\''LoadRestrictionsNone'\'', local kustomizations may load files from outside their root. This does, however, break the relocatability of the kustomization.]:' \
     '*--mount[a list of storage options read from the filesystem]:' \
     '--network[enable network access for functions that declare it]' \

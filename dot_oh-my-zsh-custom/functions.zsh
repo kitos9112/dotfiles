@@ -2,6 +2,8 @@
 kalpinepod() {
 	kubectl run -it --rm --restart=Never --image=alpine handytools -n ${1:-default} -- /bin/ash
 }
+
+# Creates a local Python project under Linux and spins up a VScode window
 mkpoetryproj() {
 	if [ $# -eq 1 ]; then
 		poetry new "$1"
@@ -43,6 +45,14 @@ mkpoetryproj() {
 		echo "and adds black and mypy, and makes sure VSCode knows about them"
 		echo "it then inits a git repo, adds everything and commits it, then opens VSCode"
 	fi
+}
+
+function get_latest_github_release {
+  curl -s https://api.github.com/repos/$1/$2/releases/latest | grep -oP '"tag_name": "[v]\K(.*)(?=")'
+}
+
+function get_latest_github_tag {
+  curl -s https://api.github.com/repos/$1/$2/tags | grep -m1 -oP '"name": "\K(.*)(?=")'
 }
 
 # Determine size of a file or total size of a directory
