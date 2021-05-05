@@ -48,11 +48,11 @@ mkpoetryproj() {
 }
 
 function get_latest_github_release {
-  curl -s https://api.github.com/repos/$1/$2/releases/latest | grep -oP '"tag_name": "[v]\K(.*)(?=")'
+	curl -s https://api.github.com/repos/$1/$2/releases/latest | grep -oP '"tag_name": "[v]\K(.*)(?=")'
 }
 
 function get_latest_github_tag {
-  curl -s https://api.github.com/repos/$1/$2/tags | grep -m1 -oP '"name": "\K(.*)(?=")'
+	curl -s https://api.github.com/repos/$1/$2/tags | grep -m1 -oP '"name": "\K(.*)(?=")'
 }
 
 # Determine size of a file or total size of a directory
@@ -130,4 +130,21 @@ restart_gpgagent() {
 	gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
 
 	echo "Restarted gpg-agent and scdaemon..."
+}
+
+deduplicate_env_path() {
+	if [ -n "$PATH" ]; then
+		old_PATH=$PATH:
+		PATH=
+		while [ -n "$old_PATH" ]; do
+			x=${old_PATH%%:*} # the first remaining entry
+			case $PATH: in
+			*:"$x":*) ;;        # already there
+			*) PATH=$PATH:$x ;; # not there yet
+			esac
+			old_PATH=${old_PATH#*:}
+		done
+		PATH=${PATH#:}
+		unset old_PATH x
+	fi
 }

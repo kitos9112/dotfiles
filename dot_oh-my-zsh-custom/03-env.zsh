@@ -27,8 +27,7 @@ export GPG_TTY=$TTY
 if [ $commands[kubectl] ]; then source <(kubectl completion zsh); fi
 
 # Other alterations to PATH
-export PATH=${PYENV_ROOT}:${HOME}/.local/bin:${HOME}/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}
-export PATH=${HOME}/.tfenv/bin:${HOME}/.tgenv/bin:$HOME/.poetry/bin:${PATH}
+export PATH=${PYENV_ROOT}:${HOME}/.local/bin:${HOME}/bin:${HOME}/.asdf/shims:${HOME}/.tfenv/bin:${HOME}/.tgenv/bin:$HOME/.poetry/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}
 
 # Pyenv-related envs
 eval "$(pyenv init -)"
@@ -43,3 +42,9 @@ if $(uname -a | grep -qPe "(M|m)icrosoft"); then
   DockerResourcesBin="/mnt/c/Program Files/Docker/Docker/resources/bin"
   export PATH=${PATH}:${DockerResourcesBin}
 fi
+
+# ASDF - Add a command-line fuzzy finder tool https://github.com/junegunn/fzf
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# Remove duplicated PATH entries
+deduplicate_env_path

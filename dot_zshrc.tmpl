@@ -64,7 +64,8 @@ ZSH_CUSTOM=$HOME/.oh-my-zsh-custom
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git
-	 git-flow
+	 asdf
+     git-flow
 	 history
 	 kubectl
 	 flux-gitops
@@ -95,5 +96,3 @@ compinit -u
 source ${ZSH_CUSTOM}/work_env.zsh
 {{- end }}
 
-# Add a command-line fuzzy finder tool https://github.com/junegunn/fzf
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
