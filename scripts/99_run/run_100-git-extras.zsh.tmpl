@@ -51,6 +51,11 @@ KUBETAIL_DIR="${HOME}/.oh-my-zsh-custom/plugins/kubetail"
 KUBETAIL_URL="https://github.com/johanhaleby/kubetail.git"
 plugins_map[$KUBETAIL_DIR]=$KUBETAIL_URL
 
+# ASDF
+ASDF_DIR="${HOME}/.asdf"
+ASDF_URL="https://github.com/asdf-vm/asdf.git"
+plugins_map[$ASDF_DIR]=$ASDF_URL
+
 for key in "${(@k)plugins_map}"; do
   started "Checking whether $key directory exists..."
   if [ ! -d $key ]; then
@@ -65,6 +70,9 @@ for key in "${(@k)plugins_map}"; do
     success "Git repo $plugins_map[$key] Pulled [--rebase]!"
   fi
 done
+
+# Evaluate pyenv to allow install poetry and other python dev utilities 
+eval "$(./.pyenv/bin/pyenv init -)"
 
 # Check whether `aws-rotate-iam-keys` is currently installed. If not, install it
 if ! is_installed aws-rotate-iam-keys; then
