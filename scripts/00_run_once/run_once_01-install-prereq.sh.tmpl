@@ -2,11 +2,13 @@
 #! /usr/bin/env bash
 set -ev pipefail
 
-{{- if or (eq .chezmoi.osRelease.id "ubuntu") (eq .chezmoi.osRelease.id "debian") -}}
+{{ if or (eq .chezmoi.osRelease.id "ubuntu") (eq .chezmoi.osRelease.id "debian") -}}
+sudo locale-gen {{ .locale }}
 DEBIAN_FRONTEND=noninteractive sudo -E apt update
 DEBIAN_FRONTEND=noninteractive sudo -E apt upgrade -y
 DEBIAN_FRONTEND=noninteractive sudo -E apt-get install -y \
-              curl wget \
+              curl \
+              wget \
               file \
               git \
               direnv \
@@ -41,6 +43,7 @@ sudo -E dnf install -y \
               git \
               jq \
               vim \
+              util-linux-user \
               libxcrypt-compat \
               zsh \
               python \
@@ -63,7 +66,10 @@ sudo -E dnf install -y \
               dnf-automatic \
               cronie \
               cronie-anacron
-              
+
+# Setting the System Locale
+localectl set-locale LANG={{ .locale }} || echo -e "Could not set locale - Ignore if happens within Container"
+
 # TODO - Modify `apply_updates = yes` in /etc/dnf/automatic.conf
 ## And `systemctl enable --now dnf-automatic.timer`
 

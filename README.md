@@ -2,8 +2,8 @@
 
 This repo has been built for my own benefit, however feel free to sneak in and steal anything that would improve your own productivity. My plans are focused on start doing `CI` for ensuring that my changes won't break across different OS flavours. At the moment, I got Docker containers for the following Linux flavours:
 
-- Fedora 33
-- Ubuntu 20.04
+- Fedora 34
+- Ubuntu 20.04.02
 
 ## Installation instructions
 
