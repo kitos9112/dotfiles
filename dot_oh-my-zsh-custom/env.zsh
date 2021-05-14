@@ -31,7 +31,9 @@ export PATH=${PYENV_ROOT}:${HOME}/.local/bin:${HOME}/bin:${HOME}/.asdf/shims:${H
 
 # Pyenv-related envs
 eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
+# export PYENV_SHELL=zsh
+# export PYENV_ROOT="$HOME/.pyenv"
+# export PATH="$PYENV_ROOT/bin:$PATH"
 
 # direnv
 eval "$(direnv hook zsh)"

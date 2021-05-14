@@ -72,7 +72,7 @@ for key in "${(@k)plugins_map}"; do
 done
 
 # Evaluate pyenv to allow install poetry and other python dev utilities 
-eval "$(./.pyenv/bin/pyenv init -)"
+#eval "$(${HOME}/.pyenv/bin/pyenv init -)"
 
 # Check whether `aws-rotate-iam-keys` is currently installed. If not, install it
 if ! is_installed aws-rotate-iam-keys; then
