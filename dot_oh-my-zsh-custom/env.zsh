@@ -27,10 +27,11 @@ export GPG_TTY=$TTY
 if [ $commands[kubectl] ]; then source <(kubectl completion zsh); fi
 
 # Other alterations to PATH
-export PATH=${PYENV_ROOT}:${HOME}/.local/bin:${HOME}/bin:${HOME}/.asdf/shims:${HOME}/.tfenv/bin:${HOME}/.tgenv/bin:$HOME/.poetry/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}
+export PATH=${PYENV_ROOT}/bin:${HOME}/.local/bin:${HOME}/bin:${HOME}/.asdf/shims:${HOME}/.tfenv/bin:${HOME}/.tgenv/bin:$HOME/.poetry/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}
 
 # Pyenv-related envs
-eval "$(pyenv init -)"
+eval "$(pyenv init --path)"
+#eval "$(pyenv init -)"
 # export PYENV_SHELL=zsh
 # export PYENV_ROOT="$HOME/.pyenv"
 # export PATH="$PYENV_ROOT/bin:$PATH"
@@ -48,5 +49,4 @@ fi
 # ASDF - Add a command-line fuzzy finder tool https://github.com/junegunn/fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# Remove duplicated PATH entries
-deduplicate_env_path
+

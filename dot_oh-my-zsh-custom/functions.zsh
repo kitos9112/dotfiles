@@ -148,3 +148,6 @@ deduplicate_env_path() {
 		unset old_PATH x
 	fi
 }
+
+# Remove duplicated PATH entries
+deduplicate_env_path

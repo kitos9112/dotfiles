@@ -71,9 +71,6 @@ for key in "${(@k)plugins_map}"; do
   fi
 done
 
-# Evaluate pyenv to allow install poetry and other python dev utilities 
-#eval "$(${HOME}/.pyenv/bin/pyenv init -)"
-
 # Check whether `aws-rotate-iam-keys` is currently installed. If not, install it
 if ! is_installed aws-rotate-iam-keys; then
   git clone https://github.com/rhyeal/aws-rotate-iam-keys.git /tmp/aws-rotate-keys

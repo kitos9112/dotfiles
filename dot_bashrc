@@ -116,7 +116,7 @@ if ! shopt -oq posix; then
   fi
 fi
 export PATH=/home/msoutullo/bin:/home/msoutullo/.pyenv/bin:$PATH
-eval "$(pyenv init -)"
+
 eval "$(pyenv virtualenv-init -)"
 export EDITOR=vim
 export GOPATH="$HOME/Go" # or any directory to put your Go code

@@ -45,7 +45,7 @@ export UPDATE_ZSH_DAYS=3
 # DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
-ENABLE_CORRECTION="true"
+ENABLE_CORRECTION="false"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 COMPLETION_WAITING_DOTS="true"
@@ -66,21 +66,21 @@ ZSH_CUSTOM=$HOME/.oh-my-zsh-custom
 plugins=(
 	 git
 	 asdf
-     git-flow
 	 history
 	 kubectl
-	 flux-gitops
-	 kustomize
-	 chezmoi
-	 pyenv
-	 poetry
-	 kubetail
 	 pip
 	 aws
 	 direnv
 	 ansible
 	 helm
-  # ALWAYS the LAST!!!
+   # CUSTOM Plugins
+	 flux-gitops
+	 kustomize
+	 chezmoi
+     poetry
+   # https://github.com/ohmyzsh/ohmyzsh/issues/9902 [open]
+	 #pyenv
+   # ALWAYS the LAST!!!
 	 zsh-syntax-highlighting
 )
 
@@ -96,11 +96,3 @@ compinit -u
 {{- if .is_work }}
 source ${ZSH_CUSTOM}/work_env.zsh
 {{- end }}
-
-# Manually source required ZSH extensions
-## Aliases
-#source ${HOME}/.oh-my-zsh-custom/aliases.zsh
-## Functions
-#source ${HOME}/.oh-my-zsh-custom/functions.zsh
-## Env
-#source ${HOME}/.oh-my-zsh-custom/env.zsh
