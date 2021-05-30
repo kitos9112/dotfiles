@@ -96,3 +96,7 @@ compinit -u
 {{- if .is_work }}
 source ${ZSH_CUSTOM}/work_env.zsh
 {{- end }}
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="/home/msoutullo/.sdkman"
+[[ -s "/home/msoutullo/.sdkman/bin/sdkman-init.sh" ]] && source "/home/msoutullo/.sdkman/bin/sdkman-init.sh"
