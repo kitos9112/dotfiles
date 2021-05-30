@@ -6,7 +6,7 @@ set -ev pipefail
 # 1. Update `chezmoi` ZSH completions
 chezmoi completion zsh --output="$(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/chezmoi/_chezmoi"
 
-# 2. Update `flux-gitops` ZSH completions
+# 2. Update `flux` ZSH completions
 flux completion zsh > $(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/flux/_flux
 
 # 3. Update kustomize ZSH completions
