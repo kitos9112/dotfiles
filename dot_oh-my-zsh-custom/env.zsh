@@ -27,7 +27,7 @@ export GPG_TTY=$TTY
 if [ $commands[kubectl] ]; then source <(kubectl completion zsh); fi
 
 # Other alterations to PATH
-export PATH=${PYENV_ROOT}/bin:${HOME}/.local/bin:${HOME}/bin:${HOME}/.asdf/shims:${HOME}/.tfenv/bin:${HOME}/.tgenv/bin:$HOME/.poetry/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}
+export PATH=${PYENV_ROOT}/bin:${HOME}/.local/bin:${HOME}/bin:${HOME}/.asdf/shims:${HOME}/.tfenv/bin:${HOME}/.tgenv/bin:$HOME/.poetry/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${KREW_ROOT:-$HOME/.krew}/bin:${PATH}
 
 # Pyenv-related envs
 eval "$(pyenv init --path)"
