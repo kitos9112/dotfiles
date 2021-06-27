@@ -1,40 +1,33 @@
 # Full list of logical env.variables to me!
 export ZSH_CUSTOM=$ZSH_CUSTOM
 export EDITOR="/usr/bin/vim"
-export TERM=xterm-256color
+export TERM="xterm-256color"
+export GPG_TTY=$TTY # Fix gpg: signing failed: Inappropiate ioctl for device
 
-# Go-related envs
+export MANPATH="/usr/local/man:$MANPATH"
+export PYENV_ROOT="$HOME/.pyenv"
+
+# Lang-related settings
+export LANG=en_GB.UTF-8
+
+## Go-related envs
 export GOPATH=$HOME/Go
 export GOBIN=$GOPATH/bin
 export PATH=$GOBIN:$PATH
 
-# User configuration
-export MANPATH="/usr/local/man:$MANPATH"
-export PYENV_ROOT="$HOME/.pyenv"
-
-# IaC-related
+## IaC-related
 export TFENV_AUTO_INSTALL=true
 export TGENV_AUTO_INSTALL=true
 
-# You may need to manually set your language environment
-export LANG=en_GB.UTF-8
-
-# Fix gpg: signing failed: Inappropiate ioctl for device
-export GPG_TTY=$TTY
+# Other alterations to PATH
+export PATH=${PYENV_ROOT}/bin:${HOME}/.local/bin:${HOME}/bin:${HOME}/.asdf/shims:${HOME}/.tfenv/bin:${HOME}/.tgenv/bin:$HOME/.poetry/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${KREW_ROOT:-$HOME/.krew}/bin:${PATH}
 
 #aws --version | grep -q "aws-cli/2" && source /usr/local/bin/aws_zsh_completer.sh
 # Kubectl autocomplete
 if [ $commands[kubectl] ]; then source <(kubectl completion zsh); fi
 
-# Other alterations to PATH
-export PATH=${PYENV_ROOT}/bin:${HOME}/.local/bin:${HOME}/bin:${HOME}/.asdf/shims:${HOME}/.tfenv/bin:${HOME}/.tgenv/bin:$HOME/.poetry/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${KREW_ROOT:-$HOME/.krew}/bin:${PATH}
-
 # Pyenv-related envs
 eval "$(pyenv init --path)"
-#eval "$(pyenv init -)"
-# export PYENV_SHELL=zsh
-# export PYENV_ROOT="$HOME/.pyenv"
-# export PATH="$PYENV_ROOT/bin:$PATH"
 
 # direnv
 eval "$(direnv hook zsh)"
@@ -46,7 +39,18 @@ if $(uname -a | grep -qPe "(M|m)icrosoft"); then
   export PATH=${PATH}:${DockerResourcesBin}
 fi
 
+# ssh-agent
+
+# Sample script that will always reuse the same ssh-agent, or start ssh-agent if it is not running in the background
+# set SSH_AUTH_SOCK env var to a fixed value
+export SSH_AUTH_SOCK=~/.ssh/ssh-agent.sock
+
+# test whether $SSH_AUTH_SOCK is valid
+ssh-add -l 2>/dev/null >/dev/null
+
+# if not valid, then start ssh-agent using $SSH_AUTH_SOCK
+[ $? -ge 2 ] && ssh-agent -a "$SSH_AUTH_SOCK" >/dev/null
+
 # ASDF - Add a command-line fuzzy finder tool https://github.com/junegunn/fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
 
