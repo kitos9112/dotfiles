@@ -83,6 +83,7 @@ function _kustomize {
 
 function _kustomize_build {
   _arguments \
+    '--as-current-user[use the uid and gid of the command executor to run the function in the container]' \
     '--enable-alpha-plugins[enable kustomize plugins]' \
     '--enable-exec[enable support for exec functions (raw executables); do not use for untrusted configs! (Alpha)]' \
     '--enable-helm[Enable use of the Helm chart inflator generator.]' \
@@ -520,6 +521,8 @@ function _kustomize_edit_alpha-list-builtin-plugin {
 
 function _kustomize_edit_fix {
   _arguments \
+    '--vars[If specified, kustomize will attempt to convert vars to replacements. 
+We recommend doing this in a clean git repository where the change is easy to undo.]' \
     '--stack-trace[print a stack-trace on error]'
 }
 
@@ -718,7 +721,7 @@ function _kustomize_fn {
 
 function _kustomize_fn_run {
   _arguments \
-    '--as-current-user[use the uid and gid that kpt is running with to run the function in the container]' \
+    '--as-current-user[use the uid and gid of the command executor to run the function in the container]' \
     '--dry-run[print results to stdout]' \
     '--enable-exec[enable support for exec functions -- note: exec functions run arbitrary code -- do not use for untrusted configs!!! (Alpha)]' \
     '--enable-star[enable support for starlark functions. (Alpha)]' \
