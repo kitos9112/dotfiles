@@ -8,6 +8,10 @@ which -a brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Ho
 
 # Ensure brew has been installed in its default place
 export PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}
+
+# Add 3rd party brew taps
+brew tap instrumenta/instrumenta
+
 brew update && brew install kubernetes-cli \
                             kops \
                             helm \
@@ -20,7 +24,9 @@ brew update && brew install kubernetes-cli \
                             gomplate \
                             kustomize \
                             kubeseal \
+                            kubeval \
                             fluxcd/tap/flux \
+                            go-task/tap/go-task \
                             docker-credential-helper-ecr || echo "Catching some errors"
 brew upgrade
 #  Download fzf binary and update configuration files non interactively
