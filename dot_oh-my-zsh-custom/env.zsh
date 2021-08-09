@@ -7,6 +7,10 @@ export GPG_TTY=$TTY # Fix gpg: signing failed: Inappropiate ioctl for device
 export MANPATH="/usr/local/man:$MANPATH"
 export PYENV_ROOT="$HOME/.pyenv"
 
+export XDG_CONFIG_HOME="${HOME}/.config"
+# XDG_DATA_HOME
+# XDG_STATE_HOME
+#
 # Lang-related settings
 export LANG=en_GB.UTF-8
 
