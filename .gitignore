@@ -1,2 +1,6 @@
 **/powerlevel10k/*
 **/zsh-syntax-highlighting/*
+
+# IDEs
+.vscode
+.idea
