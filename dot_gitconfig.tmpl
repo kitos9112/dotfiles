@@ -22,6 +22,8 @@
   gpgsign = true
 [gpg]
   program = gpg
+[core]
+  pager = cat
 {{- if .is_work }}
 [http]
   proxy = http://{{ .http_proxy }}
