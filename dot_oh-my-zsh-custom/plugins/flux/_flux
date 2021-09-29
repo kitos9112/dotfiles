@@ -157,3 +157,4 @@ _flux()
 if [ "$funcstack[1]" = "_flux" ]; then
 	_flux
 fi
+compdef _flux flux

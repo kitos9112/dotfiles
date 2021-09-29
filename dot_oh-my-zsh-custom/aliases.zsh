@@ -12,6 +12,12 @@ alias aws-get-instanceid="export AWS_EC2_INSTANCE_ID=\`aws ec2 describe-instance
 
 # GIT
 alias git-branch-rn-all="git branch | grep -v $(git_main_branch) | xargs git branch -D"
+alias git-rm-merged-dev="git branch --merged dev | grep -v '^[ *]*dev$' | xargs git branch -d; git remote prune origin"
+alias git-branch-pmr="git push -o merge_request.create -o merge_request.remove_source_branch -o merge_request.target"
+
+## GITLAB
+# This alias is useful when you want to automatically create a merge request on gitlab and the source branch still does not exist in the remote repository.
+alias gitlab-push-mr="git push --set-upstream \`git remote | tail -1\` \`git rev-parse --abbrev-ref HEAD\` -o merge_request.create -o merge_request.target=\`git remote show \$(git remote) | grep 'HEAD branch' | cut -d ' ' -f5\`"
 
 # Make an ssh key if not exists, and copy ssh key to clipboard
 # needs xclip to copy to system clipboard

@@ -58,3 +58,5 @@ ssh-add -l 2>/dev/null >/dev/null
 # ASDF - Add a command-line fuzzy finder tool https://github.com/junegunn/fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+# GOROOT
+export GOROOT=$(go env GOROOT)

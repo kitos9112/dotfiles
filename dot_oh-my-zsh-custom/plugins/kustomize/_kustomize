@@ -615,6 +615,7 @@ function _kustomize_edit_set {
   case $state in
   cmnds)
     commands=(
+      "annotation:Sets one or more commonAnnotations in kustomization.yaml"
       "image:Sets images and their new names, new tags or digests in the kustomization file"
       "label:Sets one or more commonLabels in kustomization.yaml"
       "nameprefix:Sets the value of the namePrefix field in the kustomization file."
@@ -627,6 +628,9 @@ function _kustomize_edit_set {
   esac
 
   case "$words[1]" in
+  annotation)
+    _kustomize_edit_set_annotation
+    ;;
   image)
     _kustomize_edit_set_image
     ;;
@@ -646,6 +650,11 @@ function _kustomize_edit_set {
     _kustomize_edit_set_replicas
     ;;
   esac
+}
+
+function _kustomize_edit_set_annotation {
+  _arguments \
+    '--stack-trace[print a stack-trace on error]'
 }
 
 function _kustomize_edit_set_image {
