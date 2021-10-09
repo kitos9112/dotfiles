@@ -1,0 +1,14 @@
+{{- if and (eq .chezmoi.os "linux") -}}
+#! /usr/bin/env zsh
+
+source {{ .chezmoi.sourceDir }}/scripts/.helpers
+
+if ! is_installed rustup; then
+  curl https://sh.rustup.rs -sSf | bash -s -- -y --default-toolchain stable --no-modify-path
+else
+  ${HOME}/.cargo/bin/rustup update
+fi
+
+${HOME}/.cargo/bin/cargo install license-generator
+
+{{- end -}}

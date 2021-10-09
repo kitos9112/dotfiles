@@ -19,6 +19,9 @@ export GOPATH=$HOME/Go
 export GOBIN=$GOPATH/bin
 export PATH=$GOBIN:$PATH
 
+## cargoup - RUST
+export PATH=$HOME/.cargo/bin:$PATH
+
 ## IaC-related
 export TFENV_AUTO_INSTALL=true
 export TGENV_AUTO_INSTALL=true
