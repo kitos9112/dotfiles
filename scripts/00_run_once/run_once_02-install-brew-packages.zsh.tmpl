@@ -11,7 +11,9 @@ export PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PAT
 
 # Add 3rd party brew taps
 brew tap instrumenta/instrumenta
+brew tap johanhaleby/kubetail
 
+# Install Homebrew packages
 brew update && brew install kubernetes-cli \
                             kops \
                             helm \
@@ -31,6 +33,7 @@ brew update && brew install kubernetes-cli \
                             iperf3 \
                             go-task/tap/go-task \
                             figlet \
+                            kubetail \
                             lolcat \
                             gh \
                             dty1er/tap/kubecolor \
