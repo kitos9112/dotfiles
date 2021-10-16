@@ -55,8 +55,8 @@ export SSH_AUTH_SOCK=~/.ssh/ssh-agent.sock
 # test whether $SSH_AUTH_SOCK is valid
 ssh-add -l 2>/dev/null >/dev/null
 
-# if not valid, then start ssh-agent using $SSH_AUTH_SOCK
-[ $? -ge 2 ] && ssh-agent -a "$SSH_AUTH_SOCK" >/dev/null
+# if not valid, then start ssh-agent using $SSH_AUTH_SOCK. Ignore errors that may happen in WSL2
+[ $? -ge 2 ] && ssh-agent -a "$SSH_AUTH_SOCK" 2>/dev/null
 
 # ASDF - Add a command-line fuzzy finder tool https://github.com/junegunn/fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

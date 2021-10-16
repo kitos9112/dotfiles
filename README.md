@@ -37,6 +37,6 @@ chezmoi init --apply --verbose https://github.com/kitos9112/dotfiles.git
 
 Having a local `.git` (A.K.A. submodule) folder inside your dotfiles could become dangerous as you're naturally exposing (or unconsciously prompted to) your git history and very specific local configuration. Not even to mention the burden it sometimes signifies.
 
-As I just feed myself from the great works other `peers` conduct in the wild Internet (e.g. Oh-my-zsh), I'm a mere consumer of their work who clones their source code and thereby uses it. 
+As I just feed myself from the great works other `peers` conduct in the wild Internet (e.g. Oh-my-zsh), I'm a mere consumer of their work who clones their source code and thereby uses it.
 
-My `run_once_100-extras.zsh.tmpl` takes care of cloning/pulling(`--rebase`) their public GitHub repos.
+My `scsripts/00_run_once/run_once_100-extras.zsh.tmpl` takes care of cloning/pulling(`--rebase`) their public GitHub repos.
