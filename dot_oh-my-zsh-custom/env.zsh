@@ -8,7 +8,7 @@ export MANPATH="/usr/local/man:$MANPATH"
 export PYENV_ROOT="$HOME/.pyenv"
 
 export XDG_CONFIG_HOME="${HOME}/.config"
-# XDG_DATA_HOME
+export XDG_DATA_HOME="${HOME}/.data"
 # XDG_STATE_HOME
 #
 # Lang-related settings

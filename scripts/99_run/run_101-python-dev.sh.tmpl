@@ -36,4 +36,9 @@ else
     curl https://pre-commit.com/install-local.py | ${python} -
   fi
 fi
+
+# Install gist https://github.com/jdowner/gist
+pip install --upgrade python-gist \
+                      pip \
+                      setuptools
 {{- end -}}

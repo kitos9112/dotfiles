@@ -1,0 +1,3 @@
+[gist]
+  token: !echo $GITHUB_TOKEN
+  editor: vim
