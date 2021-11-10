@@ -2,7 +2,9 @@
 
 {{ $personalName := "Marcos Soutullo" -}}
 {{- $personalEmail := "marcos.soutullo91@gmail.com" -}}
+{{- $personalSigningKey := "7E2DCB77A0034B5A" -}}
 
+{{- $workSigningKey := "473E049DD4211D4E" -}}
 {{- $workName := "Marcos Soutullo Rodriguez" -}}
 {{- $workEmail := "marcos.soutullo@vodafone.com" -}}
 
@@ -22,6 +24,7 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
 
   work_name = "{{ $workName }}"
   work_email = "{{ $workEmail }}"
+  work_signing_key = "{{ $workSigningKey }}"
 
   is_personal = {{ $isPersonal }}
   is_work = {{ $isWork }}
@@ -30,12 +33,12 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
   {{- if $isPersonal }}
   name = "{{ $personalName }}"
   email = "{{ $personalEmail }}"
-  signing_key = "7E2DCB77A0034B5A"
+  signing_key = "{{ $personalSigningKey }}"
 
   {{- else }}
   name = "{{ $workName }}"
   email = "{{ $workEmail }}"
-  signing_key = "473E049DD4211D4E"
+  signing_key = "{{ $workSigningKey }}"
   {{- end }}
 
   {{- if or (lookPath "code") }}

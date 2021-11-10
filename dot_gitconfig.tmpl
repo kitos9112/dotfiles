@@ -1,9 +1,13 @@
 [init]
-  defaultBranch = master
+  defaultBranch = main
 [user]
   name = {{ .name }}
   email = {{ .email }}
   signingKey = {{ .signing_key }}
+{{- if not .is_work }}
+[includeIf "gitdir:~/projects/work/vodafone"]
+    path = ~/.gitconfig-work
+{{- end }}
 [credential]
   helper = store
 [alias]
