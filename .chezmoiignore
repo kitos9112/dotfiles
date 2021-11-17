@@ -18,4 +18,4 @@ scripts/install_dotfiles.sh
 *.tar.gz
 
 # Renovate bot configuration
-renovate.json
+renovate.json5

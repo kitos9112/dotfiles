@@ -1,13 +1,11 @@
 [init]
   defaultBranch = main
 [user]
-  name = {{ .name }}
-  email = {{ .email }}
-  signingKey = {{ .signing_key }}
-{{- if not .is_work }}
-[includeIf "gitdir:~/projects/work/vodafone"]
+  name = Marcos Soutullo
+  email = marcos.soutullo91@gmail.com
+  signingKey = 7E2DCB77A0034B5A
+[includeIf "gitdir:~/projects/work/**/*"]
     path = ~/.gitconfig-work
-{{- end }}
 [credential]
   helper = store
 [alias]
@@ -28,8 +26,3 @@
   program = gpg
 [core]
   pager = cat
-{{- if .is_work }}
-[http]
-  proxy = http://{{ .http_proxy }}
-  sslVerify = true
-{{- end }}
