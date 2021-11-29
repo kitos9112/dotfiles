@@ -1,28 +1,45 @@
 [init]
   defaultBranch = main
+
 [user]
-  name = Marcos Soutullo
-  email = marcos.soutullo91@gmail.com
-  signingKey = 7E2DCB77A0034B5A
-[includeIf "gitdir:~/projects/work/**/*"]
+  name = {{ .name }}
+  email = {{ .email }}
+  signingKey = {{ .signing_key }}
+{{- if not .is_work }}
+[includeIf "gitdir:~/projects/work/vodafone"]
     path = ~/.gitconfig-work
+{{- end }}
+
 [credential]
   helper = store
+
 [alias]
   plog = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
   vfc = verify-commit
   st = status
   squash-all = "!f(){ git reset $(git commit-tree HEAD^{tree} -m \"${1:-A new start}\");};f"
+
 [diff]
   ignoreSubmodules = dirty
+
 [push]
   default=simple
   followTags=true
+
 [pull]
   rebase = true
+
 [commit]
   gpgsign = true
+
 [gpg]
   program = gpg
+
 [core]
   pager = cat
+
+{{- if .is_work }}
+[http]
+  proxy = http://{{ .http_proxy }}
+  sslVerify = true
+{{- end }}

@@ -107,6 +107,19 @@ gitio() {
 	curl -i https://git.io/ -F "url=${2}" -F "code=${1}"
 }
 
+# Populates a local .gitignore file with the contents of a remote one
+function gi() { curl -sL https://www.toptal.com/developers/gitignore/api/$@; }
+
+_gitignoreio_get_command_list() {
+	curl -sL https://www.toptal.com/developers/gitignore/api/list | tr "," "\n"
+}
+
+_gitignoreio() {
+	compset -P '*,'
+	compadd -S '' $(_gitignoreio_get_command_list)
+}
+
+compdef _gitignoreio gi
 # Start an HTTP server from a directory, optionally specifying the port
 server() {
 	local port="${1:-8000}"

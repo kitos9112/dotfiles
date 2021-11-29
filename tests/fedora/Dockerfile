@@ -1,4 +1,4 @@
-FROM fedora:34
+FROM fedora:35
 
 RUN dnf update -y && dnf install -y \
     curl \
@@ -11,7 +11,7 @@ RUN dnf update -y && dnf install -y \
 RUN useradd -m -s /bin/zsh -d /docker docker
 RUN echo "docker ALL=NOPASSWD: ALL" >> /etc/sudoers
 
-COPY . /docker/.
+COPY . /docker
 
 RUN chmod +x /docker/tests/entrypoint.sh
 
@@ -24,4 +24,4 @@ ENV LANG="en_GB.UTF-8"
 ENV LANGUAGE="en_GB:en"
 ENV LC_ALL="en_GB.UTF-8"
 
-ENTRYPOINT [ "/docker/tests/entrypoint.sh" ]
+RUN tests/entrypoint.sh

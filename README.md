@@ -2,8 +2,8 @@
 
 This repo has been built for my own benefit, however feel free to sneak in and steal anything that would improve your own productivity. My plans are focused on start doing `CI` for ensuring that my changes won't break across different OS flavours. At the moment, I got Docker containers for the following Linux flavours:
 
-- Fedora 34
-- Ubuntu 20.04.02
+- Fedora 35
+- Ubuntu 20.04
 
 ## Installation instructions
 
@@ -27,7 +27,7 @@ You will have to clone the repo and from its root directory, execute the `instal
 
 ### Manually with `chezmoi`
 
-Leveraging Chezmoi capabilities
+Leveraging off-the-shelf `Chezmoi` capabilities
 
 ```bash
 chezmoi init --apply --verbose https://github.com/kitos9112/dotfiles.git
