@@ -99,6 +99,21 @@ compinit -u
 source ${ZSH_CUSTOM}/work_env.zsh
 {{- end }}
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/msoutullo/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/msoutullo/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/msoutullo/miniconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/msoutullo/miniconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
+# THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="/home/msoutullo/.sdkman"
 [[ -s "/home/msoutullo/.sdkman/bin/sdkman-init.sh" ]] && source "/home/msoutullo/.sdkman/bin/sdkman-init.sh"
