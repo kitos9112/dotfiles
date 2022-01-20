@@ -1,4 +1,4 @@
-{{- if and (eq .chezmoi.os "linux") (eq .chezmoi.arch "amd64") -}}
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
 #! /usr/bin/env bash
 
 set -ev pipefail
@@ -7,11 +7,13 @@ set -ev pipefail
 which -a brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 
 # Ensure brew has been installed in its default place
-export PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:${PATH}
+export PATH=$(brew --prefix)/bin:$(brew --prefix)/sbin:${PATH}
 
 # Add 3rd party brew taps
 brew tap instrumenta/instrumenta
 brew tap johanhaleby/kubetail
+{{- if or (eq .chezmoi.os "linux") -}}
+
 
 # Install Homebrew packages
 brew update && brew install kubernetes-cli \
@@ -42,4 +44,49 @@ brew upgrade
 
 #  Download fzf binary and update configuration files non interactively
 $(brew --prefix)/opt/fzf/install --all
+{{- end -}}
+
+{{- if or (eq .chezmoi.os "darwin") -}}
+# Install Homebrew packages
+brew bundle --no-lock --file=/dev/stdin <<EOF
+  brew "git"
+  brew "awscli"
+  brew "minikube"
+  brew "kubernetes-cli"
+  brew "helm"
+  brew "k9s"
+  brew "brew"
+  brew "sops"
+  brew "hub"
+  brew "git-crypt"
+  brew "yq"
+  brew "fzf"
+  brew "gomplate"
+  brew "kustomize"
+  brew "kubeseal"
+  brew "kubeval"
+  brew "shellcheck"
+  brew "fluxcd/tap/flux"
+  brew "iperf3"
+  brew "go-task/tap/go-task"
+  brew "figlet"
+  brew "kubetail"
+  brew "lolcat"
+  brew "gh"
+  brew "dty1er/tap/kubecolor"
+  brew "docker-credential-helper-ecr"
+
+  cask "google-chrome"
+  cask "firefox"
+  cask "1password"
+  cask "authy"
+EOF
+{{- end -}}
+
+# Upgrade already-installed brew packages
+brew update && brew upgrade
+
+#  Download fzf binary and update configuration files non interactively
+$(brew --prefix)/opt/fzf/install --all
+
 {{- end -}}
