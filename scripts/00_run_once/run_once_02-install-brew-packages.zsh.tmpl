@@ -46,7 +46,8 @@ brew upgrade
 $(brew --prefix)/opt/fzf/install --all
 {{- end -}}
 
-{{- if or (eq .chezmoi.os "darwin") -}}
+{{- if or (eq .chezmoi.os "darwin") }}
+
 # Add brew tap(s)
 brew tap fluxcd/tap
 brew tap go-task/tap
