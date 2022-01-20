@@ -10,7 +10,7 @@ which -a brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Ho
 export PATH=$(brew --prefix)/bin:$(brew --prefix)/sbin:${PATH}
 
 
-{{- if or (eq .chezmoi.os "linux") -}}
+{{- if or (eq .chezmoi.os "linux") }}
 
 # Add 3rd party brew taps
 brew tap instrumenta/instrumenta

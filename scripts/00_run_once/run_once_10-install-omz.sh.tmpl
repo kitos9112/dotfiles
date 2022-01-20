@@ -1,4 +1,4 @@
-{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") }}
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
 #! /usr/bin/env bash
 
 set -ev pipefail
@@ -14,5 +14,4 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 # Update Chezmoi completions
 mkdir -pv ${HOME}/.oh-my-zsh-custom/plugins/chezmoi
 chezmoi completion zsh --output ${HOME}/.oh-my-zsh-custom/plugins/chezmoi/_chezmoi
-
 {{- end -}}
