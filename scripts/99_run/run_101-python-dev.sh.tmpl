@@ -1,11 +1,11 @@
-{{- if and (eq .chezmoi.os "linux") -}}
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
 #! /usr/bin/env bash
 
 set -e pipefail
 
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
 
-SYSTEM_PYTHON_VERSION=3.9.9
+SYSTEM_PYTHON_VERSION=3.9.10
 pyenv=${HOME}/.pyenv/bin/pyenv
 export PATH="${HOME}/.pyenv/shims:${PATH}"
 

@@ -1,11 +1,10 @@
-{{- if and (eq .chezmoi.os "linux") -}}
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") }}
 #! /usr/bin/env zsh
 
 set -ev pipefail
 
-
 # 5. Update and upgrade brew packages
 
-/home/linuxbrew/.linuxbrew/bin/brew update
-/home/linuxbrew/.linuxbrew/bin/brew upgrade
+$(brew --prefix)/bin/brew update
+$(brew --prefix)/bin/brew upgrade
 {{- end -}}

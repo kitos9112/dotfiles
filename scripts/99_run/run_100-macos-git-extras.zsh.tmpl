@@ -1,0 +1,38 @@
+{{- if (eq .chezmoi.os "darwin") -}}
+#! /bin/zsh
+
+set -e pipefail
+source {{ .chezmoi.sourceDir }}/scripts/.helpers
+# 1-Install or update Git repositories for ZSH or others
+## powerlevel10k
+## ZSH Syntax highlighting
+# 2- Installs a handy SH script to rotate AWS Access Keys
+
+declare -A plugins_map
+
+# powerlevel10k
+P10K_PLUGIN_DIR="${HOME}/.oh-my-zsh-custom/themes/powerlevel10k"
+P10K_PLUGIN_URL="https://github.com/romkatv/powerlevel10k.git"
+plugins_map[$P10K_PLUGIN_DIR]=$P10K_PLUGIN_URL
+
+# OMZ Syntax highlighting
+ZSH_PLUGIN_SYNTAX_DIR="${HOME}/.oh-my-zsh-custom/plugins/zsh-syntax-highlighting"
+ZSH_PLUGIN_SYNTAX_URL="https://github.com/zsh-users/zsh-syntax-highlighting.git"
+plugins_map[$ZSH_PLUGIN_SYNTAX_DIR]=$ZSH_PLUGIN_SYNTAX_URL
+
+for key in "${(@k)plugins_map}"; do
+  started "Checking whether $key directory exists..."
+  if [ ! -d $key ]; then
+    cmd="git clone $plugins_map[$key] ${key}"
+    started "Running: ${cmd}"
+    eval ${cmd} >/dev/null 2>&1
+    success "Git repo $plugins_map[$key] Cloned!"
+  else
+    cmd="git --git-dir ${key}/.git --work-tree ${key} pull --rebase --force"
+    started "Running: $cmd"
+    eval $cmd >/dev/null
+    success "Git repo $plugins_map[$key] Pulled [--rebase]!"
+  fi
+done
+
+{{- end -}}
