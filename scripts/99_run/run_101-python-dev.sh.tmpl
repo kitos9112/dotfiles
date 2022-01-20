@@ -6,8 +6,15 @@ set -e pipefail
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
 
 SYSTEM_PYTHON_VERSION=3.9.10
+
+{{- if (eq .chezmoi.os "linux") }}
 pyenv=${HOME}/.pyenv/bin/pyenv
 export PATH="${HOME}/.pyenv/shims:${PATH}"
+{{- else if eq .chezmoi.os "darwin" }}
+pyenv=$(brew --prefix)/pyenv
+{{- end -}}
+
+
 
 # Install if version not met
 if [[ $(${pyenv} version | awk '{print $1}') != $SYSTEM_PYTHON_VERSION ]]; then
