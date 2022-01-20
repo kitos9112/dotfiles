@@ -47,6 +47,11 @@ $(brew --prefix)/opt/fzf/install --all
 {{- end -}}
 
 {{- if or (eq .chezmoi.os "darwin") -}}
+# Add brew tap(s)
+brew tap fluxcd/tap
+brew tap go-task/tap
+brew tap dty1er/tap
+
 # Install Homebrew packages
 brew bundle --no-lock --file=/dev/stdin <<EOF
   brew "git"
@@ -55,7 +60,6 @@ brew bundle --no-lock --file=/dev/stdin <<EOF
   brew "kubernetes-cli"
   brew "helm"
   brew "k9s"
-  brew "brew"
   brew "sops"
   brew "hub"
   brew "git-crypt"
@@ -70,7 +74,6 @@ brew bundle --no-lock --file=/dev/stdin <<EOF
   brew "iperf3"
   brew "go-task/tap/go-task"
   brew "figlet"
-  brew "kubetail"
   brew "lolcat"
   brew "gh"
   brew "dty1er/tap/kubecolor"
