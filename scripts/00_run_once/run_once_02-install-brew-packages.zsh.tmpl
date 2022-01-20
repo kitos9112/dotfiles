@@ -86,7 +86,8 @@ brew bundle --no-lock --file=/dev/stdin <<EOF
   cask "1password"
   cask "authy"
 EOF
-{{- end -}}
+
+{{- end }}
 
 # Upgrade already-installed brew packages
 brew update && brew upgrade
