@@ -12,9 +12,7 @@ pyenv=${HOME}/.pyenv/bin/pyenv
 export PATH="${HOME}/.pyenv/shims:${PATH}"
 {{- else if eq .chezmoi.os "darwin" }}
 pyenv=$(brew --prefix)/bin/pyenv
-{{- end -}}
-
-
+{{- end }}
 
 # Install if version not met
 if [[ $(${pyenv} version | awk '{print $1}') != $SYSTEM_PYTHON_VERSION ]]; then

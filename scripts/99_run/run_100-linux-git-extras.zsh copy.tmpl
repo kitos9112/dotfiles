@@ -1,3 +1,8 @@
+# TODO Replace `run_100-linux/mac` script with `.chezmoiexternal.toml`
+# Recent Chezmoi releases started to support a proper way of maintaining external Git respositories up-to-date in your $HOME directory.
+# This proves to be a much more reliable way of keeping your external Git repositories up-to-date, rather than having to maintain SH scripts that can break at any given time and lack of comprenhensive testing.
+# labels: enhancement,
+# More info at https://www.chezmoi.io/user-guide/include-dotfiles-from-elsewhere/
 {{- if (eq .chezmoi.os "linux") -}}
 #! /bin/zsh
 

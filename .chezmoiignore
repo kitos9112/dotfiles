@@ -4,18 +4,14 @@ LICENSE
 Makefile
 install
 settings.json
-
 tests/
-
 .vscode
 .ssh
+.github
 .oh-my-zsh-custom/themes/powerlevel10k/**
 .oh-my-zsh-custom/plugins/zsh-syntax-highlighting/**
-
 scripts/install_dotfiles.sh
-
 *.deb
 *.tar.gz
-
 # Renovate bot configuration
 renovate.json5
