@@ -125,7 +125,7 @@ _flux()
         _arguments '*:filename:'"$filteringCmd"
     elif [ $((directive & shellCompDirectiveFilterDirs)) -ne 0 ]; then
         # File completion for directories only
-        local subDir
+        local subdir
         subdir="${completions[1]}"
         if [ -n "$subdir" ]; then
             __flux_debug "Listing directories in $subdir"
@@ -173,6 +173,6 @@ _flux()
 
 # don't run the completion function when being source-ed or eval-ed
 if [ "$funcstack[1]" = "_flux" ]; then
-	_flux
+    _flux
 fi
 compdef _flux flux
