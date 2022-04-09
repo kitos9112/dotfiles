@@ -1,2 +1,4 @@
-kubectl 1.22.3
-python 3.9.9
+kubectl 1.23.5
+python 3.9.11
+terragrunt 0.36.6
+terraform 1.1.8
