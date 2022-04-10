@@ -114,6 +114,12 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
+# NVM - A Node Version Manager
+export NVM_DIR="$HOME/.config/nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# SDKMAN - A Java and Scala SDK manager
 # THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="/home/msoutullo/.sdkman"
 [[ -s "/home/msoutullo/.sdkman/bin/sdkman-init.sh" ]] && source "/home/msoutullo/.sdkman/bin/sdkman-init.sh"
