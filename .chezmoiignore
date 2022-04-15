@@ -13,5 +13,4 @@ tests/
 scripts/install_dotfiles.sh
 *.deb
 *.tar.gz
-# Renovate bot configuration
-renovate.json5
+.pre-commit-config.yaml
