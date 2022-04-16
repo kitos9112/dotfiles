@@ -5,5 +5,4 @@
 **/zsh-syntax-highlighting/*
 
 # IDEs
-.vscode
 .idea
