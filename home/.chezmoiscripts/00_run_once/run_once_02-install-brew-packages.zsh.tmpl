@@ -38,9 +38,9 @@ brew update && brew install kubernetes-cli \
                             kubetail \
                             lolcat \
                             gh \
-                            dty1er/tap/kubecolor \
                             docker-credential-helper-ecr || echo "Catching some errors"
 brew upgrade
+
 
 #  Download fzf binary and update configuration files non interactively
 $(brew --prefix)/opt/fzf/install --all

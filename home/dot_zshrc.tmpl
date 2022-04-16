@@ -64,6 +64,7 @@ ZSH_CUSTOM=$HOME/.oh-my-zsh-custom
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
+	1password
 	 ansible
 	 asdf
 	 aliases
@@ -101,14 +102,14 @@ source ${ZSH_CUSTOM}/work_env.zsh
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/msoutullo/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+__conda_setup="$('{{ .chezmoi.homeDir }}/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
-    if [ -f "/home/msoutullo/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/msoutullo/miniconda3/etc/profile.d/conda.sh"
+    if [ -f "{{ .chezmoi.homeDir }}/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "{{ .chezmoi.homeDir }}/miniconda3/etc/profile.d/conda.sh"
     else
-        export PATH="/home/msoutullo/miniconda3/bin:$PATH"
+        export PATH="{{ .chezmoi.homeDir }}/miniconda3/bin:$PATH"
     fi
 fi
 unset __conda_setup
@@ -121,5 +122,7 @@ export NVM_DIR="$HOME/.config/nvm"
 
 # SDKMAN - A Java and Scala SDK manager
 # THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="/home/msoutullo/.sdkman"
-[[ -s "/home/msoutullo/.sdkman/bin/sdkman-init.sh" ]] && source "/home/msoutullo/.sdkman/bin/sdkman-init.sh"
+export SDKMAN_DIR="{{ .chezmoi.homeDir }}/.sdkman"
+[[ -s "{{ .chezmoi.homeDir }}/.sdkman/bin/sdkman-init.sh" ]] && source "{{ .chezmoi.homeDir }}/.sdkman/bin/sdkman-init.sh"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

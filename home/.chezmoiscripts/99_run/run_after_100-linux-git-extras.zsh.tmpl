@@ -1,6 +1,8 @@
 {{ if (eq .chezmoi.os "linux") -}}
 #!/usr/bin/env zsh
 
+# TEST 1password
+
 # TODO Replace `run_100-linux/mac` script with `.chezmoiexternal.toml`
 # Recent Chezmoi releases started to support a proper way of maintaining external Git respositories up-to-date in your $HOME directory.
 # This proves to be a much more reliable way of keeping your external Git repositories up-to-date, rather than having to maintain SH scripts that can break at any given time and lack of comprenhensive testing.
@@ -18,6 +20,7 @@ source {{ .chezmoi.sourceDir }}/scripts/.helpers
 ## Pyenv
 ## Kubetail
 # 2- Installs a handy SH script to rotate AWS Access Keys
+
 
 declare -A plugins_map
 

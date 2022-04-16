@@ -7,4 +7,8 @@ set -ev pipefail
 
 $(brew --prefix)/bin/brew update
 $(brew --prefix)/bin/brew upgrade
+
+# 6. Update all ASDF plugins
+asdf plugin update --all
+
 {{- end -}}
