@@ -30,8 +30,8 @@ curl -sSL https://install.python-poetry.org | ${python} -
 if ! is_installed pre-commit; then
   curl https://pre-commit.com/install-local.py | ${python} -
 else
-  installed_version=$(pre-commit --version | awk '{print $2}')
-  latest_version=$(get_latest_github_release pre-commit pre-commit)
+  installed_version=v$(pre-commit --version | awk '{print $2}')
+  latest_version={{ (gitHubLatestRelease "pre-commit/pre-commit").TagName }}
   if [[ ${installed_version} != ${latest_version} ]]; then
     curl https://pre-commit.com/install-local.py | ${python} -
   fi
