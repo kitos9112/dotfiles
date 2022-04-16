@@ -5,7 +5,7 @@ set -e pipefail
 
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
 
-SYSTEM_PYTHON_VERSION=3.9.12
+SYSTEM_PYTHON_VERSION=3.9.11
 
 {{- if (eq .chezmoi.os "linux") }}
 pyenv=${HOME}/.pyenv/bin/pyenv
