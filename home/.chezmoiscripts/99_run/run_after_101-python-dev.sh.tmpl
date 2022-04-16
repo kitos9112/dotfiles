@@ -5,21 +5,15 @@ set -e pipefail
 
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
 
-SYSTEM_PYTHON_VERSION=3.9.11
-
-{{- if (eq .chezmoi.os "linux") }}
-pyenv=${HOME}/.pyenv/bin/pyenv
-export PATH="${HOME}/.pyenv/shims:${PATH}"
-{{- else if eq .chezmoi.os "darwin" }}
-pyenv=$(brew --prefix)/bin/pyenv
-{{- end }}
+pyenv={{ .chezmoi.homeDir }}/.pyenv/bin/pyenv
+export PATH="{{ .chezmoi.homeDir }}/.pyenv/shims:${PATH}"
 
 # Install if version not met
-if [[ $(${pyenv} version | awk '{print $1}') != $SYSTEM_PYTHON_VERSION ]]; then
-  ${pyenv} install ${SYSTEM_PYTHON_VERSION}
+if [[ $(${pyenv} version | awk '{print $1}') != {{ .python_version }} ]]; then
+  ${pyenv} install {{ .python_version }}
   ${pyenv} rehash
   pip install --upgrade pip setuptools
-  echo "${SYSTEM_PYTHON_VERSION}" > ${HOME}/.pyenv/version
+  echo "{{ .python_version }}" > {{ .chezmoi.homeDir }}/.pyenv/version
 fi
 
 if [ ! -d $(${pyenv} root)/plugins/pyenv-virtualenv ]; then
