@@ -1,4 +1,4 @@
-# The following variables are only available within this file
+# The following variables are only available within this TOML template file
 
 {{ $personalName := "Marcos Soutullo Rodriguez" -}}
 {{- $personalEmail := "marcos.soutullo91@gmail.com" -}}
@@ -14,10 +14,16 @@
 {{- $isWsl := or (env "WSL_DISTRO_NAME") (env "IS_WSL") | not | not -}}
 {{- $isFedora := lookPath "gnome-shell" | not | not -}}
 
+{{- $osid := .chezmoi.os -}}
+{{- if hasKey .chezmoi.osRelease "id" -}}
+{{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
+{{- end -}}
+
 sourceDir = "{{ .chezmoi.sourceDir }}"
 
 [data]
   # Here we "export" the variables, so we can access them outside this file
+  osid = {{ $osid | quote }}
 
   personal_name = "{{ $personalName }}"
   personal_email = "{{ $personalEmail }}"
@@ -58,3 +64,10 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
 
 [template]
   options = ["missingkey=zero"]
+
+[onepassword]
+  prompt = true
+
+[edit]
+    command = "code"
+    args = ["--wait"]

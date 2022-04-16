@@ -1,10 +1,13 @@
 # My Personal Public DOTfiles managed by `chezmoi`
 
-This repo has been built for my own benefit, however feel free to sneak in and steal anything that would improve your own productivity. My plans are focused on start doing `CI` for ensuring that my changes won't break across different OS flavours. At the moment, I got Docker containers for the following Linux flavours:
+This public Github repository has been built for my own benefit, however, feel free to sneak in and steal anything that would improve your own productivity.
+My plans are focused on maintaining a `CI` workflow with GH actions for ensuring that my changes won't break across different OS flavours.
+At the moment, I got Docker containers for the following Linux flavours:
 
 - Fedora 35
 - Ubuntu 20.04
 
+As of April 2022, I've begun to configure a MacOS device, but it's still very early days.
 ## Installation instructions
 
 I'd not care of using GitHub for backing up my `dotfiles` if my perspectives of using them remained in a single machine.
