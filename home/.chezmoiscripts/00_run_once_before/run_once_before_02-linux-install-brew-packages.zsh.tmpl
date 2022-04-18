@@ -1,0 +1,49 @@
+{{- if (eq .chezmoi.os "linux") -}}
+#! /usr/bin/env bash
+
+set -ev pipefail
+
+# 1. Install Homebrew
+which -a brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+brew="/home/linuxbrew/.linuxbrew/bin/brew"
+
+# 2. Add 3rd party brew taps
+# TODO: Hold fire until the instrumenta team fix their homebrew tap
+# https://github.com/instrumenta/homebrew-instrumenta/pull/3
+## Remember to add `kubeval` to the mix
+# $brew tap instrumenta/instrumenta
+$brew --version
+
+# 3. Install Homebrew packages
+$brew install kubernetes-cli \
+                chezmoi \
+                kops \
+                helm \
+                k9s \
+                borgbackup \
+                sops \
+                hub \
+                git-crypt \
+                yq \
+                fzf \
+                gcc \
+                gomplate \
+                kustomize \
+                kubeseal \
+                shellcheck \
+                fluxcd/tap/flux \
+                iperf3 \
+                go-task/tap/go-task \
+                figlet \
+                lolcat \
+                gh \
+                aws-rotate-key \
+                docker-credential-helper-ecr || echo "Catching some errors"
+
+# 4. Upgrade already-installed brew packages
+$brew update && $brew upgrade
+
+# 5. Download fzf binary and update configuration files non interactively
+/home/linuxbrew/.linuxbrew/opt/fzf/install --all
+
+{{- end -}}

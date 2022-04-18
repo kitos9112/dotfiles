@@ -4,15 +4,15 @@
 set -ev pipefail
 
 # 1. Update `chezmoi` ZSH completions
-chezmoi completion zsh --output="$(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/chezmoi/_chezmoi"
+chezmoi completion zsh --output="$(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/chezmoi/_chezmoi" || echo -n "chezmoi not found in PATH"
 
 # 2. Update `flux` ZSH completions
-flux completion zsh > $(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/flux/_flux
+flux completion zsh > $(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/flux/_flux || echo -n "flux not found in PATH"
 
 # 3. Update kustomize ZSH completions
-kustomize completion zsh > $(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/kustomize/_kustomize
+kustomize completion zsh > $(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/kustomize/_kustomize || echo -n "kustomize not found in PATH"
 
 # 4. Update Poetry ZSH completions
-poetry completions zsh > $(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/poetry/_poetry
+poetry completions zsh > $(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/poetry/_poetry || echo -n "poetry not found in PATH"
 
 {{- end -}}

@@ -3,15 +3,9 @@
 
 set -ev pipefail
 
-# Change default sh to ZSH
+# 1. Change default sh to ZSH
 if [[ $(awk -F ":${HOME}:" 'NF>1 {print $2}' /etc/passwd) != $(which zsh) ]]; then
-  chsh -s $(which zsh)
+  sudo chsh -s $(which zsh) $(whoami)
 fi
 
-# Run autoinstalling OMZ script
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --unattended" ||
-
-# Update Chezmoi completions
-mkdir -pv ${HOME}/.oh-my-zsh-custom/plugins/chezmoi
-chezmoi completion zsh --output ${HOME}/.oh-my-zsh-custom/plugins/chezmoi/_chezmoi
 {{- end -}}

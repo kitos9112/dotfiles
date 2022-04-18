@@ -8,20 +8,13 @@ RUN dnf update -y && dnf install -y \
     util-linux-user \
     libxcrypt-compat
 
-RUN useradd -m -s /bin/zsh -d /docker docker
-RUN echo "docker ALL=NOPASSWD: ALL" >> /etc/sudoers
+RUN useradd -m -s /bin/zsh -d /home/docker-qa docker-qa  && \
+    echo "docker-qa ALL=NOPASSWD: ALL" >> /etc/sudoers
 
-COPY . /docker
+USER docker-qa
 
-RUN chmod +x /docker/tests/entrypoint.sh
+COPY ./ /home/docker-qa/.dotfiles
 
-USER docker
+WORKDIR /home/docker-qa
 
-WORKDIR /docker
-
-ENV PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
-ENV LANG="en_GB.UTF-8"
-ENV LANGUAGE="en_GB:en"
-ENV LC_ALL="en_GB.UTF-8"
-
-RUN tests/entrypoint.sh
+RUN .dotfiles/install

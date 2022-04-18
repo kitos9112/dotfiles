@@ -1,0 +1,96 @@
+
+{{- if (eq .chezmoi.os "darwin") -}}
+#! /usr/bin/env bash
+set -ev pipefail
+
+# 1. Install Homebrew
+which -a brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+brew="/opt/homebrew/bin/brew"
+$brew --version
+
+# 2. Add brew tap(s)
+$brew tap fluxcd/tap
+$brew tap go-task/tap
+$brew tap dty1er/tap
+
+# 3. Install Homebrew packages
+$brew bundle --no-lock --file=/dev/stdin <<EOF
+    tap "aquasecurity/trivy"
+    tap "dty1er/tap"
+    tap "fluxcd/tap"
+    tap "gabrie30/utils"
+    tap "go-task/tap"
+    tap "homebrew/bundle"
+    tap "homebrew/cask"
+    tap "homebrew/core"
+    tap "instrumenta/instrumenta"
+    brew "readline"
+    brew "asdf"
+    brew "sqlite"
+    brew "xz"
+    brew "awscli"
+    brew "cargo-instruments"
+    brew "chezmoi"
+    brew "direnv"
+    brew "docker-credential-helper-ecr"
+    brew "figlet"
+    brew "fzf"
+    brew "gh"
+    brew "git"
+    brew "git-crypt"
+    brew "gnupg"
+    brew "go"
+    brew "gomplate"
+    brew "goreleaser"
+    brew "grep"
+    brew "helm"
+    brew "htop"
+    brew "hub"
+    brew "iperf3"
+    brew "jq"
+    brew "k9s"
+    brew "kubernetes-cli"
+    brew "kubectx"
+    brew "kubeseal"
+    brew "kustomize"
+    brew "lolcat"
+    brew "minikube"
+    brew "openssl@3"
+    brew "qemu"
+    brew "podman"
+    brew "pyenv"
+    brew "saml2aws"
+    brew "sevenzip"
+    brew "shellcheck"
+    brew "sops"
+    brew "terraform"
+    brew "terragrunt"
+    brew "tmux"
+    brew "wireshark"
+    brew "yq"
+    brew "zlib"
+    brew "zsh-syntax-highlighting"
+    brew "aquasecurity/trivy/trivy"
+    brew "fluxcd/tap/flux"
+    brew "gabrie30/utils/ghorg"
+    brew "go-task/tap/go-task"
+    cask "1password"
+    cask "authy"
+    cask "firefox"
+    cask "google-chrome"
+    cask "hyper"
+    cask "iterm2"
+    cask "multipass"
+    cask "notion"
+    cask "slack"
+    cask "spotify"
+    cask "unnaturalscrollwheels"
+    cask "visual-studio-code"
+EOF
+
+# 4. Upgrade already-installed brew packages
+$brew update && $brew upgrade
+
+# 5. Download fzf binary and update configuration files non interactively
+/opt/homebrew/opt/fzf/install --all
+{{- end -}}

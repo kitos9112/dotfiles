@@ -42,7 +42,13 @@ if [ -n "${DOTFILES_DEBUG-}" ]; then
   chezmoi_extra_args="${chezmoi_extra_args} --debug"
 fi
 
+if [ -n "${DOTFILES_VERBOSE-}" ]; then
+  chezmoi_extra_args="${chezmoi_extra_args} --verbose"
+fi
+
 echo_task "Running chezmoi init"
 # replace current process with chezmoi init
 # shellcheck disable=SC2086
+exec "${chezmoi}" init --source "${script_dir}" ${chezmoi_extra_args}
+
 exec "${chezmoi}" init --source "${script_dir}" ${chezmoi_extra_args}

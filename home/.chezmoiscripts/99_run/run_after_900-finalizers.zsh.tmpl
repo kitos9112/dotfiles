@@ -5,10 +5,10 @@ set -ev pipefail
 
 # 5. Update and upgrade brew packages
 
-$(brew --prefix)/bin/brew update
-$(brew --prefix)/bin/brew upgrade
+$(brew --prefix)/bin/brew update || echo "Brew not found on path"
+$(brew --prefix)/bin/brew upgrade  || echo "Brew not found on path"
 
 # 6. Update all ASDF plugins
-asdf plugin update --all
+asdf plugin update --all || echo "ASDF not found on path"
 
 {{- end -}}

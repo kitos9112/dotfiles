@@ -3,36 +3,27 @@ FROM ubuntu:20.04
 ENV GIT_REPO=https://github.com/kitos9112/dotfiles.git
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update
-RUN apt-get -y install \
-    curl \
-    build-essential \
-    file \
-    git \
-    sudo \
-    sed \
-    findutils \
-    software-properties-common \
-    zsh
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        curl \
+        build-essential \
+        file \
+        git \
+        sudo \
+        sed \
+        findutils \
+        software-properties-common \
+        zsh
 
-RUN useradd -m -s /bin/zsh -d /docker docker
-RUN echo "docker ALL=NOPASSWD: ALL" >> /etc/sudoers
+RUN useradd -m -s /bin/zsh -d /home/docker-qa docker-qa  && \
+    echo "docker-qa ALL=NOPASSWD: ALL" >> /etc/sudoers
 
-COPY ./tests/entrypoint.sh /docker/
+USER docker-qa
 
-RUN chmod +x /docker/entrypoint.sh
+COPY ./ /home/docker-qa/.dotfiles
 
-USER docker
+WORKDIR /home/docker-qa
 
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
+RUN DOTFILES_VERBOSE=true .dotfiles/install
 
-RUN mkdir -p /docker/.config/chezmoi \
-    && curl -sfL https://git.io/chezmoi | sudo sh
-
-COPY ./tests/chezmoi.toml /docker/.config/chezmoi/
-
-WORKDIR /docker
-
-ENV PATH="/home/linuxbrew/.linuxbrew/bin:${HOME}/.local/bin:$PATH"
-
-ENTRYPOINT [ "/docker/entrypoint.sh" ]
+#ENTRYPOINT [ "/docker/entrypoint.sh" ]
