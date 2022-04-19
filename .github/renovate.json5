@@ -25,7 +25,7 @@
   "regexManagers": [
     {
       "fileMatch": [
-        "home\\/.*\\"
+        "home\\/.*"
       ],
       "matchStrings": [
          "# renovate: depName=(?<depName>.*) datasource=(?<datasource>.*)\\n\\s*current_\\w+_version=(?<currentValue>.+)\\b"
