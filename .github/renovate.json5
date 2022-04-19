@@ -1,5 +1,39 @@
 {
-  "extends": [
-    "config:base"
+  "enabled": true,
+  "timezone": "Europe/London",
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "Renovate Dashboard",
+  "labels": ["renovatebot"],
+  "commitMessageSuffix": "[ci-skip]",
+  "commitBody": "Signed-off-by: Marcos Soutullo Rodriguez <marcos.soutullo91@gmail.com>",
+  // Do not notify on closed unmerged PRs
+  "suppressNotifications": [
+    "prIgnoreNotification"
+  ],
+    "ignoreTests": true,
+    "extends": [
+        "config:base",
+        "github>aquaproj/aqua-renovate-config:installer-script#0.1.8(.chezmoiscripts/.*install-aqua\\.sh\\.tmpl)",
+        "github>aquaproj/aqua-renovate-config:file#0.1.8(dot_config/aqua\\.yaml\\.tmpl)",
+        "github>aquaproj/aqua-renovate-config:golang-go#0.1.8(dot_config/aqua\\.yaml\\.tmpl)"
+    ],
+  // Do not rebase PRs
+  "rebaseWhen": "conflicted",
+  "assignees": [
+    "@kitos9112"
+  ],
+  "regexManagers": [
+    {
+      "fileMatch": [
+        "home\\/.*\\"
+      ],
+      "matchStrings": [
+         "# renovate: depName=(?<depName>.*) datasource=(?<datasource>.*)\\n\\s*current_\\w+_version=(?<currentValue>.+)\\b"
+      ],
+      "datasourceTemplate": "git-tags"
+    }
+  ],
+  "packageRules": [
+    //
   ]
-}
+  }
