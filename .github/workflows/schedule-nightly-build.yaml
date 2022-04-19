@@ -50,8 +50,8 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: x-access-token
+          password: ${{ steps.generate-token.outputs.token }}
 
       - name: Build and push
         uses: docker/build-push-action@v2
@@ -61,4 +61,4 @@ jobs:
           file: ./tests/ubuntu/Dockerfile
           push: true
           tags: |
-            kitos9112/dotfiles:latest
+            ghcr.io/${{ github.repository }}:latest
