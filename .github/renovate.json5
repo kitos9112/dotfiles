@@ -1,22 +1,33 @@
 {
-  "enabled": true,
+  "extends": [
+    ":enableRenovate",
+    "config:base",
+    ":disableRateLimiting",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":separatePatchReleases",
+    "docker:enableMajor",
+    ":enablePreCommit",
+    "github>aquaproj/aqua-renovate-config:installer-script#0.1.8(.chezmoiscripts/.*install-aqua\\.sh\\.tmpl)",
+    "github>aquaproj/aqua-renovate-config:file#0.1.8(dot_config/aqua\\.yaml\\.tmpl)",
+    "github>aquaproj/aqua-renovate-config:golang-go#0.1.8(dot_config/aqua\\.yaml\\.tmpl)"
+  ],
+  "platform": "github",
+  "username": "henry-pa-bot[bot]",
+  "repositories": ["kitos9112/dotfiles"],
   "timezone": "Europe/London",
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "Renovate Dashboard",
   "labels": ["renovatebot"],
   "commitMessageSuffix": "[ci-skip]",
-  "commitBody": "Signed-off-by: Marcos Soutullo Rodriguez <marcos.soutullo91@gmail.com>",
+  "onboarding": false,
+  "requireConfig": false,
+  "gitAuthor": "henry-pa-bot <166536+henry-bot[bot]@users.noreply.github.com>",
   // Do not notify on closed unmerged PRs
   "suppressNotifications": [
     "prIgnoreNotification"
   ],
     "ignoreTests": true,
-    "extends": [
-        "config:base",
-        "github>aquaproj/aqua-renovate-config:installer-script#0.1.8(.chezmoiscripts/.*install-aqua\\.sh\\.tmpl)",
-        "github>aquaproj/aqua-renovate-config:file#0.1.8(dot_config/aqua\\.yaml\\.tmpl)",
-        "github>aquaproj/aqua-renovate-config:golang-go#0.1.8(dot_config/aqua\\.yaml\\.tmpl)"
-    ],
   // Do not rebase PRs
   "rebaseWhen": "conflicted",
   "assignees": [
