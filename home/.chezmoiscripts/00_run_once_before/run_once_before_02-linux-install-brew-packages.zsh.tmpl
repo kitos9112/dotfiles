@@ -16,29 +16,30 @@ $brew --version
 
 # 3. Install Homebrew packages
 $brew install kubernetes-cli \
-                chezmoi \
-                kops \
-                helm \
-                k9s \
+                aws-rotate-key \
                 borgbackup \
-                sops \
-                hub \
-                git-crypt \
-                yq \
+                chezmoi \
+                docker-credential-helper-ecr \
+                figlet \
+                fluxcd/tap/flux \
                 fzf \
                 gcc \
-                gomplate \
-                kustomize \
-                kubeseal \
-                shellcheck \
-                fluxcd/tap/flux \
-                iperf3 \
-                go-task/tap/go-task \
-                figlet \
-                lolcat \
                 gh \
-                aws-rotate-key \
-                docker-credential-helper-ecr || echo "Catching some errors"
+                git-crypt \
+                go \
+                go-task/tap/go-task \
+                gomplate \
+                helm \
+                hub \
+                iperf3 \
+                k9s \
+                kops \
+                kubeseal \
+                kustomize \
+                lolcat \
+                shellcheck \
+                sops \
+                yq || echo "Catching some errors"
 
 # 4. Upgrade already-installed brew packages
 $brew update && $brew upgrade
