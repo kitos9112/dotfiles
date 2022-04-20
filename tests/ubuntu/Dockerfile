@@ -17,7 +17,7 @@ RUN useradd -m -s /bin/zsh -d /home/docker-qa docker-qa  && \
 
 USER docker-qa
 
-COPY ./ /home/docker-qa/.dotfiles
+COPY --chown=docker-qa:docker-qa ./ /home/docker-qa/.dotfiles
 
 WORKDIR /home/docker-qa
 

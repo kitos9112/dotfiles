@@ -4,6 +4,7 @@ SCRIPT_PATH="$(
   pwd -P
 )"
 
-sh -c "${SCRIPT_PATH}/../install"
+script -qec "zsh -is </dev/null" /dev/null
 
+chezmoi update -a -v
 exec "$@"

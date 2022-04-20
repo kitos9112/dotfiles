@@ -1,3 +1,4 @@
+![Nightly Build](https://github.com/kitos9112/dotfiles/actions/workflows/schedule-nightly-build.yaml/badge.svg)
 # My Personal Public DOTfiles managed by `chezmoi`
 
 This public Github repository has been built for my own benefit, however, feel free to sneak in and steal anything that would improve your own productivity.
@@ -5,7 +6,7 @@ My plans are focused on maintaining a `CI` workflow with GH actions for ensuring
 At the moment, I got Docker containers for the following Linux flavours:
 
 - Fedora 35
-- Ubuntu 20.04
+- Ubuntu 20.04 - A nightly build happens within a Docker container at 00:00 UTC every day.
 
 As of April 2022, I've begun to configure a MacOS device, but it's still very early days.
 ## Installation instructions
