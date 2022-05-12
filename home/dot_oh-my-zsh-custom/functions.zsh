@@ -47,11 +47,27 @@ mkpoetryproj() {
 	fi
 }
 
-function get_latest_github_release {
+# Make an ssh key if not exists, and copy ssh key to clipboard
+# needs xclip to copy to system clipboard
+ssh-key-now() {
+	cat /dev/zero | ssh-keygen -t ed25519 -C "made with ssh-key-now" -q -N ""
+	xclip -sel clip <~/.ssh/id_ed25519.pub
+	echo "ssh-key copied to clipboard"
+}
+
+# Given the name of an EC2 instance, return the instance ID and open an SSMSession on it
+function aws-ssh-instance {
+	local instanceName=$1
+	local instanceId=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${instanceName}" --query 'Reservations[*].Instances[*].{InstanceId:InstanceId}' --output text)
+
+	aws ssm start-session --target ${instanceId}
+}
+
+function github-get-latest-release {
 	curl -s https://api.github.com/repos/$1/$2/releases/latest | grep -oP '"tag_name": "[v]\K(.*)(?=")'
 }
 
-function get_latest_github_tag {
+function github-get-latest-tag {
 	curl -s https://api.github.com/repos/$1/$2/tags | grep -m1 -oP '"name": "\K(.*)(?=")'
 }
 

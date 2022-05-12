@@ -19,10 +19,3 @@ alias git-branch-pmr="git push -o merge_request.create -o merge_request.remove_s
 # This alias is useful when you want to automatically create a merge request on gitlab and the source branch still does not exist in the remote repository.
 alias gitlab-push-mr="git push --set-upstream \`git remote | tail -1\` \`git rev-parse --abbrev-ref HEAD\` -o merge_request.create -o merge_request.target=\`git remote show \$(git remote) | grep 'HEAD branch' | cut -d ' ' -f5\`"
 
-# Make an ssh key if not exists, and copy ssh key to clipboard
-# needs xclip to copy to system clipboard
-ssh-key-now() {
-	cat /dev/zero | ssh-keygen -t ed25519 -C "made with ssh-key-now" -q -N ""
-	xclip -sel clip <~/.ssh/id_ed25519.pub
-	echo "ssh-key copied to clipboard"
-}

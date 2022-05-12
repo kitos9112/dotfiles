@@ -7,7 +7,6 @@ source {{ .chezmoi.sourceDir }}/scripts/.helpers
 
 started "Configure the latest version of Terragrunt and Terraform"
 echo -e "latest" > ${HOME}/.terraform-version
-echo -e "latest" > ${HOME}/.terragrunt-version
 
 {{- if (eq .chezmoi.osRelease.id "fedora") -}}
   started "Download the latest version of session-manager-plugin for AWS SSM"
