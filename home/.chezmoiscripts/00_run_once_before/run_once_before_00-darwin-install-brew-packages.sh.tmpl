@@ -24,7 +24,9 @@ $brew bundle --no-lock --file=/dev/stdin <<EOF
     tap "homebrew/cask"
     tap "homebrew/core"
     tap "instrumenta/instrumenta"
+    brew "direnv"
     brew "readline"
+    brew "go"
     brew "asdf"
     brew "sqlite"
     brew "xz"
@@ -74,7 +76,6 @@ $brew bundle --no-lock --file=/dev/stdin <<EOF
     brew "fluxcd/tap/flux"
     brew "gabrie30/utils/ghorg"
     brew "go-task/tap/go-task"
-    cask "1password"
     cask "authy"
     cask "firefox"
     cask "google-chrome"
@@ -85,6 +86,7 @@ $brew bundle --no-lock --file=/dev/stdin <<EOF
     cask "slack"
     cask "spotify"
     cask "unnaturalscrollwheels"
+    cask "1password/tap/1password-cli"
     cask "visual-studio-code"
 EOF
 
