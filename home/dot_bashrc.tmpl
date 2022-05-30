@@ -8,6 +8,24 @@ case $- in
       *) return;;
 esac
 
+# Lang-related settings
+export LANG=en_GB.UTF-8
+export LC_ALL=en_GB.UTF-8
+
+export EDITOR="/usr/bin/vim"
+export TERM="xterm-256color"
+export GPG_TTY=$TTY # Fix gpg: signing failed: Inappropiate ioctl for device
+
+export MANPATH="/usr/local/man:$MANPATH"
+export PYENV_ROOT="$HOME/.pyenv"
+
+# user-specific configuration files should be stored. If $XDG_CONFIG_HOME is either not set or empty, a default equal to $HOME/.config
+export XDG_CONFIG_HOME="${HOME}/.config"
+# user-specific data files should be stored. If $XDG_DATA_HOME is either not set or empty, a default equal to $HOME/.local/share
+export XDG_DATA_HOME="${HOME}/.data"
+# user-specific state files should be stored. If $XDG_STATE_HOME is either not set or empty, a default equal to $HOME/.local/state
+export XDG_STATE_HOME="${HOME}/.state"
+
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
 HISTCONTROL=ignoreboth
@@ -124,6 +142,13 @@ export PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
 
 # Poetry
 export PATH="$PATH:$HOME/.poetry/bin"
+
+{{- if (eq .chezmoi.os "darwin") -}}
+
+# Hitting a MacOS system :)
+export PATH=${PYENV_ROOT:-$HOME/.pyenv}/bin:${HOME}/.local/bin:${HOME}/bin:${HOME}/.asdf/shims:$HOME/.poetry/bin:/opt/homebrew/bin:/opt/homebrew/sbin:${KREW_ROOT:-$HOME/.krew}/bin:${PATH}
+
+{{ end }}
 
 # tabtab source for packages
 # uninstall by removing these lines
