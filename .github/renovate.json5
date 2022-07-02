@@ -39,7 +39,7 @@
         "home\\/.*"
       ],
       "matchStrings": [
-         "# renovate: depName=(?<depName>.*) datasource=(?<datasource>.*)\\n\\s*current_\\w+_version=(?<currentValue>.+)\\b"
+         "# renovate: datasource=(?<datasource>.+)\\n(?<depName>.*)\\s(?<currentValue>.+)\\b"
       ],
       "datasourceTemplate": "git-tags"
     }
