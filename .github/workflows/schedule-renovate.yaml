@@ -17,8 +17,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - ".github/renovate.json5"
 
 env:
   LOG_LEVEL: info
