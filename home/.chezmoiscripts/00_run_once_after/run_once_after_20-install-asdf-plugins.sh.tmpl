@@ -1,0 +1,33 @@
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
+#! /bin/zsh
+
+set -ev pipefail
+
+source {{ .chezmoi.sourceDir }}/scripts/.helpers
+
+# Install Terragrunt plugin
+asdf plugin-add terragrunt || if [[ $? -eq 2 ]]; then
+  log_echo "Terragrunt plugin already installed!"
+fi
+
+# Install kubectl plugin
+asdf plugin-add kubectl || if [ $? -eq 2 ]; then
+  log_echo "Kubectl plugin already installed!"
+fi
+
+# Install terraform plugin
+asdf plugin-add terraform https://github.com/asdf-community/asdf-hashicorp.git || if [ $? -eq 2 ]; then
+  log_echo "Terraform plugin already installed!"
+fi
+
+# Install packer plugin
+asdf plugin-add packer || if [ $? -eq 2 ]; then
+  log_echo "Packer plugin already installed!"
+fi
+
+# Install helm plugin
+asdf plugin-add helm https://github.com/Antiarchitect/asdf-helm.git || if [ $? -eq 2 ]; then
+  log_echo "Helm plugin already installed!"
+fi
+
+{{- end -}}
