@@ -1,5 +1,5 @@
 ---
-name: Schedule - Renovate
+name: Schedule/Push - Renovate
 
 on:
   workflow_dispatch:
