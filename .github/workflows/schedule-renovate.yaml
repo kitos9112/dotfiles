@@ -17,6 +17,7 @@ on:
   push:
     branches:
       - main
+      - master
 
 env:
   LOG_LEVEL: info
