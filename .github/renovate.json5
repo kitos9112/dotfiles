@@ -32,8 +32,7 @@
              "fileMatch": ["home\\/.*"],
              "matchStrings": [
                 "# renovate: datasource=(?<datasource>.+?) packageName=(?<packageName>.+?)( extractVersion=(?<extractVersion>.+?))?( registryUrl=(?<registryUrl>.+?))?\\s+(?<depName>.+?) (?<currentValue>.+)"
-             ],
-             "datasourceTemplate": "git-tags"
+             ]
            }
          ],
          "packageRules": [
