@@ -30,4 +30,9 @@ asdf plugin-add helm https://github.com/Antiarchitect/asdf-helm.git || if [ $? -
   log_echo "Helm plugin already installed!"
 fi
 
+# Install pluto plugin
+asdf plugin-add pluto https://github.com/FairwindsOps/asdf-pluto.git || if [ $? -eq 2 ]; then
+  log_echo "Pluto plugin already installed!"
+fi
+
 {{- end -}}
