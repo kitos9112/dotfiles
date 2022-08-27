@@ -1,12 +1,12 @@
-# renovate: datasource=github-releases
+# renovate: datasource=github-tags depName=kubernetes/kubectl versioning=regex:^kubernetes-v?(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)?$
 kubectl 1.23.7
-# renovate: datasource=github-releases
+# renovate: datasource=github-tags depName=helm/helm versioning=regex:
 helm 3.9.2
 # TODO: Move away from pyenv and stick with `ASDF` FTW
 # python {{ .python_version }}
-# renovate: datasource=github-releases
+# renovate: datasource=github-releases depName=gruntwork-io/terragrunt
 terragrunt 0.38.7
-# renovate: datasource=github-releases
+# renovate: datasource=github-releases depName=hashicorp/terraform
 terraform 1.2.6
-# renovate: datasource=github-releases
+# renovate: datasource=github-releases depName=FairwindsOps/pluto
 pluto 5.10.3

@@ -21,6 +21,10 @@
 
 [diff]
   ignoreSubmodules = dirty
+  guitool = vscode
+
+ [difftool "vscode"]
+   cmd = code --wait --diff $LOCAL $REMOTE
 
 [push]
   default=simple
