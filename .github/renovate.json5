@@ -31,7 +31,7 @@
            {
              "fileMatch": ["home\\/.*"],
              "matchStrings": [
-              "# renovate: datasource=(?<datasource>.+?)\\s*(versioning=(?<versioning>.*?))?\\s*( extractVersion=(?<extractVersion>.+?))?\\s*packageName=(?<packageName>.*)?\\n(?<depName>.+) (?<currentValue>.+)\\b"
+                "# renovate: datasource=(?<datasource>.+?) packageName=(?<packageName>.+?)( extractVersion=(?<extractVersion>.+?))?( registryUrl=(?<registryUrl>.+?))?\\s+(?<depName>.+?) (?<currentValue>\\d+.\\d+.\\d+?)"
              ],
              "extractVersionTemplate": "{{#if extractVersion}}{{{extractVersion}}}{{else}}^v?(?<version>.+)${{/if}}",
              "datasourceTemplate": "git-tags"
