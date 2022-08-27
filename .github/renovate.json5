@@ -33,6 +33,7 @@
              "matchStrings": [
                "# renovate: datasource=(?<datasource>.+?)\\s+depName=(?<depName>.*?)\\s*(versioning=(?<versioning>.*?))?\\n\\w+\\s+(?<currentValue>.+)\\b"
              ],
+             "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$",
              "datasourceTemplate": "git-tags"
            }
          ],
