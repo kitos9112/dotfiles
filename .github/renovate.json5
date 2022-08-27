@@ -29,9 +29,9 @@
          "assignees": ["@kitos9112"],
          "regexManagers": [
            {
-             "fileMatch": ["home\\/.*"],
+             "fileMatch": ["home/dot_tool-versions.tmpl"],
              "matchStrings": [
-                "# renovate: datasource=(?<datasource>.+?) packageName=(?<packageName>.+?)( extractVersion=(?<extractVersion>.+?))?( registryUrl=(?<registryUrl>.+?))?\\s+(?<depName>.+?) (?<currentValue>\\d+.\\d+.\\d+?)"
+                "# renovate: datasource=(?<datasource>.+?) packageName=(?<packageName>.+?)( extractVersion=(?<extractVersion>.+?))?( registryUrl=(?<registryUrl>.+?))?\\s+(?<depNameOld>.+?) (?<currentValue>\\d+.\\d+.\\d+?)"
              ],
              "extractVersionTemplate": "{{#if extractVersion}}{{{extractVersion}}}{{else}}^v?(?<version>.+)${{/if}}",
              "datasourceTemplate": "git-tags"
