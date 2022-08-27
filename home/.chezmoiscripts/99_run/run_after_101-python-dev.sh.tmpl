@@ -10,7 +10,8 @@ export PATH="{{ .chezmoi.homeDir }}/.pyenv/shims:${PATH}"
 
 # Install if version not met
 if [[ $(${pyenv} version | awk '{print $1}') != {{ .python_version }} ]]; then
-  ${pyenv} install {{ .python_version }}
+
+  ${pyenv} install {{ .python_version }} || CC="$(brew --prefix gcc)/bin/gcc-12" ${pyenv} install {{ .python_version }}
   ${pyenv} rehash
   pip install --upgrade pip setuptools
   echo "{{ .python_version }}" > {{ .chezmoi.homeDir }}/.pyenv/version

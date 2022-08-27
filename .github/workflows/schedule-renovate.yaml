@@ -13,13 +13,14 @@ on:
         default: "debug"
         required: false
   schedule:
-    - cron: "0 * * * *"
+    - cron: "*/10 * * * *"
   push:
     branches:
       - main
+      - master
 
 env:
-  LOG_LEVEL: info
+  LOG_LEVEL: debug
   DRY_RUN: false
   RENOVATE_CONFIG_FILE: .github/renovate.json5
 

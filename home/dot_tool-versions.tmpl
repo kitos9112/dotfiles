@@ -1,12 +1,15 @@
-# renovate: datasource=github-releases
+# renovate: datasource=github-tags packageName=kubernetes/kubernetes
 kubectl 1.23.7
-# renovate: datasource=github-releases
+# renovate: datasource=github-tags packageName=helm/helm
 helm 3.9.2
 # TODO: Move away from pyenv and stick with `ASDF` FTW
 # python {{ .python_version }}
-# renovate: datasource=github-releases
-terragrunt 0.38.8
-# renovate: datasource=github-releases
-terraform 1.2.6
-# renovate: datasource=github-releases
-pluto 5.10.3
+# renovate: datasource=github-releases packageName=gruntwork-io/terragrunt
+terragrunt 0.38.7
+# renovate: datasource=github-releases packageName=hashicorp/terraform
+terraform 1.2.8
+# renovate: datasource=github-releases packageName=FairwindsOps/pluto
+pluto v5.10.6
+
+# TODO: Move away from pyenv and stick with `ASDF` FTW
+# python {{ .python_version }}

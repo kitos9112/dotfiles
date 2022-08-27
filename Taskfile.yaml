@@ -1,0 +1,25 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  RENOVATE_CONFIG: "tests/renovate-bot/local-config.js"
+
+dotenv: ["~/.env"]
+
+tasks:
+  run-renovate:
+    env:
+      GITHUB_TOKEN: "{{.GITHUB_TOKEN}}"
+    cmds:
+      - echo $GITHUB_TOKEN
+      - >
+        docker run --rm
+        --volume "$(pwd)tests/renovate-bot/local-config.js:/usr/src/app/config.js"
+        renovate/renovate:slim
+        --platform=github
+        --token=$GITHUB_TOKEN
+        --print-config=true
+        --force-cli=true
+        --dry-run=full
+        --use-base-branch-config=merge
