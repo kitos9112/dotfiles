@@ -9,6 +9,9 @@ alias get-public-ip-wget="wget -qO- http://ipecho.net/plain | xargs echo"
 
 # AWS
 alias aws-get-instanceid="export AWS_EC2_INSTANCE_ID=\`aws ec2 describe-instances --filters \"Name=tag:Name,Values=${AWS_EC2_INSTANCE_NAME}\" --output text --query \"Reservations[*].Instances[*].InstanceId\"\` && echo ${AWS_EC2_INSTANCE_ID}"
+{{- if .op_vfad }}
+alias saml2aws-vf="saml2aws login --username \`op item get {{ .op_vfad }} --fields label=username\` --password \`op item get {{ .op_vfad }} --fields label=password\` --skip-prompt --mfa-token=\`op item get {{ .op_vfad }} --otp\`"
+{{- end }}
 
 # GIT
 alias git-branch-rn-all="git branch | grep -v $(git_main_branch) | xargs git branch -D"
@@ -18,4 +21,3 @@ alias git-branch-pmr="git push -o merge_request.create -o merge_request.remove_s
 ## GITLAB
 # This alias is useful when you want to automatically create a merge request on gitlab and the source branch still does not exist in the remote repository.
 alias gitlab-push-mr="git push --set-upstream \`git remote | tail -1\` \`git rev-parse --abbrev-ref HEAD\` -o merge_request.create -o merge_request.target=\`git remote show \$(git remote) | grep 'HEAD branch' | cut -d ' ' -f5\`"
-
