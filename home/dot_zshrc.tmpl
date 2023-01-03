@@ -72,6 +72,8 @@ plugins=(
 	zsh-syntax-highlighting
 )
 
+fpath+=${ZSH_CUSTOM:-${ZSH:-~/.oh-my-zsh}/custom}/plugins/zsh-completions/src
+
 source $ZSH/oh-my-zsh.sh
 
 autoload -Uz compinit
@@ -111,3 +113,7 @@ export SDKMAN_DIR="{{ .chezmoi.homeDir }}/.sdkman"
 [[ -s "{{ .chezmoi.homeDir }}/.sdkman/bin/sdkman-init.sh" ]] && source "{{ .chezmoi.homeDir }}/.sdkman/bin/sdkman-init.sh"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+{{ if (eq .chezmoi.os "darwin") }}
+	test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+{{ end }}

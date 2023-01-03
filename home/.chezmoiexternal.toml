@@ -10,6 +10,12 @@ url = "https://github.com/zsh-users/zsh-syntax-highlighting.git"
 exact = true
 refreshPeriod = "24h"
 
+[".oh-my-zsh-custom/plugins/zsh-completions"]
+type = "git-repo"
+url = "https://github.com/zsh-users/zsh-completions.git"
+exact = true
+refreshPeriod = "24h"
+
 [".oh-my-zsh-custom/themes/powerlevel10k"]
 type = "git-repo"
 url = "https://github.com/romkatv/powerlevel10k.git"
