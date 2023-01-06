@@ -14,8 +14,6 @@ alias saml2aws-vf="saml2aws login --username \`op item get {{ .op_vfad }} --fiel
 {{- end }}
 
 # GIT
-alias git-branch-rn-all="git branch | grep -v $(git_main_branch) | xargs git branch -D"
-alias git-rm-merged-dev="git branch --merged dev | grep -v '^[ *]*dev$' | xargs git branch -d; git remote prune origin"
 alias git-branch-pmr="git push -o merge_request.create -o merge_request.remove_source_branch -o merge_request.target"
 
 ## GITLAB
