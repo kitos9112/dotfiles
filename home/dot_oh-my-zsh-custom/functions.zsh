@@ -165,10 +165,10 @@ restart_gpgagent() {
 
 gitbd() {
 	if [ $# -le 1 ]; then
-		local branches_to_delete=$(git for-each-ref --format '%(refname:short)' refs/heads/ | grep "$1")
+		local branches_to_delete=$(git for-each-ref --format '%(refname:short)' refs/heads/ --no-contains $(git_main_branch) | grep "$1")
 		printf "Matching branches:\n\n$branches_to_delete\n\nDelete? [Y/n] "
-		read -n 1 -r # Immediately continue after getting 1 keypress
-		echo         # Move to a new line
+		read -n 1 # Immediately continue after getting 1 keypress
+		echo      # Move to a new line
 		if [[ ! $REPLY == 'N' && ! $REPLY == 'n' ]]; then
 			echo $branches_to_delete | xargs git branch -D
 		fi
