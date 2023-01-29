@@ -5,34 +5,25 @@ set -ev pipefail
 
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
 
-# Install Terragrunt plugin
-asdf plugin-add terragrunt || if [[ $? -eq 2 ]]; then
-  log_echo "Terragrunt plugin already installed!"
-fi
+# This function will take two arguments to install ASDF plugins; 1) the plugin name 2) its optioal URL location.
+# If the plugin is already installed, it will skip the installation.
+function asdf_plugin_install() {
+  local plugin_name=$1
+  local plugin_url=$2
 
-# Install kubectl plugin
-asdf plugin-add kubectl || if [ $? -eq 2 ]; then
-  log_echo "Kubectl plugin already installed!"
-fi
+  asdf plugin-add $plugin_name ${plugin_url} || if [[ $? -eq 2 ]]; then
+    log_echo "$plugin_name plugin already installed!"
+  fi
 
-# Install terraform plugin
-asdf plugin-add terraform https://github.com/asdf-community/asdf-hashicorp.git || if [ $? -eq 2 ]; then
-  log_echo "Terraform plugin already installed!"
-fi
+}
 
-# Install packer plugin
-asdf plugin-add packer || if [ $? -eq 2 ]; then
-  log_echo "Packer plugin already installed!"
-fi
 
-# Install helm plugin
-asdf plugin-add helm https://github.com/Antiarchitect/asdf-helm.git || if [ $? -eq 2 ]; then
-  log_echo "Helm plugin already installed!"
-fi
-
-# Install pluto plugin
-asdf plugin-add pluto https://github.com/FairwindsOps/asdf-pluto.git || if [ $? -eq 2 ]; then
-  log_echo "Pluto plugin already installed!"
-fi
+asdf_plugin_install "terragrunt"
+asdf_plugin_install "kubectl"
+asdf_plugin_install "python"
+asdf_plugin_install "packer"
+asdf_plugin_install "terraform" "https://github.com/asdf-community/asdf-hashicorp.git"
+asdf_plugin_install "helm" "https://github.com/Antiarchitect/asdf-helm.git"
+asdf_plugin_install "pluto" "https://github.com/FairwindsOps/asdf-pluto.git"
 
 {{- end -}}
