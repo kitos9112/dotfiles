@@ -1,42 +1,66 @@
- {
-         "extends": [
-           ":enableRenovate",
-           "config:base",
-           ":disableRateLimiting",
-           ":dependencyDashboard",
-           ":semanticCommits",
-           ":separatePatchReleases",
-           "docker:enableMajor",
-           ":enablePreCommit"
-          //  "github>aquaproj/aqua-renovate-config:installer-script#0.1.8(.chezmoiscripts/.*install-aqua\\.sh\\.tmpl)",
-          //  "github>aquaproj/aqua-renovate-config:file#0.1.8(dot_config/aqua\\.yaml\\.tmpl)",
-          //  "github>aquaproj/aqua-renovate-config:golang-go#0.1.8(dot_config/aqua\\.yaml\\.tmpl)"
-         ],
-         "platform": "github",
-         "username": "henry-pa-bot[bot]",
-         "repositories": ["kitos9112/dotfiles"],
-         "timezone": "Europe/London",
-         "dependencyDashboard": true,
-         "dependencyDashboardTitle": "Renovate Dashboard",
-         "labels": ["renovatebot"],
-         "commitMessageSuffix": "[ci-skip]",
-         "onboarding": false,
-         "requireConfig": "optional",
-         "gitAuthor": "henry-pa-bot <166536+henry-bot[bot]@users.noreply.github.com>",
-         "suppressNotifications": ["prIgnoreNotification"],
-         "ignoreTests": true,
-         "rebaseWhen": "conflicted",
-         "assignees": ["@kitos9112"],
-         "regexManagers": [
-           {
-             "fileMatch": ["home\\/.*"],
-             "matchStrings": [
-                "# renovate: datasource=(?<datasource>.+?) packageName=(?<packageName>.+?)( extractVersion=(?<extractVersion>.+?))?( registryUrl=(?<registryUrl>.+?))?\\s+(?<depName>.+?) (?<currentValue>.+)"
-             ],
-            "extractVersionTemplate": "{{#if extractVersion}}{{extractVersion}}{{else}}^v?(?<version>.+)${{/if}}"
-           }
-         ],
-         "packageRules": [
-           {"matchUpdateTypes": ["minor", "patch", "pin", "digest"], "automerge": true}
-         ]
-       }
+{
+  "extends": [
+    ":enableRenovate",
+    "config:base",
+    ":disableRateLimiting",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":separatePatchReleases",
+    "docker:enableMajor",
+    ":enablePreCommit"
+    //  "github>aquaproj/aqua-renovate-config:installer-script#0.1.8(.chezmoiscripts/.*install-aqua\\.sh\\.tmpl)",
+    //  "github>aquaproj/aqua-renovate-config:file#0.1.8(dot_config/aqua\\.yaml\\.tmpl)",
+    //  "github>aquaproj/aqua-renovate-config:golang-go#0.1.8(dot_config/aqua\\.yaml\\.tmpl)"
+  ],
+  "platform": "github",
+  "username": "henry-pa-bot[bot]",
+  "repositories": [
+    "kitos9112/dotfiles"
+  ],
+  "timezone": "Europe/London",
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "Renovate Dashboard",
+  "labels": [
+    "renovatebot"
+  ],
+  "commitMessageSuffix": "[ci-skip]",
+  "onboarding": false,
+  "requireConfig": "optional",
+  "gitAuthor": "henry-pa-bot <166536+henry-bot[bot]@users.noreply.github.com>",
+  "suppressNotifications": [
+    "prIgnoreNotification"
+  ],
+  "ignoreTests": true,
+  "rebaseWhen": "conflicted",
+  "assignees": [
+    "@kitos9112"
+  ],
+  "regexManagers": [
+    {
+      "fileMatch": [
+        "home\\/.*"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.+?) packageName=(?<packageName>.+?)( extractVersion=(?<extractVersion>.+?))?( registryUrl=(?<registryUrl>.+?))?\\s+(?<depName>.+?) (?<currentValue>.+)"
+      ],
+      "extractVersionTemplate": "{{#if extractVersion}}{{extractVersion}}{{else}}^v?(?<version>.+)${{/if}}"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
+      "automerge": true
+    }
+  ],
+  "asdf": {
+    "fileMatch": [
+      "(^|/)\\.tool-versions$",
+      "(^|/)dot_tool-versions.tmpl$",
+    ]
+  }
+}
