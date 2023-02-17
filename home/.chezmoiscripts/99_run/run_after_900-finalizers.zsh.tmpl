@@ -18,8 +18,7 @@ LDFLAGS="-Wl,-rpath,$(brew --prefix openssl)/lib" \
  CPPFLAGS="-I$(brew --prefix openssl)/include" \
  CONFIGURE_OPTS="--with-openssl=$(brew  --prefix openssl)" \
  asdf install
-{{- else -}}
+{{ else -}}
  asdf install
-{{- end -}}
-
+{{ end -}}
 {{ end -}}
