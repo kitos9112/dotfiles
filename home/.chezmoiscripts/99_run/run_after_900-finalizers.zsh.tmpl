@@ -11,4 +11,10 @@ $(brew --prefix)/bin/brew upgrade  || echo "Brew not found on path"
 # 6. Update all ASDF plugins
 asdf plugin update --all || echo "ASDF not found on path"
 
-{{- end -}}
+# 7. Install/update all ASDF package versions using libraries installed by brew
+LDFLAGS="-Wl,-rpath,$(brew --prefix openssl)/lib" \
+ CPPFLAGS="-I$(brew --prefix openssl)/include" \
+ CONFIGURE_OPTS="--with-openssl=$(brew  --prefix openssl)" \
+ asdf install
+
+{{ end -}}

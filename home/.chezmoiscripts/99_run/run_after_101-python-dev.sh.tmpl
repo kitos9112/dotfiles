@@ -5,27 +5,6 @@ set -e pipefail
 
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
 
-pyenv={{ .chezmoi.homeDir }}/.pyenv/bin/pyenv
-
-export PATH="{{ .chezmoi.homeDir }}/.pyenv/shims:${PATH}"
-
-# Install if version not met
-if [[ $(${pyenv} version | awk '{print $1}') != {{ .python_version }} ]]; then
-
-  #CPPFLAGS="-I$(brew --prefix openssl)/include" \
-  #LDFLAGS="-L$(brew --prefix openssl)/lib" \
-  #asdf install python 3.11.1
-
-  ${pyenv} install {{ .python_version }} || CC="$(brew --prefix gcc)/bin/gcc-12" ${pyenv} install {{ .python_version }}
-  ${pyenv} rehash
-  pip install --upgrade pip setuptools
-  echo "{{ .python_version }}" > {{ .chezmoi.homeDir }}/.pyenv/version
-fi
-
-if [ ! -d $(${pyenv} root)/plugins/pyenv-virtualenv ]; then
-  git clone https://github.com/pyenv/pyenv-virtualenv.git $(${pyenv} root)/plugins/pyenv-virtualenv
-fi
-
 python=$(which python)
 
 set -x

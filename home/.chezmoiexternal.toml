@@ -28,12 +28,6 @@ url = "https://github.com/gpakosz/.tmux.git"
 exact = true
 refreshPeriod = "24h"
 
-[".pyenv"]
-type = "git-repo"
-url = "https://github.com/pyenv/pyenv.git"
-exact = true
-refreshPeriod = "24h"
-
 [".asdf"]
 type = "git-repo"
 url = "https://github.com/asdf-vm/asdf.git"

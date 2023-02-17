@@ -17,7 +17,6 @@ export TERM="xterm-256color"
 export GPG_TTY=$TTY # Fix gpg: signing failed: Inappropiate ioctl for device
 
 export MANPATH="/usr/local/man:$MANPATH"
-export PYENV_ROOT="$HOME/.pyenv"
 
 # user-specific configuration files should be stored. If $XDG_CONFIG_HOME is either not set or empty, a default equal to $HOME/.config
 export XDG_CONFIG_HOME="${HOME}/.config"
@@ -133,9 +132,8 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-export PATH={{ .chezmoi.homeDir }}/bin:{{ .chezmoi.homeDir }}/.pyenv/bin:$PATH
+export PATH={{ .chezmoi.homeDir }}/bin:$PATH
 
-eval "$(pyenv virtualenv-init -)"
 export EDITOR=vim
 export GOPATH="$HOME/Go" # or any directory to put your Go code
 export PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
@@ -146,7 +144,7 @@ export PATH="$PATH:$HOME/.poetry/bin"
 {{- if (eq .chezmoi.os "darwin") -}}
 
 # Hitting a MacOS system :)
-export PATH=${PYENV_ROOT:-$HOME/.pyenv}/bin:${HOME}/.local/bin:${HOME}/bin:${HOME}/.asdf/shims:$HOME/.poetry/bin:/opt/homebrew/bin:/opt/homebrew/sbin:${KREW_ROOT:-$HOME/.krew}/bin:${PATH}
+export PATH=${HOME}/.local/bin:${HOME}/bin:${HOME}/.asdf/shims:$HOME/.poetry/bin:/opt/homebrew/bin:/opt/homebrew/sbin:${KREW_ROOT:-$HOME/.krew}/bin:${PATH}
 
 {{ end }}
 

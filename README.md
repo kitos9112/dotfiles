@@ -5,8 +5,8 @@ This public Github repository has been built for my own benefit, however, feel f
 My plans are focused on maintaining a `CI` workflow with GH actions for ensuring that my changes won't break across different OS flavours.
 At the moment, I got Docker containers for the following Linux flavours:
 
-- Fedora 35
-- Ubuntu 20.04 - A nightly build happens within a Docker container at 00:00 UTC every day.
+- Fedora 36
+- Ubuntu 22.04 - A nightly build happens within a Docker container at 00:00 UTC every day.
 
 As of April 2022, I've begun to configure a MacOS device, but it's still very early days.
 ## Installation instructions
@@ -39,6 +39,17 @@ Leveraging off-the-shelf `Chezmoi` capabilities
 ```bash
 chezmoi init --apply --verbose https://github.com/kitos9112/dotfiles.git
 ```
+
+## Chezmoi scripts
+
+Chezmoi uses general-purpose scripts to execute ordered operations in the system. They can run either:
+
+- Every time you run `chezmoi apply` (`run` scripts)
+- When their contents change (`run_once` or `run_onchange` scripts)
+
+[Application order](https://www.chezmoi.io/reference/application-order/)
+
+Scripts are found in its own [directory](./home/.chezmoiscripts) to avoid being copied over to the target system.
 
 ## Security considerations
 
