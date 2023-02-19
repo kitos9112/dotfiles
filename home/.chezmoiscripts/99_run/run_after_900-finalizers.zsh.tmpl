@@ -14,11 +14,9 @@ asdf plugin update --all || echo "ASDF not found on path"
 # 7. Install/update all ASDF package versions using libraries installed by brew
 ## Make sure LDF, CPPF and OPTS are set for openssl on Linux with dependencies installed by brew
 
-{{- if (eq .chezmoi.os "darwin") -}}
+{{- if (eq .chezmoi.os "darwin") }}
   asdf install
-{{ end -}}
-
-{{- if (eq .chezmoi.os "linux") -}}
+{{ else }}
 LDFLAGS="-Wl,-rpath,$(brew --prefix openssl)/lib" \
  CPPFLAGS="-I$(brew --prefix openssl)/include" \
  CONFIGURE_OPTS="--with-openssl=$(brew  --prefix openssl)" \
