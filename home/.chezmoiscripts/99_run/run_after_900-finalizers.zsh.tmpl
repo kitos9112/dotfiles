@@ -4,22 +4,23 @@
 set -ev pipefail
 
 # 5. Update and upgrade brew packages
+ASDF="${HOME}/.asdf/bin/asdf"
 
 $(brew --prefix)/bin/brew update || echo "Brew not found on path"
 $(brew --prefix)/bin/brew upgrade  || echo "Brew not found on path"
 
 # 6. Update all ASDF plugins
-asdf plugin update --all || echo "ASDF not found on path"
+${ASDF} plugin update --all
 
 # 7. Install/update all ASDF package versions using libraries installed by brew
 ## Make sure LDF, CPPF and OPTS are set for openssl on Linux with dependencies installed by brew
 
 {{- if (eq .chezmoi.os "darwin") }}
-  asdf install
+  ${ASDF} install
 {{ else }}
 LDFLAGS="-Wl,-rpath,$(brew --prefix openssl)/lib" \
  CPPFLAGS="-I$(brew --prefix openssl)/include" \
  CONFIGURE_OPTS="--with-openssl=$(brew  --prefix openssl)" \
- asdf install
+ ${ASDF} install
 {{ end -}}
 {{ end -}}

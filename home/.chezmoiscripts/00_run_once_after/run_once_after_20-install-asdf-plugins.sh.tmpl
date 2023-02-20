@@ -4,6 +4,7 @@
 set -ev pipefail
 
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
+ASDF="${HOME}/.asdf/bin/asdf"
 
 # This function will take two arguments to install ASDF plugins; 1) the plugin name 2) its optioal URL location.
 # If the plugin is already installed, it will skip the installation.
@@ -11,7 +12,7 @@ function asdf_plugin_install() {
   local plugin_name=$1
   local plugin_url=$2
 
-  asdf plugin-add $plugin_name ${plugin_url} || if [[ $? -eq 2 ]]; then
+  ${ASDF} plugin-add $plugin_name ${plugin_url} || if [[ $? -eq 2 ]]; then
     log_echo "$plugin_name plugin already installed!"
   fi
 
