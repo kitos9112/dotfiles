@@ -6,7 +6,7 @@
 
 {{- $workSigningKey := "473E049DD4211D4E" -}}
 {{- $workName := "Marcos Soutullo Rodriguez" -}}
-{{- $workEmail := "marcos.soutullo@vodafone.com" -}}
+{{- $workEmail := "" -}}
 
 {{- $isWork := contains "ukfed-msr" (lower .chezmoi.hostname) -}}
 {{- $isPersonal := not $isWork -}}
@@ -58,7 +58,8 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
   {{- end }}
 
   locale = "en_GB.UTF-8"
-  python_version = "3.11.1"
+  # renovate: datasource=github-tags packageName=python/cpython
+  python_version = "3.11.2"
 
 [sourceVCS]
   autoCommit = true
