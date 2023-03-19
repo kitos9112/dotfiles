@@ -83,11 +83,6 @@ compinit -u
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# Add further environment-related variables and functions that could be handy
-{{- if .is_work }}
-source ${ZSH_CUSTOM}/work_env.zsh
-{{- end }}
-
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('{{ .chezmoi.homeDir }}/{{ if (eq .chezmoi.os "darwin") }}opt/anaconda3{{ else }}miniconda3{{ end }}/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"

@@ -5,10 +5,6 @@
   name = {{ .name }}
   email = {{ .email }}
   signingKey = {{ .signing_key }}
-{{- if not .is_work }}
-[includeIf "gitdir:~/projects/work/"]
-    path = ~/.gitconfig-work
-{{- end }}
 
 [credential]
   helper = store
@@ -41,9 +37,3 @@
 
 [core]
   pager = cat
-
-{{- if .is_work }}
-[http]
-  proxy = http://{{ .http_proxy }}
-  sslVerify = true
-{{- end }}

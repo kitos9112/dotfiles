@@ -2,14 +2,7 @@
 
 {{ $personalName := "Marcos Soutullo Rodriguez" -}}
 {{- $personalEmail := "marcos.soutullo91@gmail.com" -}}
-{{- $personalSigningKey := "C67A779BDEF89362" -}}
-
-{{- $workSigningKey := "473E049DD4211D4E" -}}
-{{- $workName := "Marcos Soutullo Rodriguez" -}}
-{{- $workEmail := "" -}}
-
-{{- $isWork := contains "ukfed-msr" (lower .chezmoi.hostname) -}}
-{{- $isPersonal := not $isWork -}}
+{{- $personalSigningKey := "C67A779BDEF89362!" -}}
 
 {{- $isWsl := or (env "WSL_DISTRO_NAME") (env "IS_WSL") | not | not -}}
 {{- $isFedora := lookPath "gnome-shell" | not | not -}}
@@ -28,24 +21,11 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
   personal_name = "{{ $personalName }}"
   personal_email = "{{ $personalEmail }}"
 
-  work_name = "{{ $workName }}"
-  work_email = "{{ $workEmail }}"
-  work_signing_key = "{{ $workSigningKey }}"
-
-  is_personal = {{ $isPersonal }}
-  is_work = {{ $isWork }}
   is_wsl = {{ $isWsl }}
 
-  {{- if $isPersonal }}
   name = "{{ $personalName }}"
   email = "{{ $personalEmail }}"
   signing_key = "{{ $personalSigningKey }}"
-
-  {{- else }}
-  name = "{{ $workName }}"
-  email = "{{ $workEmail }}"
-  signing_key = "{{ $workSigningKey }}"
-  {{- end }}
 
   {{- if or (lookPath "code") }}
   editor = "code --wait"
@@ -71,5 +51,5 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
   prompt = true
 
 [edit]
-    command = "code"
-    args = ["--wait"]
+  command = "code"
+  args = ["--wait"]
