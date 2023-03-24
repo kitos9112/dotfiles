@@ -4,7 +4,14 @@
 set -e pipefail
 
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
-python=$(which python) || $(${HOME}/.asdf/bin/asdf install python {{ .python_version }} && python="${HOME}/.asdf/shims/python")
+
+{
+  python=$(which python)
+} || {
+  ${HOME}/.asdf/bin/asdf install python {{ .python_version }}
+  python="${HOME}/.asdf/shims/python"
+}
+
 set -x
 # Install Poetry following its recommended approach - Updated on 05/06/2021
 curl -sSL https://install.python-poetry.org | ${python} -
