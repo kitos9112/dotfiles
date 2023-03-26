@@ -5,9 +5,12 @@ set -ev pipefail
 
 # 5. Update and upgrade brew packages
 ASDF="${HOME}/.asdf/bin/asdf"
+PATH_old="${PATH}"
 
-$(brew --prefix)/bin/brew update || echo "Brew not found on path"
-$(brew --prefix)/bin/brew upgrade  || echo "Brew not found on path"
+# FIXME(WA): This is a hack to make sure that `asdf` and `brew` is in the path
+export PATH="${HOME}/.asdf/bin:${HOME}/.asdf/shims:$(brew --prefix)/bin:${PATH}"
+
+brew update && brew upgrade
 
 # 6. Update all ASDF plugins
 ${ASDF} plugin update --all
@@ -23,4 +26,6 @@ LDFLAGS="-Wl,-rpath,$(brew --prefix openssl)/lib" \
  CONFIGURE_OPTS="--with-openssl=$(brew  --prefix openssl)" \
  ${ASDF} install
 {{ end -}}
+
+export PATH="${PATH_old}"
 {{ end -}}
