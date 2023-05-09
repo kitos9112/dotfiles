@@ -4,15 +4,23 @@
 set -ev pipefail
 
 # 1. Update `chezmoi` ZSH completions
-chezmoi completion zsh --output="$(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/chezmoi/_chezmoi" || echo -n "chezmoi not found in PATH"
+chezmoi completion zsh --output="$(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/chezmoi/_chezmoi"
 
+{{- if or (lookPath "flux") }}
 # 2. Update `flux` ZSH completions
-flux completion zsh > $(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/flux/_flux || echo -n "flux not found in PATH"
+flux completion zsh > $(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/flux/_flux
+{{- end }}
 
+{{- if or (lookPath "kustomize") }}
 # 3. Update kustomize ZSH completions
-kustomize completion zsh > $(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/kustomize/_kustomize || echo -n "kustomize not found in PATH"
+kustomize completion zsh > $(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/kustomize/_kustomize
+{{- end }}
 
+{{- if or (lookPath "poetry") }}
 # 4. Update Poetry ZSH completions
-poetry completions zsh > $(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/poetry/_poetry || echo -n "poetry not found in PATH"
+poetryDir="$(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/poetry"
+mkdir -p "${poetryDir}"
+poetry completions zsh > "${poetryDir}/_poetry"
+{{- end }}
 
 {{- end -}}

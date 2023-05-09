@@ -1,0 +1,10 @@
+{{- if and (eq .chezmoi.os "linux") (.isRoot | not) -}}
+#! /bin/zsh
+
+set -ev pipefail
+
+# Install fzf
+
+${HOME}/.fzf/install
+
+{{- end -}}

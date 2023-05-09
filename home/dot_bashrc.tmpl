@@ -108,7 +108,6 @@ fi
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
-alias ap=ansible-playbook
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
@@ -135,21 +134,58 @@ fi
 export PATH={{ .chezmoi.homeDir }}/bin:$PATH
 
 export EDITOR=vim
-export GOPATH="$HOME/Go" # or any directory to put your Go code
-export PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+## Go-related envs
+# Check if the `$HOME/go` folder exist with a default SDK, configure GOROOT if so.
+if [ -d "$HOME/.go" ]; then
+  export GOROOT="$HOME/.go"
+elif [ -d "$HOME/Go" ]; then
+  export GOROOT="$HOME/Go"
+else
+  export GOROOT=$(eval go env GOROOT)
+fi
+export PATH="$PATH:$GOROOT/bin"
 
 # Poetry
 export PATH="$PATH:$HOME/.poetry/bin"
 
-{{- if (eq .chezmoi.os "darwin") -}}
+# Add extra env variables available in ~/.env
+if [ -f "$HOME/.env" ]; then
+    source $HOME/.env
+fi
 
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/bin" ]; then
+    PATH="$HOME/bin:$PATH"
+fi
+
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/.local/bin" ]; then
+    PATH="$HOME/.local/bin:$PATH"
+fi
+
+# Add Poetry to bin if local user's dir exists
+if [ -d "$HOME/.poetry/bin" ]; then
+    PATH="$HOME/.poetry/bin:$PATH"
+fi
+
+# Add VScode to bin if local user's dir exists
+if [ -d "$HOME/.apps/vscode/bin" ]; then
+    PATH="$HOME/.apps/vscode/bin:$PATH"
+fi
+
+{{- if (eq .chezmoi.os "darwin") -}}
 # Hitting a MacOS system :)
 export PATH=${HOME}/.local/bin:${HOME}/bin:${HOME}/.asdf/shims:$HOME/.poetry/bin:/opt/homebrew/bin:/opt/homebrew/sbin:${KREW_ROOT:-$HOME/.krew}/bin:${PATH}
-
 {{ end }}
 
 # tabtab source for packages
 # uninstall by removing these lines
 [ -f ~/.config/tabtab/__tabtab.bash ] && . ~/.config/tabtab/__tabtab.bash || true
-
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+# If it's an interactive session, the running shell is not BASH and zsh is available, then use it.
+# Check more if zsh is available in PATH
+if [[ -n "$PS1" && -x "$(command -v zsh)" && "$(basename -- "$SHELL")" == "bash" ]]; then
+    export SHELL=$(command -v zsh)
+    exec "$SHELL" -l
+fi

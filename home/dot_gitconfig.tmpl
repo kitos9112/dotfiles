@@ -4,8 +4,9 @@
 [user]
   name = {{ .name }}
   email = {{ .email }}
+  {{ if .signing_key -}}
   signingKey = {{ .signing_key }}
-
+  {{ end -}}
 [credential]
   helper = store
 
@@ -17,23 +18,26 @@
 
 [diff]
   ignoreSubmodules = dirty
-  guitool = vscode
+  guitool = personal
 
- [difftool "vscode"]
-   cmd = code --wait --diff $LOCAL $REMOTE
+ [difftool "personal"]
+   cmd = {{ .editor }}
 
 [push]
   default=simple
-  followTags=true
+  followTags=false
 
 [pull]
   rebase = true
 
 [commit]
+  {{ if .signing_key -}}
   gpgsign = true
+  {{ else -}}
+  gpgsign = false
+  {{ end -}}
 
+{{ if .signing_key -}}
 [gpg]
   program = gpg
-
-[core]
-  pager = cat
+{{ end -}}

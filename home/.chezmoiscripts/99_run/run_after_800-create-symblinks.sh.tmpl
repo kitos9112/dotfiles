@@ -1,0 +1,15 @@
+{{- if and (eq .chezmoi.os "linux") ( .extra_home_dir ) -}}
+#!/usr/bin/env bash
+
+set -ev pipefail
+
+paths=".bashrc .fzf .fzf.bash .fzf.zsh .gitconfig .oh-my-zsh-custom .p10k.zsh .tmux.conf.local .tmux.conf .vimrc .zshrc"
+
+# Create an array with paths (files or directories)
+IFS=' ' read -ra path_array <<< "$paths"
+
+# Loop through the paths and create a symbolic link in each target directory
+for path in "${path_array[@]}"; do
+  rsync -uL --exclude "*.git*" --exclude "$(realpath "$HOME/$path")/.git" "$(realpath "$HOME/$path")" "{{ .extra_home_dir }}/$(basename "$path")"
+done
+{{ end -}}

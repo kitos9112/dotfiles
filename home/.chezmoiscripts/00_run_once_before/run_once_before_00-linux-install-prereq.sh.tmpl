@@ -3,7 +3,10 @@
 #! /usr/bin/env bash
 set -ev pipefail
 
+# Assess whether this is an ubuntu or debian system and check is the root flag is set
+{{ if .isRoot -}}
 {{ if or (eq .chezmoi.osRelease.id "ubuntu") (eq .chezmoi.osRelease.id "debian") -}}
+
 
 DEBIAN_FRONTEND=noninteractive sudo -E apt update
 DEBIAN_FRONTEND=noninteractive sudo -E apt upgrade -y
@@ -83,4 +86,5 @@ localectl set-locale LANG={{ .locale }} || echo -e "Could not set locale - Ignor
 # TODO - Modify `apply_updates = yes` in /etc/dnf/automatic.conf
 ## And `systemctl enable --now dnf-automatic.timer`
 {{ end -}}
+{{- end -}}
 {{- end -}}

@@ -10,7 +10,9 @@ PATH_old="${PATH}"
 # FIXME(WA): This is a hack to make sure that `asdf` and `brew` is in the path
 export PATH="${HOME}/.asdf/bin:${HOME}/.asdf/shims:$(brew --prefix)/bin:${PATH}"
 
+{{ if .isRoot -}}
 brew update && brew upgrade
+{{ end -}}
 
 # 6. Update all ASDF plugins
 ${ASDF} plugin update --all
@@ -18,7 +20,7 @@ ${ASDF} plugin update --all
 # 7. Install/update all ASDF package versions using libraries installed by brew
 ## Make sure LDF, CPPF and OPTS are set for openssl on Linux with dependencies installed by brew
 
-{{- if (eq .chezmoi.os "darwin") }}
+{{- if or (eq .chezmoi.os "darwin") (not .isRoot) }}
   ${ASDF} install
 {{ else }}
 LDFLAGS="-Wl,-rpath,$(brew --prefix openssl)/lib" \

@@ -6,3 +6,6 @@
 
 # IDEs
 .idea
+
+# Chezmoi binary file
+home/bin/chezmoi

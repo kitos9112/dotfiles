@@ -1,3 +1,4 @@
+{{ if .isRoot -}}
 {{- if (eq .chezmoi.os "linux") -}}
 #! /usr/bin/env bash
 
@@ -48,4 +49,5 @@ $brew update && $brew upgrade
 # 5. Download fzf binary and update configuration files non interactively
 /home/linuxbrew/.linuxbrew/opt/fzf/install --all
 
+{{- end -}}
 {{- end -}}

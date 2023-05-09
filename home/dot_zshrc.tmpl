@@ -49,27 +49,61 @@ ZSH_CUSTOM=$HOME/.oh-my-zsh-custom
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
+  {{- if or (lookPath "1password") }}
 	1password
-	ansible
+	{{- end }}
+	{{- if or (lookPath "asdf") }}
 	asdf
+	{{- end }}
+	{{- if or (lookPath "aws") }}
+	aws
+	{{- end }}
+	{{- if or (lookPath "brew") }}
+	brew
+	{{- end }}
+	{{- if or (lookPath "chezmoi") }}
+	chezmoi
+	{{- end }}
+	{{- if or (lookPath "direnv") }}
+	direnv
+	{{- end }}
+	{{- if or (lookPath "docker") }}
+	docker
+	{{- end }}
+	{{- if or (lookPath "docker-compose") }}
+	docker-compose
+	{{- end }}
+	{{- if or (lookPath "fzf") }}
+	fzf
+	{{- end }}
+	{{- if or (lookPath "gh") }}
+	gh
+	{{- end }}
+	{{- if or (lookPath "git") }}
+	git
+	{{- end }}
+	{{- if or (lookPath "go") }}
+	golang
+	{{- end }}
+	{{- if or (lookPath "helm") }}
+	helm
+	{{- end }}
+	{{- if or (lookPath "flux") }}
+	flux
+	{{- end }}
+	{{- if or (lookPath "kubectl") }}
+	kubectl
+	{{- end }}
+	{{- if or (lookPath "kustomize") }}
+	kustomize
+	{{- end }}
+	{{- if or (lookPath "pip") }}
+	pip
+	{{- end }}
+	ansible
 	aliases
 	alias-finder
-	aws
-	brew
-	chezmoi
-	direnv
-	docker
-	fzf
-	docker-compose
-	flux
-	git
-	golang
-	gh
-	helm
 	history
-	kubectl
-	kustomize
-	pip
 	zsh-syntax-highlighting
 )
 
@@ -82,6 +116,8 @@ compinit -u
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# Source FZF history shell plugin
+[[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
@@ -98,18 +134,23 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
+# >>> Node Version Manager >>>
 # NVM - A Node Version Manager
 export NVM_DIR="$HOME/.config/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# <<< Node Version Manager <<<
 
+# >>> SDKMAN >>>
 # SDKMAN - A Java and Scala SDK manager
 # THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="{{ .chezmoi.homeDir }}/.sdkman"
 [[ -s "{{ .chezmoi.homeDir }}/.sdkman/bin/sdkman-init.sh" ]] && source "{{ .chezmoi.homeDir }}/.sdkman/bin/sdkman-init.sh"
+# <<< SDKMAN <<<
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 {{ if (eq .chezmoi.os "darwin") }}
+# >>> ITEM2 >>>
 	test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+# <<< ITEM2 <<<
 {{ end }}

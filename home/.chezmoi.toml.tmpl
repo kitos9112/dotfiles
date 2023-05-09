@@ -3,6 +3,7 @@
 {{ $personalName := "Marcos Soutullo Rodriguez" -}}
 {{- $personalEmail := "marcos.soutullo91@gmail.com" -}}
 {{- $personalSigningKey := "C67A779BDEF89362!" -}}
+{{- $workLaptop := "marcos-soutullo-laptop-1" -}}
 
 {{- $isWsl := or (env "WSL_DISTRO_NAME") (env "IS_WSL") | not | not -}}
 {{- $isFedora := lookPath "gnome-shell" | not | not -}}
@@ -11,6 +12,8 @@
 {{- if hasKey .chezmoi.osRelease "id" -}}
 {{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
 {{- end -}}
+
+{{- $isRoot := eq $workLaptop .chezmoi.hostname | not -}}
 
 sourceDir = "{{ .chezmoi.sourceDir }}"
 
@@ -21,14 +24,17 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
   personal_name = "{{ $personalName }}"
   personal_email = "{{ $personalEmail }}"
 
-  is_wsl = {{ $isWsl }}
+  is_root = {{ $isRoot }} # Whether or not to install stuff as root
 
   name = "{{ $personalName }}"
   email = "{{ $personalEmail }}"
+
+  {{- if $isRoot | not -}}
   signing_key = "{{ $personalSigningKey }}"
+  {{- end }}
 
   {{- if or (lookPath "code") }}
-  editor = "code --wait"
+  editor = "code --wait --diff $LOCAL $REMOTE"
   {{- else if lookPath "vim" }}
   editor = "vim"
   {{- else if lookPath "nano" }}
@@ -40,6 +46,8 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
   locale = "en_GB.UTF-8"
   # renovate: datasource=github-tags packageName=python/cpython
   python_version = "3.11.2"
+
+
 
 [sourceVCS]
   autoCommit = true

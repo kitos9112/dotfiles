@@ -4,8 +4,10 @@
 set -ev pipefail
 
 # 1. Change default sh to ZSH
+{{ if .isRoot -}}
 if [[ $(awk -F ":${HOME}:" 'NF>1 {print $2}' /etc/passwd) != $(which zsh) ]]; then
   sudo chsh -s $(which zsh) $(whoami)
 fi
 
+{{- end -}}
 {{- end -}}
