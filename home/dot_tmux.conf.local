@@ -372,6 +372,9 @@ bind p setw synchronize-panes
 
 unbind -T copy-mode MouseDragEnd1Pane
 
+# Pass OSC52 from nested tmux session -> https://github.com/gpakosz/.tmux/issues/565
+set -s set-clipboard on
+
 # -- tpm -----------------------------------------------------------------------
 
 # while I don't use tpm myself, many people requested official support so here
@@ -435,11 +438,11 @@ set -g @plugin 'tmux-plugins/tmux-yank'
 # weather() {                                         # see https://github.com/chubin/wttr.in#one-line-output
 #   curl -f -s -m 2 'wttr.in?format=3' || printf '\n' # /!\ make sure curl is installed
 #   sleep 900                                         # sleep for 15 minutes, throttle network requests whatever the value of status-interval
-# }
+# }net
 #
-# online() {
-#   ping -c 1 1.1.1.1 >/dev/null 2>&1 && printf '✔' || printf '✘'
-# }
+online() {
+  ping -c 1 1.1.1.1 >/dev/null 2>&1 && printf '✔' || printf '✘'
+}
 #
 # "$@"
 # # /!\ do not remove the previous line
