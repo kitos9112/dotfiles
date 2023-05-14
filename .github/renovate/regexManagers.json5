@@ -21,7 +21,7 @@
         ".*\\.chezmoiexternal\\.toml\\.tmpl",
       ],
       matchStrings: [
-        "https:\\/\\/go\\.dev\\/dl\\/(?<currentValue>\\d+\\.\\d+\\.\\d+)\\..*",
+        "https:\\/\\/go\\.dev\\/dl\\/go(?<currentValue>\\d+\\.\\d+\\.\\d+)\\..*",
       ],
       versioningTemplate: "semver",
     },
