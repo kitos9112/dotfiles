@@ -13,7 +13,19 @@
       versioningTemplate: "semver",
     },
     {
-
+      datasourceTemplate: "github-tags",
+      depNameTemplate: "golang/go",
+      description: "Process Golang version URLs",
+      extractVersionTemplate: "^go(?<version>.*)$",
+      fileMatch: [
+        ".*\\.chezmoiexternal\\.toml\\.tmpl",
+      ],
+      matchStrings: [
+        "https:\\/\\/go\\.dev\\/dl\\/(?<currentValue>go\\d+\\.\\d+\\.\\d+)\\..*",
+      ],
+      versioningTemplate: "semver",
+    },
+    {
       "fileMatch": [
         "home\\/.*"
       ],
@@ -21,17 +33,6 @@
         "# renovate: datasource=(?<datasource>.+?) packageName=(?<packageName>.+?)( extractVersion=(?<extractVersion>.+?))?( registryUrl=(?<registryUrl>.+?))?\\s+(?<depName>.+?) (?<currentValue>.+)"
       ],
       "extractVersionTemplate": "{{#if extractVersion}}{{extractVersion}}{{else}}^v?(?<version>.+)${{/if}}"
-    },
-    {
-      datasourceTemplate: "github-releases",
-      description: "Process raw GitHub URLs",
-      fileMatch: [
-        "cluster/.+\\.ya?ml$",
-      ],
-      matchStrings: [
-        "https:\\/\\/raw.githubusercontent.com\\/(?<depName>[\\w\\d\\-_]+\\/[\\w\\d\\-_]+)\\/(?<currentValue>[\\w\\d\\.\\-_]+)\\/.*",
-      ],
-      versioningTemplate: "semver",
     },
   ],
 }
