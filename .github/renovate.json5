@@ -7,7 +7,8 @@
     ":semanticCommits",
     ":separatePatchReleases",
     "docker:enableMajor",
-    ":enablePreCommit"
+    ":enablePreCommit",
+    "github>kitos9112/dotfiles//.github/renovate/regexManagers.json5",
   ],
   "platform": "github",
   "username": "henry-pa-bot[bot]",
@@ -31,17 +32,6 @@
   "rebaseWhen": "conflicted",
   "assignees": [
     "@kitos9112"
-  ],
-  "regexManagers": [
-    {
-      "fileMatch": [
-        "home\\/.*"
-      ],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>.+?) packageName=(?<packageName>.+?)( extractVersion=(?<extractVersion>.+?))?( registryUrl=(?<registryUrl>.+?))?\\s+(?<depName>.+?) (?<currentValue>.+)"
-      ],
-      "extractVersionTemplate": "{{#if extractVersion}}{{extractVersion}}{{else}}^v?(?<version>.+)${{/if}}"
-    }
   ],
   "packageRules": [
     {

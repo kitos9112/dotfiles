@@ -1,0 +1,37 @@
+{
+  regexManagers: [
+    {
+      datasourceTemplate: "github-tags",
+      depNameTemplate: "microsoft/vscode",
+      description: "Process Microsoft VSCode version URLs",
+      fileMatch: [
+        ".*\\.chezmoiexternal\\.toml\\.tmpl",
+      ],
+      matchStrings: [
+        "https:\\/\\/code\\.visualstudio\\.com\\/sha\\/download\\?version=(?<currentValue>.*)\\&os.*",
+      ],
+      versioningTemplate: "semver",
+    },
+    {
+
+      "fileMatch": [
+        "home\\/.*"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.+?) packageName=(?<packageName>.+?)( extractVersion=(?<extractVersion>.+?))?( registryUrl=(?<registryUrl>.+?))?\\s+(?<depName>.+?) (?<currentValue>.+)"
+      ],
+      "extractVersionTemplate": "{{#if extractVersion}}{{extractVersion}}{{else}}^v?(?<version>.+)${{/if}}"
+    },
+    {
+      datasourceTemplate: "github-releases",
+      description: "Process raw GitHub URLs",
+      fileMatch: [
+        "cluster/.+\\.ya?ml$",
+      ],
+      matchStrings: [
+        "https:\\/\\/raw.githubusercontent.com\\/(?<depName>[\\w\\d\\-_]+\\/[\\w\\d\\-_]+)\\/(?<currentValue>[\\w\\d\\.\\-_]+)\\/.*",
+      ],
+      versioningTemplate: "semver",
+    },
+  ],
+}
