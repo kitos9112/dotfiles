@@ -44,7 +44,7 @@ refreshPeriod = "24h"
 [".apps/vscode"]
 type = "archive"
 # renovate: datasource=github-tags packageName=microsoft/vscode
-url = "https://code.visualstudio.com/sha/download?version=1.78.2&os={{ .chezmoi.os }}-{{ if eq .chezmoi.arch "amd64" }}x64{{ else }}arm64{{ end }}"
+url = "https://code.visualstudio.com/sha/download?version=1.78.1&os={{ .chezmoi.os }}-{{ if eq .chezmoi.arch "amd64" }}x64{{ else }}arm64{{ end }}"
 exact = true
 stripComponents = 1
 refreshPeriod = "24h"
