@@ -36,7 +36,7 @@ _poetry_8b1d6924e1237e6c_complete()
             ;;
 
             (add)
-            opts+=("--allow-prereleases:Accept prereleases." "--dev:Add as a development dependency. \(Deprecated\)" "--dry-run:Output the operations but do not execute anything \(implicitly enables --verbose\)." "--editable:Add vcs/path dependencies as editable." "--extras:Extras to activate for the dependency." "--group:The group to add the dependency to." "--lock:Do not perform operations \(only update the lockfile\)." "--optional:Add as an optional dependency." "--platform:Platforms for which the dependency must be installed." "--python:Python version for which the dependency must be installed." "--source:Name of the source to use to install the package.")
+            opts+=("--allow-prereleases:Accept prereleases." "--dev:Add as a development dependency. \(Deprecated\) Use --group=dev instead." "--dry-run:Output the operations but do not execute anything \(implicitly enables --verbose\)." "--editable:Add vcs/path dependencies as editable." "--extras:Extras to activate for the dependency." "--group:The group to add the dependency to." "--lock:Do not perform operations \(only update the lockfile\)." "--optional:Add as an optional dependency." "--platform:Platforms for which the dependency must be installed." "--python:Python version for which the dependency must be installed." "--source:Name of the source to use to install the package.")
             ;;
 
             (build)
@@ -68,7 +68,7 @@ _poetry_8b1d6924e1237e6c_complete()
             ;;
 
             ('env info')
-            opts+=("--path:Only display the environment\'s path.")
+            opts+=("--executable:Only display the environment\'s python executable path." "--path:Only display the environment\'s path.")
             ;;
 
             ('env list')
@@ -96,7 +96,7 @@ _poetry_8b1d6924e1237e6c_complete()
             ;;
 
             (install)
-            opts+=("--all-extras:Install all extra dependencies." "--compile:Compile Python source files to bytecode. \(This option has no effect if modern-installation is disabled because the old installer always compiles.\)" "--dry-run:Output the operations but do not execute anything \(implicitly enables --verbose\)." "--extras:Extra sets of dependencies to install." "--no-dev:Do not install the development dependencies. \(Deprecated\)" "--no-root:Do not install the root package \(the current project\)." "--only:The only dependency groups to include." "--only-root:Exclude all dependencies." "--remove-untracked:Removes packages not present in the lock file. \(Deprecated\)" "--sync:Synchronize the environment with the locked packages and the specified groups." "--with:The optional dependency groups to include." "--without:The dependency groups to ignore.")
+            opts+=("--all-extras:Install all extra dependencies." "--compile:Compile Python source files to bytecode. \(This option has no effect if modern-installation is disabled because the old installer always compiles.\)" "--dry-run:Output the operations but do not execute anything \(implicitly enables --verbose\)." "--extras:Extra sets of dependencies to install." "--no-dev:Do not install the development dependencies. \(Deprecated\)" "--no-directory:Do not install any directory path dependencies\; useful to install dependencies without source code, e.g. for caching of Docker layers\)" "--no-root:Do not install the root package \(the current project\)." "--only:The only dependency groups to include." "--only-root:Exclude all dependencies." "--remove-untracked:Removes packages not present in the lock file. \(Deprecated\)" "--sync:Synchronize the environment with the locked packages and the specified groups." "--with:The optional dependency groups to include." "--without:The dependency groups to ignore.")
             ;;
 
             (list)
@@ -116,7 +116,7 @@ _poetry_8b1d6924e1237e6c_complete()
             ;;
 
             (remove)
-            opts+=("--dev:Remove a package from the development dependencies. \(Deprecated\)" "--dry-run:Output the operations but do not execute anything \(implicitly enables --verbose\)." "--group:The group to remove the dependency from.")
+            opts+=("--dev:Remove a package from the development dependencies. \(Deprecated\) Use --group=dev instead." "--dry-run:Output the operations but do not execute anything \(implicitly enables --verbose\)." "--group:The group to remove the dependency from." "--lock:Do not perform operations \(only update the lockfile\).")
             ;;
 
             (run)
@@ -160,11 +160,11 @@ _poetry_8b1d6924e1237e6c_complete()
             ;;
 
             (show)
-            opts+=("--all:Show all packages \(even those not compatible with current system\)." "--latest:Show the latest version." "--no-dev:Do not list the development dependencies. \(Deprecated\)" "--only:The only dependency groups to include." "--outdated:Show the latest version but only for packages that are outdated." "--tree:List the dependencies as a tree." "--why:When showing the full list, or a --tree for a single package, also display why it\'s included." "--with:The optional dependency groups to include." "--without:The dependency groups to ignore.")
+            opts+=("--all:Show all packages \(even those not compatible with current system\)." "--latest:Show the latest version." "--no-dev:Do not list the development dependencies. \(Deprecated\)" "--only:The only dependency groups to include." "--outdated:Show the latest version but only for packages that are outdated." "--top-level:Show only top-level dependencies." "--tree:List the dependencies as a tree." "--why:When showing the full list, or a --tree for a single package, also display why it\'s included." "--with:The optional dependency groups to include." "--without:The dependency groups to ignore.")
             ;;
 
             ('source add')
-            opts+=("--default:Set this source as the default \(disable PyPI\). A default source will also be the fallback source if you add other sources." "--secondary:Set this source as secondary.")
+            opts+=("--default:Set this source as the default \(disable PyPI\). A default source will also be the fallback source if you add other sources. \(Deprecated, use --priority\)" "--priority:Set the priority of this source. One of: default, primary, secondary, supplemental, explicit. Defaults to primary." "--secondary:Set this source as secondary. \(Deprecated, use --priority\)")
             ;;
 
             ('source remove')

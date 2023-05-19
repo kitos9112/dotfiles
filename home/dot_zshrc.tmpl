@@ -119,6 +119,9 @@ compinit -u
 # Source FZF history shell plugin
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
 
+# Source FZF history shell plugin
+[[ -f ~/.zshenv ]] && source ~/.zshenv
+
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('{{ .chezmoi.homeDir }}/{{ if (eq .chezmoi.os "darwin") }}opt/anaconda3{{ else }}miniconda3{{ end }}/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
@@ -150,7 +153,7 @@ export SDKMAN_DIR="{{ .chezmoi.homeDir }}/.sdkman"
 
 
 {{ if (eq .chezmoi.os "darwin") }}
-# >>> ITEM2 >>>
+# >>> ITERM2 >>>
 	test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-# <<< ITEM2 <<<
+# <<< ITERM2 <<<
 {{ end }}
