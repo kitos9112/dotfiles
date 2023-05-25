@@ -440,9 +440,9 @@ set -g @plugin 'tmux-plugins/tmux-yank'
 #   sleep 900                                         # sleep for 15 minutes, throttle network requests whatever the value of status-interval
 # }net
 #
-online() {
-  ping -c 1 1.1.1.1 >/dev/null 2>&1 && printf '✔' || printf '✘'
-}
+#online() {
+#  ping -c 1 1.1.1.1 >/dev/null 2>&1 && printf '✔' || printf '✘'
+#}
 #
 # "$@"
 # # /!\ do not remove the previous line
