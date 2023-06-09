@@ -6,7 +6,8 @@
   email = {{ .email }}
   {{ if .signing_key -}}
   signingKey = {{ .signing_key }}
-  {{ end -}}
+  {{- end }}
+
 [credential]
   helper = store
 
@@ -20,8 +21,8 @@
   ignoreSubmodules = dirty
   guitool = personal
 
- [difftool "personal"]
-   cmd = {{ .editor }}
+[difftool "personal"]
+  cmd = {{ .editor }}
 
 [push]
   default=simple
@@ -37,7 +38,13 @@
   gpgsign = false
   {{ end -}}
 
-{{ if .signing_key -}}
+{{- if and (.signing_key) (eq .signing_format "ssh") }}
 [gpg]
-  program = gpg
-{{ end -}}
+  format = "ssh"
+
+[gpg "ssh"]
+  program = {{ .signing_ssh_program }}
+{{- else }}
+[gpg]
+  format = "gpg"
+{{- end }}
