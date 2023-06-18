@@ -1,4 +1,4 @@
-{{- if and (eq .chezmoi.os "linux") (.isRoot | not) -}}
+{{- if and (eq .chezmoi.os "linux") (.is_root | not) -}}
 #! /bin/zsh
 
 set -ev pipefail

@@ -4,7 +4,7 @@
 set -ev pipefail
 
 # Assess whether this is an ubuntu or debian system and check is the root flag is set
-{{ if .isRoot -}}
+{{ if .is_root -}}
 {{ if or (eq .chezmoi.osRelease.id "ubuntu") (eq .chezmoi.osRelease.id "debian") -}}
 
 

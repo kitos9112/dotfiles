@@ -8,7 +8,14 @@ source {{ .chezmoi.sourceDir }}/scripts/.helpers
 {
   python=$(which python)
 } || {
+{{ if or (eq .chezmoi.os "darwin") (not .is_root) }}
   ${HOME}/.asdf/bin/asdf install python {{ .python_version }}
+{{ else }}
+LDFLAGS="-Wl,-rpath,$(brew --prefix openssl)/lib" \
+ CPPFLAGS="-I$(brew --prefix openssl)/include" \
+ CONFIGURE_OPTS="--with-openssl=$(brew  --prefix openssl)" \
+ ${HOME}/.asdf/bin/asdf install python {{ .python_version }}
+{{ end }}
   python="${HOME}/.asdf/shims/python"
 }
 

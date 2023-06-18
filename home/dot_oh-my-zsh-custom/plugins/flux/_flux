@@ -1,4 +1,5 @@
 #compdef flux
+compdef _flux flux
 
 # zsh completion for flux                                 -*- shell-script -*-
 
@@ -17,8 +18,9 @@ _flux()
     local shellCompDirectiveNoFileComp=4
     local shellCompDirectiveFilterFileExt=8
     local shellCompDirectiveFilterDirs=16
+    local shellCompDirectiveKeepOrder=32
 
-    local lastParam lastChar flagPrefix requestComp out directive comp lastComp noSpace
+    local lastParam lastChar flagPrefix requestComp out directive comp lastComp noSpace keepOrder
     local -a completions
 
     __flux_debug "\n========= starting completion logic =========="
@@ -136,6 +138,11 @@ _flux()
         noSpace="-S ''"
     fi
 
+    if [ $((directive & shellCompDirectiveKeepOrder)) -ne 0 ]; then
+        __flux_debug "Activating keep order."
+        keepOrder="-V"
+    fi
+
     if [ $((directive & shellCompDirectiveFilterFileExt)) -ne 0 ]; then
         # File extension filtering
         local filteringCmd
@@ -171,7 +178,7 @@ _flux()
         return $result
     else
         __flux_debug "Calling _describe"
-        if eval _describe "completions" completions $flagPrefix $noSpace; then
+        if eval _describe $keepOrder "completions" completions $flagPrefix $noSpace; then
             __flux_debug "_describe found some completions"
 
             # Return the success of having called _describe

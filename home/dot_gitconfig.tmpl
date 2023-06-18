@@ -44,7 +44,4 @@
 
 [gpg "ssh"]
   program = {{ .signing_ssh_program }}
-{{- else }}
-[gpg]
-  format = "gpg"
 {{- end }}
