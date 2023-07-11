@@ -47,8 +47,6 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
   # renovate: datasource=github-tags packageName=python/cpython
   python_version 3.11.4
 
-
-
 [sourceVCS]
   autoCommit = true
 
@@ -61,3 +59,6 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
 [edit]
   command = "code"
   args = ["--wait"]
+
+[warnings]
+  configFileTemplateHasChanged = false
