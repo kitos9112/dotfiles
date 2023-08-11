@@ -122,6 +122,11 @@ compinit -u
 # Source FZF history shell plugin
 [[ -f ~/.zshenv ]] && source ~/.zshenv
 
+# Add extra ZSH env variables or completions available in ~/.env.zsh
+if [ -f "$HOME/.env.zsh" ]; then
+    source $HOME/.env.zsh
+fi
+
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('{{ .chezmoi.homeDir }}/{{ if (eq .chezmoi.os "darwin") }}opt/anaconda3{{ else }}miniconda3{{ end }}/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
@@ -150,7 +155,6 @@ export NVM_DIR="$HOME/.config/nvm"
 export SDKMAN_DIR="{{ .chezmoi.homeDir }}/.sdkman"
 [[ -s "{{ .chezmoi.homeDir }}/.sdkman/bin/sdkman-init.sh" ]] && source "{{ .chezmoi.homeDir }}/.sdkman/bin/sdkman-init.sh"
 # <<< SDKMAN <<<
-
 
 {{ if (eq .chezmoi.os "darwin") }}
 # >>> ITERM2 >>>
