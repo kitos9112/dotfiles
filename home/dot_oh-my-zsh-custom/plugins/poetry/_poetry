@@ -21,7 +21,7 @@ _poetry_8b1d6924e1237e6c_complete()
         opts+=("--ansi:Force ANSI output." "--directory:The working directory for the Poetry command \(defaults to the current working directory\)." "--help:Display help for the given command. When no command is given display help for the list command." "--no-ansi:Disable ANSI output." "--no-cache:Disables Poetry source caches." "--no-interaction:Do not ask any interactive question." "--no-plugins:Disables plugins." "--quiet:Do not output any message." "--verbose:Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug." "--version:Display this application version.")
     elif [[ $cur == $com ]]; then
         state="command"
-        coms+=("about:Shows information about Poetry." "add:Adds a new dependency to pyproject.toml." "build:Builds a package, as a tarball and a wheel by default." "'cache clear':Clears a Poetry cache by name." "'cache list':List Poetry\'s caches." "check:Checks the validity of the pyproject.toml file." "config:Manages configuration settings." "'debug info':Shows debug information." "'debug resolve':Debugs dependency resolution." "'env info':Displays information about the current environment." "'env list':Lists all virtualenvs associated with the current project." "'env remove':Remove virtual environments associated with the project." "'env use':Activates or creates a new virtualenv for the current project." "export:Exports the lock file to alternative formats." "help:Displays help for a command." "init:Creates a basic pyproject.toml file in the current directory." "install:Installs the project dependencies." "list:Lists commands." "lock:Locks the project dependencies." "new:Creates a new Python project at <path\>." "publish:Publishes a package to a remote repository." "remove:Removes a package from the project dependencies." "run:Runs a command in the appropriate environment." "search:Searches for packages on remote repositories." "'self add':Add additional packages to Poetry\'s runtime environment." "'self install':Install locked packages \(incl. addons\) required by this Poetry installation." "'self lock':Lock the Poetry installation\'s system requirements." "'self remove':Remove additional packages from Poetry\'s runtime environment." "'self show':Show packages from Poetry\'s runtime environment." "'self show plugins':Shows information about the currently installed plugins." "'self update':Updates Poetry to the latest version." "shell:Spawns a shell within the virtual environment." "show:Shows information about packages." "'source add':Add source configuration for project." "'source remove':Remove source configured for the project." "'source show':Show information about sources configured for the project." "update:Update the dependencies as according to the pyproject.toml file." "version:Shows the version of the project or bumps it when a valid bump rule is provided.")
+        coms+=("about:Shows information about Poetry." "add:Adds a new dependency to pyproject.toml." "build:Builds a package, as a tarball and a wheel by default." "'cache clear':Clears a Poetry cache by name." "'cache list':List Poetry\'s caches." "check:Validates the content of the pyproject.toml file and its consistency with the poetry.lock file." "config:Manages configuration settings." "'debug info':Shows debug information." "'debug resolve':Debugs dependency resolution." "'env info':Displays information about the current environment." "'env list':Lists all virtualenvs associated with the current project." "'env remove':Remove virtual environments associated with the project." "'env use':Activates or creates a new virtualenv for the current project." "export:Exports the lock file to alternative formats." "help:Displays help for a command." "init:Creates a basic pyproject.toml file in the current directory." "install:Installs the project dependencies." "list:Lists commands." "lock:Locks the project dependencies." "new:Creates a new Python project at <path\>." "publish:Publishes a package to a remote repository." "remove:Removes a package from the project dependencies." "run:Runs a command in the appropriate environment." "search:Searches for packages on remote repositories." "'self add':Add additional packages to Poetry\'s runtime environment." "'self install':Install locked packages \(incl. addons\) required by this Poetry installation." "'self lock':Lock the Poetry installation\'s system requirements." "'self remove':Remove additional packages from Poetry\'s runtime environment." "'self show':Show packages from Poetry\'s runtime environment." "'self show plugins':Shows information about the currently installed plugins." "'self update':Updates Poetry to the latest version." "shell:Spawns a shell within the virtual environment." "show:Shows information about packages." "'source add':Add source configuration for project." "'source remove':Remove source configured for the project." "'source show':Show information about sources configured for the project." "update:Update the dependencies as according to the pyproject.toml file." "version:Shows the version of the project or bumps it when a valid bump rule is provided.")
     fi
 
     case $state in
@@ -52,7 +52,7 @@ _poetry_8b1d6924e1237e6c_complete()
             ;;
 
             (check)
-            opts+=()
+            opts+=("--lock:Checks that poetry.lock exists for the current version of pyproject.toml.")
             ;;
 
             (config)
@@ -104,7 +104,7 @@ _poetry_8b1d6924e1237e6c_complete()
             ;;
 
             (lock)
-            opts+=("--check:Check that the poetry.lock file corresponds to the current version of pyproject.toml." "--no-update:Do not update locked versions, only refresh lock file.")
+            opts+=("--check:Check that the poetry.lock file corresponds to the current version of pyproject.toml. \(Deprecated\) Use poetry check --lock instead." "--no-update:Do not update locked versions, only refresh lock file.")
             ;;
 
             (new)
@@ -136,7 +136,7 @@ _poetry_8b1d6924e1237e6c_complete()
             ;;
 
             ('self lock')
-            opts+=("--check:Check that the poetry.lock file corresponds to the current version of pyproject.toml." "--no-update:Do not update locked versions, only refresh lock file.")
+            opts+=("--check:Check that the poetry.lock file corresponds to the current version of pyproject.toml. \(Deprecated\) Use poetry check --lock instead." "--no-update:Do not update locked versions, only refresh lock file.")
             ;;
 
             ('self remove')
