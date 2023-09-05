@@ -29,6 +29,8 @@ if ! is_installed pre-commit; then
 else
   installed_version=v$(pre-commit --version | awk '{print $2}')
   latest_version={{ (gitHubLatestRelease "pre-commit/pre-commit").TagName }}
+  echo "$installed_version"
+  echo "$latest_version"
   if [[ ${installed_version} != ${latest_version} ]]; then
       pip install --upgrade pre-commit
   fi
