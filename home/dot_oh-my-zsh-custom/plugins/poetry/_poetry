@@ -1,6 +1,6 @@
 #compdef poetry
 
-_poetry_8b1d6924e1237e6c_complete()
+_poetry_41de4bf2a78aa415_complete()
 {
     local state com cur
     local -a opts
@@ -193,5 +193,5 @@ _poetry_8b1d6924e1237e6c_complete()
     esac
 }
 
-_poetry_8b1d6924e1237e6c_complete "$@"
-compdef _poetry_8b1d6924e1237e6c_complete /home/marcos.soutullo/.data/pypoetry/venv/bin/poetry
+_poetry_41de4bf2a78aa415_complete "$@"
+compdef _poetry_41de4bf2a78aa415_complete /home/msoutullo/.asdf/installs/python/3.11.5/bin/poetry

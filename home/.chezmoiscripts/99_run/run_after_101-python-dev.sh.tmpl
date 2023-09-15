@@ -16,30 +16,28 @@ LDFLAGS="-Wl,-rpath,$(brew --prefix openssl)/lib" \
  CONFIGURE_OPTS="--with-openssl=$(brew  --prefix openssl)" \
  ${HOME}/.asdf/bin/asdf install python {{ .python_version }}
 {{ end }}
-  python="${HOME}/.asdf/shims/python"
 }
 
-set -x
-# Install Poetry following its recommended approach - Updated on 05/06/2021
-curl -sSL https://install.python-poetry.org | ${python} -
+python="${HOME}/.asdf/shims/python"
+pip="${HOME}/.asdf/shims/pip"
+
+# Update Pip and setuptools
+${pip} install --upgrade pip setuptools
+
+# Install Poetry
+${pip} install --upgrade poetry
 
 # Install pre-commit tool
 if ! is_installed pre-commit; then
-    pip install pre-commit
+    ${pip} install pre-commit
 else
   installed_version=v$(pre-commit --version | awk '{print $2}')
   latest_version={{ (gitHubLatestRelease "pre-commit/pre-commit").TagName }}
   echo "$installed_version"
   echo "$latest_version"
   if [[ ${installed_version} != ${latest_version} ]]; then
-      pip install --upgrade pre-commit
+      ${pip} install --upgrade pre-commit
   fi
 fi
-
-# Install gist https://github.com/jdowner/gist
-pip install --upgrade python-gist \
-                      pip \
-                      setuptools \
-                      pipenv
 
 {{- end -}}
