@@ -49,4 +49,11 @@ fi
 echo_task "Running chezmoi init"
 # replace current process with chezmoi init
 # shellcheck disable=SC2086
-exec "${chezmoi}" init --source "${script_dir}" ${chezmoi_extra_args}
+# REtry this execution until it succeeds for a minimum of 3 retries
+# shellcheck disable=SC2086
+{
+  exec "${chezmoi}" init --source "${script_dir}" ${chezmoi_extra_args}
+} || {
+  echo_task "chezmoi init failed... retrying"
+  exec "${chezmoi}" init --source "${script_dir}" ${chezmoi_extra_args}
+}
