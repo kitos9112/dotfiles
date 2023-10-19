@@ -16,11 +16,4 @@ flux completion zsh > $(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/flux/_
 kustomize completion zsh > $(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/kustomize/_kustomize
 {{- end }}
 
-{{- if or (lookPath "poetry") }}
-# 4. Update Poetry ZSH completions
-poetryDir="$(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/poetry"
-mkdir -p "${poetryDir}"
-poetry completions zsh > "${poetryDir}/_poetry"
-{{- end }}
-
 {{- end -}}

@@ -145,9 +145,6 @@ else
 fi
 export PATH="$PATH:$GOROOT/bin"
 
-# Poetry
-export PATH="$PATH:$HOME/.poetry/bin"
-
 # Add extra env variables available in ~/.env
 if [ -f "$HOME/.env" ]; then
     source $HOME/.env
@@ -175,7 +172,7 @@ fi
 
 {{- if (eq .chezmoi.os "darwin") -}}
 # Hitting a MacOS system :)
-export PATH=${HOME}/.local/bin:${HOME}/bin:${HOME}/.asdf/shims:$HOME/.poetry/bin:/opt/homebrew/bin:/opt/homebrew/sbin:${KREW_ROOT:-$HOME/.krew}/bin:${PATH}
+export PATH=${HOME}/.local/bin:${HOME}/bin:${HOME}/.asdf/shims:/opt/homebrew/bin:/opt/homebrew/sbin:${KREW_ROOT:-$HOME/.krew}/bin:${PATH}
 {{ end }}
 
 # tabtab source for packages

@@ -24,9 +24,6 @@ pip="${HOME}/.asdf/shims/pip"
 # Update Pip and setuptools
 ${pip} install --upgrade pip setuptools
 
-# Install Poetry
-${pip} install --upgrade poetry
-
 # Install pre-commit tool
 if ! is_installed pre-commit; then
     ${pip} install pre-commit
