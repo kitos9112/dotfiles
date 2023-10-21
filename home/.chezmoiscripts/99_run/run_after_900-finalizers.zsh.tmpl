@@ -23,9 +23,9 @@ ${ASDF} plugin update --all
 {{- if or (eq .chezmoi.os "darwin") (not .is_root) }}
   ${ASDF} install
 {{ else }}
-LDFLAGS="-Wl,-rpath,$(brew --prefix openssl)/lib" \
- CPPFLAGS="-I$(brew --prefix openssl)/include" \
- CONFIGURE_OPTS="--with-openssl=$(brew  --prefix openssl)" \
+ CC=/home/linuxbrew/.linuxbrew/bin/gcc-13 \
+ CPPFLAGS="-I$(brew --prefix)/include" \
+ LDFLAGS="-L$(brew --prefix)/lib" \
  ${ASDF} install
 {{ end -}}
 
