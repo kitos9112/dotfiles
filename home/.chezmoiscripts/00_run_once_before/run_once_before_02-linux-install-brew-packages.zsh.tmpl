@@ -9,10 +9,7 @@ which -a brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Ho
 brew="/home/linuxbrew/.linuxbrew/bin/brew"
 
 # 2. Add 3rd party brew taps
-# TODO: Hold fire until the instrumenta team fix their homebrew tap
-# https://github.com/instrumenta/homebrew-instrumenta/pull/3
-## Remember to add `kubeval` to the mix
-# $brew tap instrumenta/instrumenta
+
 $brew --version
 
 # 3. Install Homebrew packages
@@ -34,10 +31,8 @@ $brew install kubernetes-cli \
                 hub \
                 iperf3 \
                 k9s \
-                kops \
                 kubeseal \
                 kustomize \
-                lolcat \
                 shellcheck \
                 sops \
                 vale \
