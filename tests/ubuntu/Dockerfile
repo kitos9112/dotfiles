@@ -11,7 +11,6 @@ RUN apt-get update && \
     git \
     sudo
 
-
 RUN useradd -m -s /bin/zsh -d /home/docker-qa docker-qa  && \
     echo "docker-qa ALL=NOPASSWD: ALL" >> /etc/sudoers
 
