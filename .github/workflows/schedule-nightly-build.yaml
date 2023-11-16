@@ -49,11 +49,27 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
-        uses: docker/build-push-action@v5
+        id: build
+        run: |
+          exit 1 # Mock failure
+        # uses: docker/build-push-action@v5
+        # with:
+        #   context: .
+        #   platforms: linux/amd64
+        #   file: ./tests/ubuntu/Dockerfile
+        #   push: true
+        #   tags: |
+        #     ghcr.io/${{ github.repository }}:latest
+
+      - name: Notify about failure
+        uses: umahmood/pushover-actions@main
+        env:
+          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
+          PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
         with:
-          context: .
-          platforms: linux/amd64
-          file: ./tests/ubuntu/Dockerfile
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository }}:latest
+          status: ${{ job.status }}
+          title: "[Dotfiles] - Nightly Build Failed"
+          message: "Github Actions Nightly `dotfiles` build failed. Take a look!"
+          url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          priority: "-1" # low priority - no sound or vibration generated
+        if: failure() && steps.build.outcome != 'success'
