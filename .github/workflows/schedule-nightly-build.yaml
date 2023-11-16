@@ -50,16 +50,14 @@ jobs:
 
       - name: Build and push
         id: build
-        run: |
-          exit 1 # Mock failure
-        # uses: docker/build-push-action@v5
-        # with:
-        #   context: .
-        #   platforms: linux/amd64
-        #   file: ./tests/ubuntu/Dockerfile
-        #   push: true
-        #   tags: |
-        #     ghcr.io/${{ github.repository }}:latest
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64
+          file: ./tests/ubuntu/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
 
       - name: Notify about failure
         uses: umahmood/pushover-actions@main
@@ -68,7 +66,7 @@ jobs:
           PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
         with:
           status: ${{ job.status }}
-          title: "🟡[Dotfiles] - Nightly Build Failed"
+          title: "🟡 [Dotfiles] - Nightly Build Failed"
           message: "Github Actions Nightly dotfiles build failed. Take a look"
           url_title: "View on Github"
           url: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
