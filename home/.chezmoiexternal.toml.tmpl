@@ -47,6 +47,7 @@ type = "archive"
 url = "https://code.visualstudio.com/sha/download?version=1.85.0&os={{ .chezmoi.os }}-{{ if eq .chezmoi.arch "amd64" }}x64{{ else }}arm64{{ end }}"
 exact = true
 stripComponents = 1
+refreshPeriod = "168h"
 
 [".go"]
 type = "archive"
@@ -54,5 +55,6 @@ type = "archive"
 url = "https://go.dev/dl/go1.21.5.{{ .chezmoi.os }}-{{ .chezmoi.arch }}.tar.gz"
 exact = true
 stripComponents = 1
+refreshPeriod = "168h"
 
 {{ end -}}
