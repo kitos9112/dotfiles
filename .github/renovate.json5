@@ -35,6 +35,10 @@
   ],
   "packageRules": [
     {
+      "packageNames": ["nodejs"],
+      "stabilityDays": 10,
+    },
+    {
       "matchUpdateTypes": [
         "minor",
         "patch",
