@@ -40,6 +40,12 @@ url = "https://github.com/junegunn/fzf.git"
 exact = true
 refreshPeriod = "24h"
 
+[".config/wireshark_profiles"]
+type = "git-repo"
+url = "https://github.com/amwalding/wireshark_profiles.git"
+exact = true
+refreshPeriod = "72h"
+
 {{ if not .is_root -}}
 [".apps/vscode"]
 type = "archive"
