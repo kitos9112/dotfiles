@@ -20,7 +20,6 @@ mkdir -p ${HOME}/.config/wireshark/profiles
 # Unzip all the zip files in the profiles directory
 for zip_file in ~/.config/wireshark_profiles/*.zip; do
     echo "Unzipping $zip_file"
-    # silent
     unzip -q -o -d ${HOME}/.config/wireshark/profiles "$zip_file" > /dev/null
 done
 
