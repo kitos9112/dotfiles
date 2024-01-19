@@ -14,8 +14,10 @@
 {{- end -}}
 
 {{- $isRoot := eq $workLaptop .chezmoi.hostname | not -}}
+{{- $isWork := eq $workLaptop .chezmoi.hostname | not -}}
 
 sourceDir = "{{ .chezmoi.sourceDir }}"
+progress = true
 
 [data]
   # Here we "export" the variables, so we can access them outside this file
@@ -24,7 +26,8 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
   personal_name = "{{ $personalName }}"
   personal_email = "{{ $personalEmail }}"
 
-  is_root = {{ $isRoot }} # Whether or not to install stuff as root
+  is_root = {{ $isRoot }} # Whether or not to install stuff as root (e.g. brew)
+  is_work = {{ $isWork }} # Whether or not this is my work laptop
 
   name = "{{ $personalName }}"
   email = "{{ $personalEmail }}"
@@ -45,7 +48,7 @@ sourceDir = "{{ .chezmoi.sourceDir }}"
 
   locale = "en_GB.UTF-8"
   # OFF renovate: datasource=github-tags packageName=python/cpython
-  python_version = "3.12.0"
+  python_version = "3.12.1"
 
 [sourceVCS]
   autoCommit = true

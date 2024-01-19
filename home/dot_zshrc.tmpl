@@ -100,6 +100,9 @@ plugins=(
 	{{- if or (lookPath "pip") }}
 	pip
 	{{- end }}
+	{{ if (eq .osid "linux-ubuntu") }}
+	ubuntu
+	{{- end }}
 	ansible
 	aliases
 	alias-finder
