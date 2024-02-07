@@ -15,7 +15,7 @@ PATH_old="${PATH}"
 export PATH="${HOME}/.asdf/bin:${HOME}/.asdf/shims:${PATH}"
 
 {{ if .is_root -}}
-export PATH="$(brew --prefix)/bin:${PATH}"
+export PATH="/home/linuxbrew/.linuxbrew/bin:${PATH}"
 {{ end -}}
 
 ${ASDF} plugin update --all
@@ -24,9 +24,9 @@ ${ASDF} plugin update --all
   ${ASDF} install
 {{ else }} # Assumes a Linux host with homebrew already installed.
  CC=/home/linuxbrew/.linuxbrew/bin/gcc-13 \
- CPPFLAGS="-I$(brew --prefix)/include" \
- LDFLAGS="-L$(brew --prefix)/lib" \
- ${ASDF} install
+ CPPFLAGS="-I/home/linuxbrew/.linuxbrew/include" \
+ LDFLAGS="-L/home/linuxbrew/.linuxbrew/lib" \
+  ${ASDF} install
 {{ end -}}
 
 export PATH="${PATH_old}"
