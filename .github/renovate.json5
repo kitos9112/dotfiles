@@ -33,7 +33,7 @@
   "packageRules": [
     {
       "matchPackageNames": ["nodejs"],
-      "minimumReleaseAge": 10,
+      "minimumReleaseAge": "10 days",
     },
     {
       "matchUpdateTypes": [
