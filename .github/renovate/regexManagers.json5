@@ -1,6 +1,8 @@
 {
-  regexManagers: [
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "customManagers": [
     {
+      customType: "regex",
       datasourceTemplate: "github-tags",
       depNameTemplate: "microsoft/vscode",
       description: "Process Microsoft VSCode version URLs",
@@ -13,6 +15,7 @@
       versioningTemplate: "semver",
     },
     {
+      customType: "regex",
       datasourceTemplate: "github-tags",
       depNameTemplate: "golang/go",
       description: "Process Golang version URLs",
@@ -26,6 +29,7 @@
       versioningTemplate: "semver",
     },
     {
+      customType: "regex",
       "fileMatch": [
         "home\\/.*"
       ],
