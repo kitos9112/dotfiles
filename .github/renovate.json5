@@ -1,7 +1,7 @@
 {
   "extends": [
     ":enableRenovate",
-    "config:recommended",
+    "config:base",
     ":disableRateLimiting",
     ":dependencyDashboard",
     ":semanticCommits",
@@ -10,6 +10,11 @@
     ":enablePreCommit",
     "github>kitos9112/dotfiles//.github/renovate/regexManagers.json5",
   ],
+  "platform": "github",
+  "username": "henry-pa-bot[bot]",
+  "repositories": [
+    "kitos9112/dotfiles"
+  ],
   "timezone": "Europe/London",
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "Renovate Dashboard",
@@ -17,6 +22,8 @@
     "renovatebot"
   ],
   "commitMessageSuffix": "[ci-skip]",
+  "onboarding": false,
+  "requireConfig": "optional",
   "gitAuthor": "henry-pa-bot <166536+henry-bot[bot]@users.noreply.github.com>",
   "suppressNotifications": [
     "prIgnoreNotification"
@@ -28,8 +35,8 @@
   ],
   "packageRules": [
     {
-      "matchPackageNames": ["nodejs"],
-      "minimumReleaseAge": "10 days",
+      "packageNames": ["nodejs"],
+      "stabilityDays": 10,
     },
     {
       "matchUpdateTypes": [
