@@ -7,7 +7,7 @@
       depNameTemplate: "microsoft/vscode",
       description: "Process Microsoft VSCode version URLs",
       fileMatch: [
-        ".*\\.chezmoiexternal\\.toml\\.tmpl",
+        ".*\\.chezmoiexternal\\.toml",
       ],
       matchStrings: [
         "https:\\/\\/code\\.visualstudio\\.com\\/sha\\/download\\?version=(?<currentValue>\\d+\\.\\d+\\.\\d+).*",
@@ -21,7 +21,7 @@
       description: "Process Golang version URLs",
       extractVersionTemplate: "^go(?<version>.*)$",
       fileMatch: [
-        ".*\\.chezmoiexternal\\.toml\\.tmpl",
+        "home\\.chezmoiexternal\\.toml",
       ],
       matchStrings: [
         "https:\\/\\/go\\.dev\\/dl\\/go(?<currentValue>\\d+\\.\\d+\\.\\d+)\\..*",
