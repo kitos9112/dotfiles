@@ -10,7 +10,7 @@
         ".*\\.chezmoiexternal\\.toml\\.tmpl",
       ],
       matchStrings: [
-        "https:\\/\\/code\\.visualstudio\\.com\\/sha\\/download\\?version=(?<currentValue>.*)\\&os.*",
+        "https:\\/\\/code\\.visualstudio\\.com\\/sha\\/download\\?version=(?<currentValue>\\d+\\.\\d+\\.\\d+).*",
       ],
       versioningTemplate: "semver",
     },
