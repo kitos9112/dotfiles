@@ -21,7 +21,7 @@
       description: "Process Golang version URLs",
       extractVersionTemplate: "^go(?<version>.*)$",
       fileMatch: [
-        "home\\.chezmoiexternal\\.toml",
+        ".*\\.chezmoiexternal\\.toml",
       ],
       matchStrings: [
         "https:\\/\\/go\\.dev\\/dl\\/go(?<currentValue>\\d+\\.\\d+\\.\\d+)\\..*",
