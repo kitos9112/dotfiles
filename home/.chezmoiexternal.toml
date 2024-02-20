@@ -46,6 +46,12 @@ url = "https://github.com/amwalding/wireshark_profiles.git"
 exact = true
 refreshPeriod = "72h"
 
+[".config/alacritty/themes"]
+type = "git-repo"
+url = "https://github.com/alacritty/alacritty-theme"
+exact = true
+refreshPeriod = "72h"
+
 {{ if not .is_root -}}
 [".apps/vscode"]
 type = "archive"
