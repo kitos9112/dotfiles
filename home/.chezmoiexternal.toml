@@ -62,7 +62,7 @@ refreshPeriod = "168h"
 
 [".go"]
 type = "archive"
-url = "https://go.dev/dl/go1.21.5.{{ .chezmoi.os }}-{{ .chezmoi.arch }}.tar.gz"
+url = "https://go.dev/dl/go1.21.7.{{ .chezmoi.os }}-{{ .chezmoi.arch }}.tar.gz"
 exact = true
 stripComponents = 1
 refreshPeriod = "168h"
