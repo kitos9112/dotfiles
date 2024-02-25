@@ -46,6 +46,12 @@ url = "https://github.com/amwalding/wireshark_profiles.git"
 exact = true
 refreshPeriod = "72h"
 
+[".local/share/fonts"]
+type = "archive"
+url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.tar.xz"
+exact = true
+refreshPeriod = "168h"
+
 [".config/alacritty/themes"]
 type = "git-repo"
 url = "https://github.com/alacritty/alacritty-theme"
