@@ -6,3 +6,6 @@ import = [
 [window]
   opacity = 1.0
   dynamic_padding = true
+
+[font]
+  normal = { family = "MesloLGM Nerd Font" }
