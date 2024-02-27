@@ -11,10 +11,12 @@ brew="/home/linuxbrew/.linuxbrew/bin/brew"
 # 2. Add 3rd party brew taps
 
 $brew --version
+$brew tap common-fate/granted
 
 # 3. Install Homebrew packages
 $brew install kubernetes-cli \
                 aws-rotate-key \
+                awscli \
                 borgbackup \
                 chezmoi \
                 docker-credential-helper-ecr \
@@ -36,6 +38,7 @@ $brew install kubernetes-cli \
                 shellcheck \
                 sops \
                 vale \
+                granted \
                 yq || echo "Catching some errors"
 
 # 4. Upgrade already-installed brew packages
