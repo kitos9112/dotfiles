@@ -20,4 +20,4 @@ COPY --chown=docker-qa:docker-qa ./ /home/docker-qa/.dotfiles
 
 WORKDIR /home/docker-qa
 
-RUN DOTFILES_VERBOSE=true .dotfiles/install
+RUN DOTFILES_VERBOSE=true DOTFILES_NO_TTY=true .dotfiles/install

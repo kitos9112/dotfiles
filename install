@@ -46,6 +46,10 @@ if [ -n "${DOTFILES_VERBOSE-}" ]; then
   chezmoi_extra_args="${chezmoi_extra_args} --verbose"
 fi
 
+if [ -n "${DOTFILES_NO_TTY}" ]; then
+  chezmoi_extra_args="${chezmoi_extra_args} --no-tty"
+fi
+
 echo_task "Running chezmoi init"
 # replace current process with chezmoi init
 # shellcheck disable=SC2086
