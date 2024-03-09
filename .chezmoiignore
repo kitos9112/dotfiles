@@ -14,3 +14,4 @@ scripts/install_dotfiles.sh
 *.deb
 *.tar.gz
 .pre-commit-config.yaml
+.local/share/fonts/.uuid
