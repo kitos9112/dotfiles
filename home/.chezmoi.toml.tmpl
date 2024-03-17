@@ -59,6 +59,17 @@ progress = true
 [onepassword]
   prompt = true
 
+[diff]
+  command = "code"
+  args = ["--wait", "--diff", "{{ .Destination }}", "{{ .Target }}"]
+
+[merge]
+  command = "bash"
+  args = [
+    "-c",
+    "cp {{ .Target }} {{ .Target }}.base && code --new-window --wait --merge {{ .Destination }} {{ .Target }} {{ .Target }}.base {{ .Source }}",
+  ]
+
 [edit]
   command = "code"
   args = ["--wait"]
