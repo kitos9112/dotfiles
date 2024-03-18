@@ -33,7 +33,7 @@
   "packageRules": [
     {
       "matchPackageNames": ["node"],
-      "minimumReleaseAge": "10 days",
+      "minimumReleaseAge": "20 days",
     },
     {
       "matchUpdateTypes": [
