@@ -8,4 +8,4 @@ import = [
   dynamic_padding = true
 
 [font]
-  normal = { family = "MesloLGM Nerd Font" }
+  normal = { family = "FiraMono Nerd Font" }

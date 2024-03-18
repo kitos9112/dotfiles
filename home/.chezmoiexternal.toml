@@ -48,7 +48,8 @@ refreshPeriod = "72h"
 
 [".local/share/fonts"]
 type = "archive"
-url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.tar.xz"
+url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraMono.tar.xz"
+include = ["*.otf", ".ttf"]
 exact = true
 refreshPeriod = "168h"
 
