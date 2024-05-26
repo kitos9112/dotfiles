@@ -18,16 +18,12 @@ export PATH="${HOME}/.asdf/bin:${HOME}/.asdf/shims:${PATH}"
 export PATH="/home/linuxbrew/.linuxbrew/bin:${PATH}"
 {{ end -}}
 
+started "Update all ASDF plugins..."
 ${ASDF} plugin update --all
-
-{{- if or (eq .chezmoi.os "darwin") (not .is_root) }}
-  ${ASDF} install
-{{ else }} # Assumes a Linux host with homebrew already installed.
- CC=/home/linuxbrew/.linuxbrew/bin/gcc-13 \
- CPPFLAGS="-I/home/linuxbrew/.linuxbrew/include" \
- LDFLAGS="-L/home/linuxbrew/.linuxbrew/lib" \
-  ${ASDF} install
-{{ end -}}
+success "All ASDF plugins updated.
+started "Install all default ASDF tool versions..."
+${ASDF} install
+success "All ASDF apps installed."
 
 export PATH="${PATH_old}"
 
