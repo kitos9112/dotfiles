@@ -1,14 +1,15 @@
 ![Nightly Build](https://github.com/kitos9112/dotfiles/actions/workflows/schedule-nightly-build.yaml/badge.svg)
+
 # My Personal Public DOTfiles managed by `chezmoi`
 
 This public Github repository has been built for my own benefit, however, feel free to sneak in and steal anything that would improve your own productivity.
-My plans are focused on maintaining a `CI` workflow with GH actions for ensuring that my changes won't break across different OS flavours.
+My plans rely on maintaining a `CI` workflow alongside GitHub actions to ensure that my changes will not break across different OS flavours.
 At the moment, I got Docker containers for the following Linux flavours:
 
-- Fedora 37
-- Ubuntu 22.04 - A nightly build happens within a Docker container at 00:00 UTC every day.
+- Fedora 40
+- Ubuntu 22.04
+- Ubuntu 24.04
 
-As of April 2022, I've begun to configure a MacOS device, but it's still very early days.
 ## Installation instructions
 
 I'd not care of using GitHub for backing up my `dotfiles` if my perspectives of using them remained in a single machine.
