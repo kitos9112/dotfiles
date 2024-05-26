@@ -2,7 +2,7 @@
 
 {{ $personalName := "Marcos Soutullo Rodriguez" -}}
 {{- $personalEmail := "marcos.soutullo91@gmail.com" -}}
-{{- $personalSigningKey := "C67A779BDEF89362!" -}}
+{{- $personalSigningKey := "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHJQ/v90Djih+2baccSLZnFPhP9FHpIoNzqDPsJhLgCs" -}}
 {{- $workLaptop := "marcos-soutullo-laptop-1" -}}
 
 {{- $isWsl := or (env "WSL_DISTRO_NAME") (env "IS_WSL") | not | not -}}
@@ -32,9 +32,9 @@ progress = true
   name = "{{ $personalName }}"
   email = "{{ $personalEmail }}"
 
-  {{- if $isRoot | not -}}
   signing_key = "{{ $personalSigningKey }}"
-  {{- end }}
+  signing_format = "ssh" # https://developer.1password.com/docs/ssh/git-commit-signing#advanced-configuration
+  signing_ssh_program = "/opt/1Password/op-ssh-sign"
 
   {{- if or (lookPath "code") }}
   editor = "code --wait --diff $LOCAL $REMOTE"
@@ -48,7 +48,7 @@ progress = true
 
   locale = "en_GB.UTF-8"
   # OFF renovate: datasource=github-tags packageName=python/cpython
-  python_version = "3.12.1"
+  python_version = "3.12.3"
 
 [sourceVCS]
   autoCommit = true

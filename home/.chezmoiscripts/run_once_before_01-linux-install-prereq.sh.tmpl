@@ -11,6 +11,8 @@ set -ev pipefail
 DEBIAN_FRONTEND=noninteractive sudo -E apt update
 DEBIAN_FRONTEND=noninteractive sudo -E apt upgrade -y
 DEBIAN_FRONTEND=noninteractive sudo -E apt-get install -y \
+              1password \
+              1password-cli \
               iproute2 \
               build-essential llvm liblzma-dev tk-dev libacl1-dev\
               curl \
@@ -32,6 +34,8 @@ DEBIAN_FRONTEND=noninteractive sudo -E apt-get install -y \
               unzip \
               vim \
               wget \
+              wireguard \
+              wireguard-tools \
               zsh
 
 sudo locale-gen {{ .locale }}
@@ -51,6 +55,8 @@ sudo -E yum install -y \
 sudo -E dnf update
 sudo -E dnf upgrade -y
 sudo -E dnf install -y \
+              1password \
+              1password-cli \
               curl \
               file \
               git \
