@@ -7,7 +7,6 @@ set -ev pipefail
 {{ if .is_root -}}
 {{ if or (eq .chezmoi.osRelease.id "ubuntu") (eq .chezmoi.osRelease.id "debian") -}}
 
-
 DEBIAN_FRONTEND=noninteractive sudo -E apt update
 DEBIAN_FRONTEND=noninteractive sudo -E apt upgrade -y
 DEBIAN_FRONTEND=noninteractive sudo -E apt-get install -y \
@@ -65,6 +64,7 @@ sudo -E dnf install -y \
               util-linux-user \
               libxcrypt-compat \
               zsh \
+              unzip \
               python \
               gcc \
               tmux \

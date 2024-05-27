@@ -17,4 +17,4 @@ COPY ./ /home/docker-qa/.dotfiles
 
 WORKDIR /home/docker-qa
 
-RUN .dotfiles/install
+RUN DOTFILES_VERBOSE=true DOTFILES_NO_TTY=true .dotfiles/install

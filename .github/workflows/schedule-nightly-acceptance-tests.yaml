@@ -1,4 +1,4 @@
-name: Schedule - Nightly Docker Builds
+name: Schedule - Nightly Acceptance Tests
 
 on:
   workflow_dispatch:
@@ -19,12 +19,15 @@ env:
 
 jobs:
   build:
-    name: Build and Push Docker Image - latest
-    runs-on: ${{ matrix.os }}
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04]
+        os:
+          - ubuntu-22.04
+          - ubuntu-24.04
+          - fedora-40
 
     steps:
       - name: Get the current date

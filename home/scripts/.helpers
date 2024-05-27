@@ -36,6 +36,10 @@ warn() {
   log_echo "⚠️  $*"
 }
 
+error() {
+  log_echo "💥 $*"
+}
+
 heading() {
   real_clear
   log_echo "- $*"
