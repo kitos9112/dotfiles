@@ -32,7 +32,7 @@
   ],
   "packageRules": [
     {
-      "matchPackageNames": ["node"],
+      "matchPackageNames": ["node","python"],
       "minimumReleaseAge": "20 days",
     },
     {

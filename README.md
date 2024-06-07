@@ -1,4 +1,4 @@
-![Nightly Build](https://github.com/kitos9112/dotfiles/actions/workflows/schedule-nightly-build.yaml/badge.svg)
+![Nightly Build](https://github.com/kitos9112/dotfiles/actions/workflows/schedule-nightly-acceptance-tests.yaml/badge.svg)
 
 # My Personal Public DOTfiles managed by `chezmoi`
 
