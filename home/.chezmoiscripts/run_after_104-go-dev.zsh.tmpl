@@ -3,7 +3,7 @@
 
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
 
-${GOROOT}/bin/go install \
+go install \
   github.com/mbrt/gmailctl/cmd/gmailctl@313754ab934f7930461d60100300a63581cdcc46
 
 {{- end -}}
