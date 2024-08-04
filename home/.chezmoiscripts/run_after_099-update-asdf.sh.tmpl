@@ -22,7 +22,15 @@ started "Update all ASDF plugins..."
 ${ASDF} plugin update --all
 success "All ASDF plugins updated."
 started "Install all default ASDF tool versions..."
-${ASDF} install
+{{ if .is_wsl }}
+ CC=/home/linuxbrew/.linuxbrew/bin/gcc-14 \
+ CPPFLAGS="-I/home/linuxbrew/.linuxbrew/include" \
+ LDFLAGS="-L/home/linuxbrew/.linuxbrew/lib" \
+ ${ASDF} install
+{{ else }}
+  ${ASDF} install
+{{ end -}}
+
 success "All ASDF apps installed."
 
 export PATH="${PATH_old}"
