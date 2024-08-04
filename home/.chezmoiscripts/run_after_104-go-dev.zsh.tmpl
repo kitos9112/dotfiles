@@ -3,7 +3,7 @@
 
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
 
-go install \
-  github.com/mbrt/gmailctl/cmd/gmailctl@313754ab934f7930461d60100300a63581cdcc46
+${HOME}/.asdf/shims/go install \
+  github.com/mbrt/gmailctl/cmd/gmailctl@69c24b795402ff895cc90262b3cbdebd501c8b53
 
 {{- end -}}
