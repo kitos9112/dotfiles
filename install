@@ -32,6 +32,12 @@ fi
 # shellcheck disable=SC2312
 script_dir="$(cd -P -- "$(dirname -- "$(command -v -- "$0")")" && pwd -P)"
 
+if [ ! -f "${script_dir}/.chezmoiversion" ]; then
+  echo_task "Using ~/.dotfiles as chezmoi source"
+  script_dir="${HOME}/.dotfiles"
+  mkdir -pv "$script_dir"
+fi
+
 if [ -n "${DOTFILES_ONE_SHOT-}" ]; then
   chezmoi_extra_args="--one-shot"
 else
