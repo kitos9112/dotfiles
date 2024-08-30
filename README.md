@@ -20,9 +20,11 @@ You can install this repo via a Convenient script or manually in its defect.
 In case of not having `chezmoi` installed - Just firing the `install.sh` after a simple download of it.
 
 ```bash
-
 # Using Curl
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/kitos9112/dotfiles/master/install)"
+```
+
+```bash
 # OR Using Wget
 sh -c "$(wget -qO- https://raw.githubusercontent.com/kitos9112/dotfiles/master/install)"
 ```
