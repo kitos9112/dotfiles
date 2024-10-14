@@ -13,8 +13,8 @@
 {{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
 {{- end -}}
 
-{{- $isRoot := contains $workLaptop .chezmoi.hostname -}}
-{{- $isWork := contains $workLaptop .chezmoi.hostname -}}
+{{- $isRoot := contains $workLaptop .chezmoi.hostname | not -}}
+{{- $isWork := contains $workLaptop .chezmoi.hostname | not -}}
 
 sourceDir = "{{ .chezmoi.sourceDir }}"
 progress = true
