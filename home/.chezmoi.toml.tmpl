@@ -3,7 +3,7 @@
 {{ $personalName := "Marcos Soutullo Rodriguez" -}}
 {{- $personalEmail := "marcos.soutullo91@gmail.com" -}}
 {{- $personalSigningKey := "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHJQ/v90Djih+2baccSLZnFPhP9FHpIoNzqDPsJhLgCs" -}}
-{{- $workLaptop := "marcos-soutullo-laptop-1" -}}
+{{- $workLaptop := "marcos-soutullo-laptop" -}}
 
 {{- $isWsl := or (env "WSL_DISTRO_NAME") (env "IS_WSL") | not | not -}}
 {{- $isFedora := lookPath "gnome-shell" | not | not -}}
@@ -13,8 +13,8 @@
 {{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
 {{- end -}}
 
-{{- $isRoot := eq $workLaptop .chezmoi.hostname | not -}}
-{{- $isWork := eq $workLaptop .chezmoi.hostname | not -}}
+{{- $isRoot := contains $workLaptop .chezmoi.hostname | not -}}
+{{- $isWork := contains $workLaptop .chezmoi.hostname | not -}}
 
 sourceDir = "{{ .chezmoi.sourceDir }}"
 progress = true
