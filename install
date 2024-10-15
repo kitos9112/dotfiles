@@ -9,6 +9,13 @@ error() {
   exit 1
 }
 
+# Retry mechanism
+retry_count=3
+retry_delay=5
+
+attempt=1
+success=false
+
 # -e: exit on error
 # -u: exit on unset variables
 set -eu
@@ -39,34 +46,40 @@ if [ ! -f "${script_dir}/.chezmoiversion" ]; then
 fi
 
 if [ -n "${DOTFILES_ONE_SHOT-}" ]; then
-  chezmoi_extra_args="--one-shot"
+  chezmoi_extra_args+=("--one-shot")
 else
-  chezmoi_extra_args="--apply"
+  chezmoi_extra_args+=("--apply")
 fi
 
 if [ -n "${DOTFILES_DEBUG-}" ]; then
-  chezmoi_extra_args="${chezmoi_extra_args} --debug"
+  chezmoi_extra_args+=("--debug")
 fi
 
 if [ -n "${DOTFILES_VERBOSE-}" ]; then
-  chezmoi_extra_args="${chezmoi_extra_args} --verbose"
+  chezmoi_extra_args+=("--verbose")
 fi
 
-echo_task "Running chezmoi init"
 if [ -n "${DOTFILES_NO_TTY-}" ]; then
-  chezmoi_args="--source ${script_dir}"
-  chezmoi_extra_args="${chezmoi_extra_args} --no-tty"
+  # Dynamic chezmoi arguments handling
+  chezmoi_extra_args+=("--source" "${script_dir}")
+  chezmoi_extra_args+=("--no-tty")
 else
-  chezmoi_args="github.com/${DOTFILES_USER:-kitos9112}/dotfiles"
+  chezmoi_extra_args=("github.com/${DOTFILES_USER:-kitos9112}/dotfiles")
 fi
 
-# replace current process with chezmoi init
-# shellcheck disable=SC2086
-# Retry this execution until it succeeds for a minimum of 3 retries
-# shellcheck disable=SC2086
-{
-  exec "${chezmoi}" init "${chezmoi_args}" "${chezmoi_extra_args}"
-} || {
-  echo_task "chezmoi init failed... retrying"
-  exec "${chezmoi}" init "${chezmoi_args}" "${chezmoi_extra_args}"
-}
+while [ "$attempt" -le "$retry_count" ]; do
+  echo_task "Attempt $attempt: Running chezmoi init with args: ${chezmoi_extra_args[*]}"
+
+  if "${chezmoi}" init "${chezmoi_extra_args[@]}"; then
+    success=true
+    break
+  else
+    echo_task "chezmoi init failed. Retrying in ${retry_delay} seconds..."
+    sleep "$retry_delay"
+    attempt=$((attempt+1))
+  fi
+done
+
+if [ "$success" = false ]; then
+  error "chezmoi init failed after $retry_count attempts."
+fi
