@@ -39,6 +39,12 @@
   exact: true
   refreshPeriod: "24h"
 
+".fzf":
+  type: "git-repo"
+  url: "https://github.com/junegunn/fzf.git"
+  exact: true
+  refreshPeriod: "24h"
+
 ".local/bin/fzf":
   type: archive-file
   {{ $fzfVersion := includeTemplate "get-github-latest-version" (list "junegunn/fzf" $cache) }}
