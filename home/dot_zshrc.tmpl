@@ -26,6 +26,7 @@ ZSH_CUSTOM=$HOME/.oh-my-zsh-custom
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
+	web-search
   {{- if or (lookPath "1password") }}
 	1password
 	{{- end }}
@@ -85,9 +86,13 @@ plugins=(
 	alias-finder
 	history
 	zsh-syntax-highlighting
+	zsh-autosuggestions
+	my-completions
 )
 
 fpath+=${ZSH_CUSTOM}/plugins/zsh-completions/src
+# https://github.com/zsh-users/zsh-completions/issues/603
+fpath+="${ZSH_CUSTOM:-"${ZSH}/custom"}/plugins/zsh-completions/src"
 
 source $ZSH/oh-my-zsh.sh
 
@@ -106,21 +111,6 @@ compinit -u
 if [ -f "$HOME/.env.zsh" ]; then
     source $HOME/.env.zsh
 fi
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('{{ .chezmoi.homeDir }}/{{ if (eq .chezmoi.os "darwin") }}opt/anaconda3{{ else }}miniconda3{{ end }}/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "{{ .chezmoi.homeDir }}/{{ if (eq .chezmoi.os "darwin") }}opt/anaconda3{{ else }}miniconda3{{ end }}/etc/profile.d/conda.sh" ]; then
-        . "{{ .chezmoi.homeDir }}/{{ if (eq .chezmoi.os "darwin") }}opt/anaconda3{{ else }}miniconda3{{ end }}/etc/profile.d/conda.sh"
-    else
-        export PATH="{{ .chezmoi.homeDir }}/{{ if (eq .chezmoi.os "darwin") }}opt/anaconda3{{ else }}miniconda3{{ end }}/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
 
 # >>> Node Version Manager >>>
 # NVM - A Node Version Manager

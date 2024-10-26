@@ -3,6 +3,9 @@
 
 {{- template "read-versions-and-revisions-cache" $cache -}}
 
+##########################
+#      OMZ Plugins       #
+##########################
 ".oh-my-zsh":
   type: "git-repo"
   url: "https://github.com/ohmyzsh/ohmyzsh.git"
@@ -72,6 +75,12 @@
   exact: true
   refreshPeriod: "72h"
 
+".local/bin/retry":
+  type: file
+  {{ $retryVersion := includeTemplate "get-github-latest-version" (list "kadwanev/retry" $cache) }}
+  url: "https://github.com/kadwanev/retry/raw/{{ $retryVersion }}/retry"
+  executable: true
+
 {{ if not .is_root -}}
 ".apps/vscode":
   type: "archive"
@@ -94,10 +103,16 @@
   executable: true
 {{ end -}}
 
-".local/bin/retry":
+#### Script/Tool completions
+".local/bin/kubectx":
+  type: archive-file
+  {{ $kubectxVersion := includeTemplate "get-github-latest-version" (list "ahmetb/kubectx" $cache) }}
+  url: "https://github.com/ahmetb/kubectx/releases/download/v{{ $kubectxVersion }}/kubectx_v{{ $kubectxVersion }}_linux_{{ .uname_arch }}.tar.gz"
+  path: kubectx
+
+".oh-my-zsh-custom/plugins/my-completions/_kubectx.zsh":
   type: file
-  {{ $retryVersion := includeTemplate "get-github-latest-version" (list "kadwanev/retry" $cache) }}
-  url: "https://github.com/kadwanev/retry/raw/{{ $retryVersion }}/retry"
-  executable: true
+  url: "https://github.com/ahmetb/kubectx/raw/v{{ $kubectxVersion }}/completion/_kubectx.zsh"
+
 
 {{- template "save-versions-and-revisions-cache" $cache -}}
