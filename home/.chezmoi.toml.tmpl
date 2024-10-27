@@ -49,7 +49,7 @@ progress = true
   locale = "en_GB.UTF-8"
   # OFF renovate: datasource=github-tags packageName=python/cpython
   python_version = "3.12.7"
-  uname_arch = {{ output "uname" "-m" | trim }}
+  uname_arch = "{{ output "uname" "-m" | trim }}"
 
 [sourceVCS]
   autoCommit = true
