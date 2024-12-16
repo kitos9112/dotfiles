@@ -27,7 +27,8 @@ jobs:
         os:
           - ubuntu-22.04
           - ubuntu-24.04
-          - fedora-40
+          - fedora-41
+          - fedora-42
 
     steps:
       - name: Get the current date
