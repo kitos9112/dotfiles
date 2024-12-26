@@ -6,7 +6,8 @@ This public Github repository has been built for my own benefit, however, feel f
 My plans rely on maintaining a `CI` workflow alongside GitHub actions to ensure that my changes will not break across different OS flavours.
 At the moment, I got Docker containers for the following Linux flavours:
 
-- Fedora 40
+- Fedora 41
+- Fedora 42
 - Ubuntu 22.04
 - Ubuntu 24.04
 
