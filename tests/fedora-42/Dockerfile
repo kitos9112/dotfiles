@@ -8,7 +8,7 @@ RUN dnf update -y && dnf install -y \
     util-linux-user \
     libxcrypt-compat
 
-RUN useradd -m -s /bin/zsh -d /home/docker-qa docker-qa  && \
+RUN useradd -m -s /bin/sh -d /home/docker-qa docker-qa  && \
     echo "docker-qa ALL=NOPASSWD: ALL" >> /etc/sudoers
 
 USER docker-qa
