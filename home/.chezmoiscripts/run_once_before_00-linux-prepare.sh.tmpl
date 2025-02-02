@@ -43,13 +43,11 @@ fi
 {{- if or (eq .chezmoi.osRelease.id "rhel") (eq .chezmoi.osRelease.id "fedora") -}}
 
 started "Add the 1Password GPG key if not already added"
-if ! rpm -q gpg-pubkey-2012ea22 &> /dev/null; then
-    sudo rpm --import https://downloads.1password.com/linux/keys/1password.asc
-fi
+sudo rpm --import https://downloads.1password.com/linux/keys/1password.asc
 
 started "Add the 1Password yum repository if not already added"
 if ! [ -f /etc/yum.repos.d/1password.repo ]; then
-    sudo sh -c 'echo -e "[1password]\nname=1Password Stable Channel\nbaseurl=https://downloads.1password.com/linux/rpm/stable/\$basearch\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=https://downloads.1password.com/linux/keys/1password.asc" > /etc/yum.repos.d/1password.repo'
+    sudo sh -c 'echo -e "[1password]\nname=1Password Stable Channel\nbaseurl=https://downloads.1password.com/linux/rpm/stable/\$basearch\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=\"https://downloads.1password.com/linux/keys/1password.asc\"" > /etc/yum.repos.d/1password.repo'
 fi
 
 {{ end -}}

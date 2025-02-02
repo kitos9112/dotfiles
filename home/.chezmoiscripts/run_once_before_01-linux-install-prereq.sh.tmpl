@@ -2,7 +2,7 @@
 {{- if (eq .chezmoi.os "linux") -}}
 #! /usr/bin/env bash
 set -ev pipefail
-
+set +x
 # Assess whether this is an ubuntu or debian system and check is the root flag is set
 {{ if .is_root -}}
 {{ if or (eq .chezmoi.osRelease.id "ubuntu") (eq .chezmoi.osRelease.id "debian") -}}
@@ -41,8 +41,7 @@ sudo locale-gen {{ .locale }}
 
 {{ end -}}
 {{- if (eq .chezmoi.osRelease.id "rhel") -}}
-sudo -E yum update
-sudo -E yum upgrade -y
+sudo -E yum update -y
 sudo -E yum install -y \
               curl \
               file \
@@ -51,8 +50,7 @@ sudo -E yum install -y \
               vim
 {{ end -}}
 {{- if (eq .chezmoi.osRelease.id "fedora") -}}
-sudo -E dnf update
-sudo -E dnf upgrade -y
+sudo -E dnf update -y
 sudo -E dnf install -y \
               1password \
               1password-cli \
