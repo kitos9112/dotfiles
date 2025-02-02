@@ -64,6 +64,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
+          driver: docker
           context: .
           platforms: linux/amd64
           file: ./tests/${{ matrix.os }}/Dockerfile
