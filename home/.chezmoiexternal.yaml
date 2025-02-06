@@ -36,11 +36,11 @@
   exact: true
   refreshPeriod: "24h"
 
-".asdf":
-  type: "git-repo"
-  url: "https://github.com/asdf-vm/asdf.git"
-  exact: true
-  refreshPeriod: "24h"
+".local/bin/asdf":
+  type: archive-file
+  {{ $asdfVersion := includeTemplate "get-github-latest-version" (list "asdf-vm/asdf" $cache) }}
+  url: "https://github.com/asdf-vm/asdf/releases/download/v{{ $asdfVersion }}/asdf-v{{ $asdfVersion }}-linux-{{ .chezmoi.arch }}.tar.gz"
+  path: asdf
 
 ".fzf":
   type: "git-repo"

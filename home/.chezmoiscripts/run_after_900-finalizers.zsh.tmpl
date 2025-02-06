@@ -4,13 +4,14 @@
 set -ev pipefail
 
 # 5. Update and upgrade brew packages
-ASDF="${HOME}/.asdf/bin/asdf"
+ASDF="${HOME}/.local/bin/asdf"
 PATH_old="${PATH}"
 
 # FIXME(WA): This is a hack to make sure that `asdf` and `brew` is in the path
-export PATH="${HOME}/.asdf/bin:${HOME}/.asdf/shims:$(brew --prefix)/bin:${PATH}"
+export PATH="${HOME}/.local/bin:${HOME}/.asdf/shims:${PATH}"
 
 {{ if .is_root -}}
+export PATH="${HOME}/$(brew --prefix)/bin:${PATH}"
 brew update && brew upgrade
 {{ end -}}
 
@@ -20,9 +21,9 @@ ${ASDF} plugin update --all
 # 7. Install/update all ASDF package versions using libraries installed by brew
 
 {{- if or (eq .chezmoi.os "darwin") (not .is_root) }}
- ${ASDF} install
+ ${ASDF} install || echo ""
 {{ else }}
- ${ASDF} install
+ ${ASDF} install || echo ""
 {{ end -}}
 
 export PATH="${PATH_old}"

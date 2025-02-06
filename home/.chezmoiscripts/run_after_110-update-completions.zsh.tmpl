@@ -6,7 +6,7 @@ set -ev pipefail
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
 
 PATH_old="${PATH}"
-export PATH="${HOME}/.asdf/bin:${HOME}/.asdf/shims:/home/linuxbrew/.linuxbrew/sbin:/home/linuxbrew/.linuxbrew/bin:${PATH}"
+export PATH="${HOME}/.asdf/shims:/home/linuxbrew/.linuxbrew/sbin:/home/linuxbrew/.linuxbrew/bin:${PATH}"
 
 # 1. Update `chezmoi` ZSH completions
 chezmoi completion zsh --output="$(chezmoi source-path)/dot_oh-my-zsh-custom/plugins/chezmoi/_chezmoi" || error "Failed to update chezmoi ZSH completions"

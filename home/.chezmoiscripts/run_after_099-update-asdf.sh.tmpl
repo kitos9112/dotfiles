@@ -4,15 +4,15 @@
 set -e pipefail
 
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
-
-ASDF="${HOME}/.asdf/bin/asdf"
+ASDF_DATA_DIR="${HOME}/.asdf"
+ASDF="${HOME}/.local/bin/asdf"
 if [ ! -f "${ASDF}" ]; then
   echo "asdf is not yet installed"
   exit 0
 fi
 
 PATH_old="${PATH}"
-export PATH="${HOME}/.asdf/bin:${HOME}/.asdf/shims:${PATH}"
+export PATH="${HOME}/.asdf/shims:${PATH}"
 
 {{ if .is_root -}}
 export PATH="/home/linuxbrew/.linuxbrew/bin:${PATH}"
@@ -28,7 +28,7 @@ started "Install all default ASDF tool versions..."
  LDFLAGS="-L/home/linuxbrew/.linuxbrew/lib" \
  ${ASDF} install
 {{ else }}
-  ${ASDF} install
+  ${ASDF} install || echo ""
 {{ end -}}
 
 success "All ASDF apps installed."

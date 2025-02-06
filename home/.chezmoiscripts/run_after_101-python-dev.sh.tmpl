@@ -6,18 +6,18 @@ set -e pipefail
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
 
 PATH_old="${PATH}"
-export PATH="${HOME}/.asdf/bin:${HOME}/.asdf/shims:/home/linuxbrew/.linuxbrew/sbin:/home/linuxbrew/.linuxbrew/bin:${PATH}"
+export PATH="${HOME}/.asdf/shims:/home/linuxbrew/.linuxbrew/sbin:/home/linuxbrew/.linuxbrew/bin:${PATH}"
 
 {
   python=$(which python)
 } || {
 {{ if or (eq .chezmoi.os "darwin") (not .is_root) }}
-  ${HOME}/.asdf/bin/asdf install python {{ .python_version }}
+  ${HOME}/.local/bin/asdf install python {{ .python_version }}
 {{ else }}
  CC=/home/linuxbrew/.linuxbrew/bin/gcc-13 \
  CPPFLAGS="-I$(brew --prefix)/include" \
  LDFLAGS="-L$(brew --prefix)/lib" \
- ${HOME}/.asdf/bin/asdf install python {{ .python_version }}
+ ${HOME}/.local/bin/asdf install python {{ .python_version }}
 {{ end }}
 }
 
