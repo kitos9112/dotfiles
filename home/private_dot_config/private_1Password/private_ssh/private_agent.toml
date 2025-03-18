@@ -5,3 +5,7 @@ item = "Home"
 [[ssh-keys]]
 item = "Github"
 vault = "Private"
+
+[[ssh-keys]]
+item = "SSH Key - prodagent"
+vault = "Private"
