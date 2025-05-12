@@ -70,7 +70,8 @@
 ".config/wireshark_profiles":
   type: "git-repo"
   url: "https://github.com/amwalding/wireshark_profiles.git"
-  exact: true
+  include:
+    - "Profiles"
   refreshPeriod: "72h"
 
 ".local/share/fonts":
