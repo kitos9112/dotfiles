@@ -14,7 +14,7 @@
 {{- end -}}
 
 {{- $isRoot := contains $workLaptop .chezmoi.hostname | not -}}
-{{- $isWork := contains $workLaptop .chezmoi.hostname | not -}}
+{{- $isWork := contains $workLaptop .chezmoi.hostname -}}
 
 sourceDir = "{{ .chezmoi.sourceDir }}"
 progress = true
@@ -30,7 +30,9 @@ progress = true
   is_work = {{ $isWork }} # Whether or not this is my work laptop
 
   name = "{{ $personalName }}"
+  {{- if not $isWork }}
   email = "{{ $personalEmail }}"
+  {{- end }}
 
   signing_key = "{{ $personalSigningKey }}"
   signing_format = "ssh" # https://developer.1password.com/docs/ssh/git-commit-signing#advanced-configuration
