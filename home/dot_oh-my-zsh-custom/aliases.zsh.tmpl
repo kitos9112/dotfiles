@@ -1,11 +1,10 @@
 # Here lives all the aliases useful for me!
 alias brewup="brew update && brew upgrade && brew upgrade --cask && brew cleanup -v -s && brew doctor"
 
-# What's my public IP address via DNS?
-alias get-public-ip-dns="host myip.opendns.com resolver1.opendns.com | grep -oP '\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}(?<!#53)$'"
-
 # Another cool way using `dig` --> dig TXT +short o-o.myaddr.l.google.com @ns1.google.com | awk -F'"' '{ print $2}'
-alias get-public-ip-wget="wget -qO- http://ipecho.net/plain | xargs echo"
+alias get-public-ip="wget -qO- http://ipecho.net/plain | xargs echo"
+alias get-public-ipv4="curl -s ipv4.icanhazip.com | xargs echo -n"
+alias get-public-ipv6="curl -s ipv6.icanhazip.com | xargs echo -n"
 
 # AWS
 alias aws-get-instanceid="export AWS_EC2_INSTANCE_ID=\`aws ec2 describe-instances --filters \"Name=tag:Name,Values=${AWS_EC2_INSTANCE_NAME}\" --output text --query \"Reservations[*].Instances[*].InstanceId\"\` && echo ${AWS_EC2_INSTANCE_ID}"
