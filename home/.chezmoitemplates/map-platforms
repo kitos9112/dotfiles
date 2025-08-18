@@ -1,0 +1,3 @@
+
+{{- $osMap := dict "apple" "darwin" "windows" "pc-windows" "unknown" "linux" -}}
+{{- index $osMap .chezmoi.os | default .chezmoi.os -}}

@@ -1,6 +1,7 @@
 {{- /* "chezmoi" is present as work around for https://github.com/twpayne/chezmoi/discussions/1724 */ -}}
 {{- $cache := dict "chezmoi" .chezmoi -}}
 {{- $arch := includeTemplate "map-architectures" . -}}
+{{- $platform := includeTemplate "map-platform" . -}}
 
 {{- template "read-versions-and-revisions-cache" $cache -}}
 
@@ -46,12 +47,13 @@
 ".local/bin/uv":
   type: archive-file
   {{ $uvVersion := includeTemplate "get-github-latest-version" (list "astral-sh/uv" $cache) }}
-  url: "https://github.com/astral-sh/uv/releases/download/{{ $uvVersion }}/uv-{{ $arch }}-unknown-{{ .chezmoi.os }}-gnu.tar.gz"
+  url: "https://github.com/astral-sh/uv/releases/download/{{ $uvVersion }}/uv-{{ $arch }}-{{ $platform }}-{{ .chezmoi.os }}{{ if eq .chezmoi.os "linux" }}-gnu{{ end }}.tar.gz"
+
   stripComponents: 1
   path: "uv"
 ".local/bin/uvx":
   type: archive-file
-  url: "https://github.com/astral-sh/uv/releases/download/{{ $uvVersion }}/uv-{{ $arch }}-unknown-{{ .chezmoi.os }}-gnu.tar.gz"
+  url: "https://github.com/astral-sh/uv/releases/download/{{ $uvVersion }}/uv-{{ $arch }}-{{ $platform }}-{{ .chezmoi.os }}{{ if eq .chezmoi.os "linux" }}-gnu{{ end }}.tar.gz"
   stripComponents: 1
   path: "uvx"
 
