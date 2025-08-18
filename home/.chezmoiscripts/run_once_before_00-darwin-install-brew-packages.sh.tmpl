@@ -17,7 +17,6 @@ $brew tap dty1er/tap
 ## `brew bundle dump` to generate Brewfile
 $brew bundle --file=/dev/stdin <<EOF
     tap "1password/tap"
-    tap "aquasecurity/trivy"
     tap "common-fate/granted"
     tap "dty1er/tap"
     tap "fluxcd/tap"
@@ -53,9 +52,6 @@ $brew bundle --file=/dev/stdin <<EOF
     brew "iperf3"
     brew "jq"
     brew "k9s"
-    brew "kubeseal"
-    brew "kubeval"
-    brew "kustomize"
     brew "librsvg"
     brew "qemu"
     brew "lima"
@@ -84,7 +80,6 @@ $brew bundle --file=/dev/stdin <<EOF
     brew "common-fate/granted/granted"
     brew "go-task/tap/go-task"
     cask "1password-cli"
-    cask "authy"
     cask "dbeaver-community"
     cask "hyper"
     cask "iterm2"
