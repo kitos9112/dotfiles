@@ -123,6 +123,7 @@ export NVM_DIR="$HOME/.config/nvm"
 # <<< ITERM2 <<<
 {{ end }}
 
+{{ if (eq .chezmoi.os "linux") }}
 # >>> WSL
 if $(uname -a | grep -qPe "(M|m)icrosoft"); then
 	if [ -f "$HOME/.op-ssh-agent.sh" ]; then
@@ -130,3 +131,4 @@ if $(uname -a | grep -qPe "(M|m)icrosoft"); then
 	fi
 fi
 # <<< WSL
+{{ end }}
