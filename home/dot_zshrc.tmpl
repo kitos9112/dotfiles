@@ -121,6 +121,12 @@ export NVM_DIR="$HOME/.config/nvm"
 # >>> ITERM2 >>>
 	test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 # <<< ITERM2 <<<
+
+# >>> KRB5 >>>
+# export the KRB5 config path if it exists
+if [ -f "/opt/homebrew/opt/krb5/bin/kinit" ]; then
+	export PATH="/opt/homebrew/opt/krb5/bin:$PATH"
+fi
 {{ end }}
 
 {{ if (eq .chezmoi.os "linux") }}
@@ -132,3 +138,5 @@ if $(uname -a | grep -qPe "(M|m)icrosoft"); then
 fi
 # <<< WSL
 {{ end }}
+
+
