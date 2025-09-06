@@ -36,7 +36,11 @@ progress = true
 
   signing_key = "{{ $personalSigningKey }}"
   signing_format = "ssh" # https://developer.1password.com/docs/ssh/git-commit-signing#advanced-configuration
+  {{- if eq .chezmoi.os "darwin" -}}
+  signing_ssh_program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+  {{- else if eq .chezmoi.os "linux" -}}
   signing_ssh_program = "/opt/1Password/op-ssh-sign"
+  {{- end -}}
 
   {{- if or (lookPath "code") }}
   editor = "code --wait --diff $LOCAL $REMOTE"
