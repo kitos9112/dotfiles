@@ -48,9 +48,9 @@
   type: archive-file
   {{ $uvVersion := includeTemplate "get-github-latest-version" (list "astral-sh/uv" $cache) }}
   url: "https://github.com/astral-sh/uv/releases/download/{{ $uvVersion }}/uv-{{ $arch }}-{{ $platform }}-{{ .chezmoi.os }}{{ if eq .chezmoi.os "linux" }}-gnu{{ end }}.tar.gz"
-
   stripComponents: 1
   path: "uv"
+
 ".local/bin/uvx":
   type: archive-file
   url: "https://github.com/astral-sh/uv/releases/download/{{ $uvVersion }}/uv-{{ $arch }}-{{ $platform }}-{{ .chezmoi.os }}{{ if eq .chezmoi.os "linux" }}-gnu{{ end }}.tar.gz"
@@ -76,6 +76,7 @@
     - "Profiles"
   refreshPeriod: "72h"
 
+{{ if eq .chezmoi.os "linux" -}}
 ".local/share/fonts":
   type: "archive"
   url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraMono.tar.xz"
@@ -84,6 +85,16 @@
     - ".ttf"
   exact: true
   refreshPeriod: "168h"
+{{- else if eq .chezmoi.os "darwin" -}}
+"Library/Fonts":
+  type: "archive"
+  url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraMono.tar.xz"
+  include:
+    - "*.otf"
+    - ".ttf"
+  exact: true
+  refreshPeriod: "168h"
+{{ end -}}
 
 ".config/alacritty/themes":
   type: "git-repo"
