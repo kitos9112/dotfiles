@@ -171,6 +171,7 @@ if [ -d "$HOME/.apps/vscode/bin" ]; then
 fi
 
 {{- if (eq .chezmoi.os "darwin") -}}
+
 # Hitting a MacOS system :)
 export PATH=${HOME}/.local/bin:${HOME}/bin:${HOME}/.asdf/shims:/opt/homebrew/bin:/opt/homebrew/sbin:${KREW_ROOT:-$HOME/.krew}/bin:${PATH}
 {{ end }}
