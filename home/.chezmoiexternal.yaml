@@ -76,7 +76,7 @@
     - "Profiles"
   refreshPeriod: "72h"
 
-{{ if eq .chezmoi.os "linux" -}}
+{{ if eq .chezmoi.os "linux" }}
 ".local/share/fonts":
   type: "archive"
   url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraMono.tar.xz"
@@ -85,7 +85,7 @@
     - ".ttf"
   exact: true
   refreshPeriod: "168h"
-{{- else if eq .chezmoi.os "darwin" -}}
+{{- else if eq .chezmoi.os "darwin" }}
 "Library/Fonts":
   type: "archive"
   url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraMono.tar.xz"
@@ -94,7 +94,7 @@
     - ".ttf"
   exact: true
   refreshPeriod: "168h"
-{{ end -}}
+{{ end }}
 
 ".config/alacritty/themes":
   type: "git-repo"
