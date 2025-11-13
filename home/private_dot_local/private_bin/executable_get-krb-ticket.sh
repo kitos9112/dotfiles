@@ -1,41 +1,33 @@
 #!/usr/bin/env bash
 # get-krb-ticket.sh — kinit via 1Password (PW+OTP), with FAST armor
 # Usage:
-#   get-krb-ticket.sh [-p <op_pw_ref>] [-o <op_otp_ref>] [-u <principal>] [-a <armor_path>] [-s <sleep_ms>] [-w]
-# Examples:
-#   get-krb-ticket.sh \
-#     -p "op://<vault>/<itemName>/password" \
-#     -o "op://<vault>/<itemName>/one-time password?attribute=otp" \
-#     -u "$USER"
-
+#   get-krb-ticket.sh -p "op://vault/item/password" -o "op://vault/item/one-time password?attribute=otp" [-u principal] [-A]
 set -euo pipefail
+
+# if caller had xtrace on, disable to avoid echoing anything
+[[ $- == *x* ]] && set +x
 
 usage() {
   cat <<'USAGE'
 Usage: get-krb-ticket.sh [options]
-
-Options:
-  -p  1Password reference for password (default: op://<vault>/<itemName>/password)
-  -o  1Password reference for OTP (default: op://<vault>/<itemName>/one-time password?attribute=otp)
+  -p  1Password password ref (required), e.g. op://vault/item/password
+  -o  1Password OTP ref      (required if -A), e.g. op://vault/item/one-time password?attribute=otp
   -u  Kerberos principal (default: $USER)
-  -A  Armor cache path (default: use existing ticket cache if available)
-  -h  Show this help.
+  -A  Also obtain FAST ticket (kinit -T …) using PW+OTP after bootstrap
+  -h  Show help
 
 Notes:
-- Secrets never appear in argv/env; they’re piped to expect via stdin.
+- Secrets are fetched INSIDE 'expect' via `op read` (never put in argv/env).
 - The -T argument is passed unquoted, as-is.
 USAGE
 }
 
-# ---- defaults ----
 PW_REF=""
 OTP_REF=""
 PRINCIPAL="${USER}"
 ARMOR_TICKET="0"
 
-# -- scrub secrets on any exit or signal, while preserving the original exit code
-
-while getopts ":p:o:u:h:A" opt; do
+while getopts ":p:o:u:hA" opt; do
   case "$opt" in
     p) PW_REF="$OPTARG" ;;
     o) OTP_REF="$OPTARG" ;;
@@ -47,38 +39,51 @@ while getopts ":p:o:u:h:A" opt; do
   esac
 done
 
-# ---- deps ----
+# required inputs
+[[ -z "$PW_REF" ]] && { echo "Error: -p <password ref> is required." >&2; exit 2; }
+if [[ "$ARMOR_TICKET" == "1" && -z "$OTP_REF" ]]; then
+  echo "Error: -o <otp ref> is required when -A is set." >&2
+  exit 2
+fi
+
+# deps
 for c in op expect kinit klist awk; do
   command -v "$c" >/dev/null 2>&1 || { echo "missing dependency: $c" >&2; exit 127; }
 done
 
-# optional: check op signin
-if ! op whoami >/dev/null 2>&1; then
-  echo "1Password CLI not signed in (run: op signin ...)" >&2
-  op signin || { echo "failed to sign in to 1Password CLI" >&2; exit 1; }
-fi
-
-#shellcheck disable=SC2016
+# 1) Bootstrap: plain kinit with PW only (no OTP)
 PW_REF="$PW_REF" PRINCIPAL="$PRINCIPAL" expect -c '
-  set pw  [exec op read --no-newline $env(PW_REF)]
+  # read password (suppress stderr to avoid noisy ref leaks on errors)
+  if {[catch {set pw [exec sh -c "op read --no-newline \"$env(PW_REF)\" 2>/dev/null"]} err]} {
+    puts stderr "Failed to read password from 1Password."
+    exit 1
+  }
   spawn kinit $env(PRINCIPAL)
   after 250
   send -- "$pw\r"
   expect eof
 '
-ARMOR="$(klist 2>/dev/null | awk '/Ticket cache:/{print $3}')"
+
+# detect armor cache
+ARMOR="$(klist 2>/dev/null | awk "/Ticket cache:/{print \$3}")"
 [[ -z "$ARMOR" ]] && { echo "failed to obtain armor cache" >&2; exit 1; }
 
+# 2) Optional FAST ticket: kinit -T <armor> with PW+OTP
 if [[ "$ARMOR_TICKET" == "1" ]]; then
-  #shellcheck disable=SC2016
   PW_REF="$PW_REF" OTP_REF="$OTP_REF" ARMOR="$ARMOR" PRINCIPAL="$PRINCIPAL" expect -c '
-    set pw  [exec op read --no-newline $env(PW_REF)]
-    set otp [exec op read --no-newline $env(OTP_REF)]
+    if {[catch {set pw  [exec sh -c "op read --no-newline \"$env(PW_REF)\" 2>/dev/null"]} err]} {
+      puts stderr "Failed to read password from 1Password."
+      exit 1
+    }
+    if {[catch {set otp [exec sh -c "op read --no-newline \"$env(OTP_REF)\" 2>/dev/null"]} err]} {
+      puts stderr "Failed to read OTP from 1Password."
+      exit 1
+    }
+    # -T argument intentionally unquoted
     spawn kinit -T $env(ARMOR) $env(PRINCIPAL)
     after 250
     send -- "$pw$otp\r"
     expect eof
   '
-
   echo "Obtained Kerberos ticket for principal '$PRINCIPAL' using FAST armor."
 fi
