@@ -13,6 +13,8 @@ config.send_composed_key_when_right_alt_is_pressed = false
 -- Optional: dedicate Cmd + [ / ] for prev/next tab and leave splits to Zellij
 config.keys = wezterm.gui.default_key_tables().default -- start from defaults if you prefer
 
+send_composed_key_when_left_alt_is_pressed  = true
+send_composed_key_when_right_alt_is_pressed = true
 -- Map Option+Arrows to ESC-b / ESC-f (word back/forward)
 config.keys = {
   -- {key="LeftArrow", mods="ALT",  action=wezterm.action{SendString="\x1bb"}}, -- M-b
