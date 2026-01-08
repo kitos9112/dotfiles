@@ -9,3 +9,9 @@ vault = "Private"
 [[ssh-keys]]
 item = "SSH Key - prodagent"
 vault = "Private"
+
+[[ssh-keys]]
+item = "Home RSA@4096"
+vault = "Private"
+
+
