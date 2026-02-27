@@ -36,7 +36,7 @@ jobs:
         run: echo "DATE=$(date +'%d%m%Y')" >> $GITHUB_ENV
 
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
 
       - name: Override default config from dispatch variables
         run: |
