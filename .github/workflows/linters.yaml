@@ -26,7 +26,7 @@ jobs:
           app-id: "${{ secrets.BOT_APP_ID }}"
           private-key: "${{ secrets.BOT_APP_PRIVATE_KEY }}"
       - name: Lint
-        uses: super-linter/super-linter@v7
+        uses: super-linter/super-linter@v8
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: "${{ env.DEFAULT_BRANCH }}"
