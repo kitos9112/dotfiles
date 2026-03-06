@@ -1,7 +1,7 @@
 {{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
 #! /usr/bin/env bash
 
-set -ev pipefail
+set -ev -o pipefail
 
 # 1. Change default sh to ZSH
 {{ if .is_root -}}

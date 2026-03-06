@@ -11,7 +11,7 @@ RUN apt-get update && \
     git \
     sudo
 
-RUN useradd -m -s /bin/zsh -d /home/docker-qa docker-qa  && \
+RUN useradd -m -s /bin/sh -d /home/docker-qa docker-qa  && \
     echo "docker-qa ALL=NOPASSWD: ALL" >> /etc/sudoers
 
 USER docker-qa
@@ -20,4 +20,4 @@ COPY --chown=docker-qa:docker-qa ./ /home/docker-qa/.dotfiles
 
 WORKDIR /home/docker-qa
 
-RUN DOTFILES_VERBOSE=true DOTFILES_NO_TTY=true .dotfiles/install
+RUN DOTFILES_TEST=true DOTFILES_VERBOSE=true DOTFILES_NO_TTY=true DOTFILES_CHEZMOI_EXCLUDE=scripts .dotfiles/install

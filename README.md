@@ -1,15 +1,17 @@
-![Nightly Build](https://github.com/kitos9112/dotfiles/actions/workflows/schedule-nightly-acceptance-tests.yaml/badge.svg)
+![Acceptance Tests](https://github.com/kitos9112/dotfiles/actions/workflows/acceptance-tests.yaml/badge.svg)
 
 # My Personal Public DOTfiles managed by `chezmoi`
 
 This public Github repository has been built for my own benefit, however, feel free to sneak in and steal anything that would improve your own productivity.
-My plans rely on maintaining a `CI` workflow alongside GitHub actions to ensure that my changes will not break across different OS flavours.
-At the moment, I got Docker containers for the following Linux flavours:
+My plans rely on maintaining a `CI` workflow alongside GitHub Actions to ensure that my changes will not break across different OS flavours.
+The current smoke-test matrix covers the following Linux flavours:
 
-- Fedora 41
-- Fedora 42
-- Ubuntu 22.04
+- AlmaLinux 9
+- AlmaLinux 10
 - Ubuntu 24.04
+- Ubuntu 25.10
+
+macOS is verified separately on a GitHub-hosted macOS runner by rendering and applying the repo into a temporary home directory.
 
 ## Installation instructions
 
@@ -18,7 +20,7 @@ You can install this repo via a Convenient script or manually in its defect.
 
 ### Convenience script
 
-In case of not having `chezmoi` installed - Just firing the `install.sh` after a simple download of it.
+If `chezmoi` is not installed yet, run the standalone `install` script directly.
 
 ```bash
 # Using Curl
@@ -32,7 +34,7 @@ sh -c "$(wget -qO- https://raw.githubusercontent.com/kitos9112/dotfiles/master/i
 
 ### Manually with `git`
 
-You will have to clone the repo and from its root directory, execute the `install` SH script
+Clone the repo and execute the `install` script from its root directory.
 
 ### Manually with `chezmoi`
 
@@ -40,6 +42,25 @@ Leveraging off-the-shelf `Chezmoi` capabilities
 
 ```bash
 chezmoi init --apply --verbose https://github.com/kitos9112/dotfiles.git
+```
+
+## Verification
+
+CI currently does two different checks:
+
+- Linux container smoke tests build the Dockerfiles under [`tests/`](./tests) and run the standalone installer in `DOTFILES_TEST=true` mode.
+- macOS smoke tests run `chezmoi init --apply` and `chezmoi verify` against a temporary home directory while excluding scripts.
+
+To reproduce the macOS-style verification locally:
+
+```bash
+tmp_home="$(mktemp -d)"
+HOME="${tmp_home}" \
+XDG_CONFIG_HOME="${tmp_home}/.config" \
+XDG_DATA_HOME="${tmp_home}/.local/share" \
+XDG_STATE_HOME="${tmp_home}/.local/state" \
+XDG_CACHE_HOME="${tmp_home}/.cache" \
+DOTFILES_TEST=true chezmoi init --apply --source "$(pwd)" --exclude scripts --no-tty
 ```
 
 ## Chezmoi scripts

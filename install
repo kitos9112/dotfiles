@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 echo_task() {
   printf "\033[0;34m--> %s\033[0m\n" "$*"
@@ -9,68 +9,80 @@ error() {
   exit 1
 }
 
-# Retry mechanism
-retry_count=3
-retry_delay=5
+set -eu
 
+retry_count="${DOTFILES_RETRY_COUNT:-3}"
+retry_delay="${DOTFILES_RETRY_DELAY:-5}"
 attempt=1
 success=false
 
-# -e: exit on error
-# -u: exit on unset variables
-set -eu
-
-if ! chezmoi="$(command -v chezmoi)"; then
+if chezmoi="$(command -v chezmoi 2>/dev/null)"; then
+  :
+else
   bin_dir="${HOME}/.local/bin"
   chezmoi="${bin_dir}/chezmoi"
+  mkdir -p "${bin_dir}"
   echo_task "Installing chezmoi to ${chezmoi}"
-  if command -v curl >/dev/null; then
-    chezmoi_install_script="$(curl -fsSL https://git.io/chezmoi)"
-  elif command -v wget >/dev/null; then
-    chezmoi_install_script="$(wget -qO- https://git.io/chezmoi)"
+  if command -v curl >/dev/null 2>&1; then
+    sh -c "$(curl -fsLS https://get.chezmoi.io/lb)" -- -b "${bin_dir}"
+  elif command -v wget >/dev/null 2>&1; then
+    sh -c "$(wget -qO- https://get.chezmoi.io/lb)" -- -b "${bin_dir}"
   else
     error "To install chezmoi, you must have curl or wget."
   fi
-  sh -c "${chezmoi_install_script}" -- -b "${bin_dir}"
-  unset chezmoi_install_script bin_dir
 fi
 
 # POSIX way to get script's dir: https://stackoverflow.com/a/29834779/12156188
-# shellcheck disable=SC2312
-script_dir="$(cd -P -- "$(dirname -- "$(command -v -- "$0")")" && pwd -P)"
+script_dir="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
+source_dir=""
 
-if [ ! -f "${script_dir}/.chezmoiversion" ]; then
-  echo_task "Using ~/.dotfiles as chezmoi source"
-  script_dir="${HOME}/.dotfiles"
-  mkdir -pv "$script_dir"
+if [ -n "${DOTFILES_SOURCE-}" ]; then
+  source_dir="${DOTFILES_SOURCE}"
+elif [ -f "${script_dir}/.chezmoiversion" ]; then
+  source_dir="${script_dir}"
+elif [ -f "${script_dir}/home/.chezmoiversion" ] || [ -f "${script_dir}/.chezmoiroot" ]; then
+  source_dir="${script_dir}"
 fi
 
+set -- init
+
 if [ -n "${DOTFILES_ONE_SHOT-}" ]; then
-  chezmoi_extra_args+=("--one-shot")
+  set -- "$@" --one-shot
 else
-  chezmoi_extra_args+=("--apply")
+  set -- "$@" --apply
 fi
 
 if [ -n "${DOTFILES_DEBUG-}" ]; then
-  chezmoi_extra_args+=("--debug")
+  set -- "$@" --debug
 fi
 
 if [ -n "${DOTFILES_VERBOSE-}" ]; then
-  chezmoi_extra_args+=("--verbose")
+  set -- "$@" --verbose
+fi
+
+if [ -n "${DOTFILES_CHEZMOI_INCLUDE-}" ]; then
+  set -- "$@" --include "${DOTFILES_CHEZMOI_INCLUDE}"
+fi
+
+if [ -n "${DOTFILES_CHEZMOI_EXCLUDE-}" ]; then
+  set -- "$@" --exclude "${DOTFILES_CHEZMOI_EXCLUDE}"
 fi
 
 if [ -n "${DOTFILES_NO_TTY-}" ]; then
-  # Dynamic chezmoi arguments handling
-  chezmoi_extra_args+=("--source" "${script_dir}")
-  chezmoi_extra_args+=("--no-tty")
+  set -- "$@" --no-tty
+fi
+
+if [ -n "${source_dir}" ]; then
+  echo_task "Using ${source_dir} as chezmoi source"
+  set -- "$@" --source "${source_dir}"
 else
-  chezmoi_extra_args=("github.com/${DOTFILES_USER:-kitos9112}/dotfiles")
+  set -- "$@" "${DOTFILES_REPO:-github.com/${DOTFILES_USER:-kitos9112}/dotfiles}"
 fi
 
 while [ "$attempt" -le "$retry_count" ]; do
-  echo_task "Attempt $attempt: Running chezmoi init with args: ${chezmoi_extra_args[*]}"
+  echo_task "Attempt $attempt: Running chezmoi $*"
 
-  if "${chezmoi}" init "${chezmoi_extra_args[@]}"; then
+  if "${chezmoi}" "$@"; then
     success=true
     break
   else

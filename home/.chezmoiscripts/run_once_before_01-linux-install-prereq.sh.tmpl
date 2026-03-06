@@ -1,7 +1,7 @@
 
 {{- if (eq .chezmoi.os "linux") -}}
 #! /usr/bin/env bash
-set -ev pipefail
+set -ev -o pipefail
 set +x
 # Assess whether this is an ubuntu or debian system and check is the root flag is set
 {{ if .is_root -}}
@@ -49,7 +49,7 @@ sudo -E yum install -y \
               jq \
               vim
 {{ end -}}
-{{- if (eq .chezmoi.osRelease.id "fedora") -}}
+{{- if or (eq .chezmoi.osRelease.id "fedora") (eq .chezmoi.osRelease.id "almalinux") -}}
 sudo -E dnf update -y
 sudo -E dnf install -y \
               1password \

@@ -1,7 +1,7 @@
 {{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
 #! /usr/bin/env bash
 
-set -e pipefail
+set -e -o pipefail
 
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
 ASDF_DATA_DIR="${HOME}/.asdf"

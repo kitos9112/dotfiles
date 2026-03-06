@@ -1,7 +1,7 @@
 
 {{- if (eq .chezmoi.os "linux") -}}
 #! /usr/bin/env bash
-set -ev pipefail
+set -ev -o pipefail
 
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
 
@@ -40,7 +40,7 @@ fi
 
 
 {{ end -}}
-{{- if or (eq .chezmoi.osRelease.id "rhel") (eq .chezmoi.osRelease.id "fedora") -}}
+{{- if or (eq .chezmoi.osRelease.id "rhel") (eq .chezmoi.osRelease.id "fedora") (eq .chezmoi.osRelease.id "almalinux") -}}
 
 started "Add the 1Password GPG key if not already added"
 sudo rpm --import https://downloads.1password.com/linux/keys/1password.asc

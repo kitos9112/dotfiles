@@ -3,16 +3,17 @@
   "customManagers": [
     {
       customType: "regex",
-      datasourceTemplate: "github-tags",
+      datasourceTemplate: "github-releases",
       depNameTemplate: "microsoft/vscode",
       description: "Process Microsoft VSCode version URLs",
       fileMatch: [
-        ".*\\.chezmoiexternal\\.toml",
+        ".*\\.chezmoiexternal\\.ya?ml",
       ],
       matchStrings: [
-        "https:\\/\\/code\\.visualstudio\\.com\\/sha\\/download\\?version=(?<currentValue>\\d+\\.\\d+\\.\\d+).*",
+        "https:\\/\\/update\\.code\\.visualstudio\\.com\\/(?<currentValue>\\d+\\.\\d+\\.\\d+)\\/(?<target>darwin(?:-arm64)?|linux-(?:x64|arm64))\\/stable",
       ],
-      versioningTemplate: "semver",
+      autoReplaceStringTemplate: "https://update.code.visualstudio.com/{{newValue}}.0/{{{target}}}/stable",
+      versioningTemplate: "semver-coerced",
     },
     {
       customType: "regex",
@@ -21,7 +22,7 @@
       description: "Process Golang version URLs",
       extractVersionTemplate: "^go(?<version>.*)$",
       fileMatch: [
-        ".*\\.chezmoiexternal\\.toml",
+        ".*\\.chezmoiexternal\\.ya?ml",
       ],
       matchStrings: [
         "https:\\/\\/go\\.dev\\/dl\\/go(?<currentValue>\\d+\\.\\d+\\.\\d+)\\..*",
