@@ -127,6 +127,13 @@ source "$ZSH/oh-my-zsh.sh"
 autoload -Uz compinit
 compinit -u
 
+{{ if (eq .chezmoi.os "darwin") }}
+if [[ -o interactive ]] && [[ -t 0 ]] && [[ -t 1 ]] && [[ "${TERM:-}" != "dumb" ]]; then
+  _dotfiles_enable_macos_zle_bindings=1
+  bindkey -e
+fi
+{{ end }}
+
 # --- Prompt + interactive tooling ---
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ -r "$HOME/.p10k.zsh" ]] && source "$HOME/.p10k.zsh"
@@ -161,6 +168,37 @@ test -e "$HOME/.iterm2_shell_integration.zsh" && source "$HOME/.iterm2_shell_int
 # export the KRB5 config path if it exists
 if [ -f "/opt/homebrew/opt/krb5/bin/kinit" ]; then
   export PATH="/opt/homebrew/opt/krb5/bin:$PATH"
+fi
+
+if [[ -n "${_dotfiles_enable_macos_zle_bindings:-}" ]]; then
+  # Prefer readline-style editing with macOS terminal escape sequences.
+  autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+  zle -N up-line-or-beginning-search
+  zle -N down-line-or-beginning-search
+
+  bindkey '^A' beginning-of-line
+  bindkey '^E' end-of-line
+  bindkey $'\eb' backward-word
+  bindkey $'\ef' forward-word
+  bindkey $'\ed' kill-word
+  bindkey $'\e\x08' backward-kill-word
+  bindkey $'\e\x7f' backward-kill-word
+
+  # Match common Home/End and Alt+Arrow sequences emitted by GUI terminals.
+  bindkey $'\e[H' beginning-of-line
+  bindkey $'\e[F' end-of-line
+  bindkey $'\eOH' beginning-of-line
+  bindkey $'\eOF' end-of-line
+  bindkey $'\e[1~' beginning-of-line
+  bindkey $'\e[4~' end-of-line
+  bindkey $'\e[1;3D' backward-word
+  bindkey $'\e[1;3C' forward-word
+
+  # Search history by the current buffer prefix when navigating with arrows.
+  bindkey $'\e[A' up-line-or-beginning-search
+  bindkey $'\e[B' down-line-or-beginning-search
+  bindkey $'\eOA' up-line-or-beginning-search
+  bindkey $'\eOB' down-line-or-beginning-search
 fi
 {{ end }}
 

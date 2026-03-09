@@ -7,6 +7,9 @@
 [window]
   opacity = 1.0
   dynamic_padding = true
+{{- if (eq .chezmoi.os "darwin") }}
+  option_as_alt = "OnlyLeft"
+{{- end }}
 
 [font]
   normal = { family = "FiraMono Nerd Font" }
