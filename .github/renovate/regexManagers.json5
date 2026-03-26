@@ -12,7 +12,7 @@
       matchStrings: [
         "https:\\/\\/update\\.code\\.visualstudio\\.com\\/(?<currentValue>\\d+\\.\\d+\\.\\d+)\\/(?<target>darwin(?:-arm64)?|linux-(?:x64|arm64))\\/stable",
       ],
-      autoReplaceStringTemplate: "https://update.code.visualstudio.com/{{newValue}}.0/{{{target}}}/stable",
+      autoReplaceStringTemplate: "https://update.code.visualstudio.com/{{newValue}}/{{{target}}}/stable",
       versioningTemplate: "semver-coerced",
     },
     {

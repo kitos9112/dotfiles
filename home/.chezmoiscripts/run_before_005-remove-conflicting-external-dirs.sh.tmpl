@@ -1,0 +1,26 @@
+{{- if ne (env "DOTFILES_TEST") "true" -}}
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+clean_external_git_target() {
+  local relpath="$1"
+  local path="${HOME}/${relpath}"
+
+  if [[ ! -d "${path}" ]]; then
+    return
+  fi
+
+  if git -C "${path}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    return
+  fi
+
+  printf "\033[0;34m--> Removing conflicting non-git directory %s\033[0m\n" "${path}"
+  rm -rf "${path}"
+}
+
+clean_external_git_target ".fzf"
+clean_external_git_target ".oh-my-zsh-custom/plugins/zsh-syntax-highlighting"
+clean_external_git_target ".oh-my-zsh-custom/plugins/zsh-completions"
+clean_external_git_target ".oh-my-zsh-custom/themes/powerlevel10k"
+{{- end -}}

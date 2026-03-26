@@ -1,0 +1,9 @@
+{{- if or (eq .chezmoi.os "linux") ( eq .chezmoi.os "darwin") -}}
+#! /usr/bin/env zsh
+
+if command -v cargo >/dev/null 2>&1; then
+  if cargo install --list 2>/dev/null | grep -q '^aichat '; then
+    cargo uninstall aichat
+  fi
+fi
+{{- end -}}
