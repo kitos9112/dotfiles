@@ -2,6 +2,7 @@
 {{- $cache := dict "chezmoi" .chezmoi -}}
 {{- $arch := includeTemplate "map-architectures" . -}}
 {{- $platform := includeTemplate "map-platforms" . -}}
+{{- $vscodeVersion := "1.113.0" -}}
 
 {{- template "read-versions-and-revisions-cache" $cache -}}
 
@@ -112,7 +113,7 @@
 {{ if not .is_root -}}
 ".apps/vscode":
   type: "archive"
-  url: "https://update.code.visualstudio.com/1.110.0/{{ if eq .chezmoi.os "darwin" }}{{ if eq .chezmoi.arch "amd64" }}darwin{{ else }}darwin-arm64{{ end }}{{ else if eq .chezmoi.os "linux" }}linux-{{ if eq .chezmoi.arch "amd64" }}x64{{ else }}arm64{{ end }}{{ end }}/stable"
+  url: "https://update.code.visualstudio.com/{{ $vscodeVersion }}/{{ if eq .chezmoi.os "darwin" }}{{ if eq .chezmoi.arch "amd64" }}darwin{{ else }}darwin-arm64{{ end }}{{ else if eq .chezmoi.os "linux" }}linux-{{ if eq .chezmoi.arch "amd64" }}x64{{ else }}arm64{{ end }}{{ end }}/stable"
   exact: true
   stripComponents: 1
   refreshPeriod: "168h"

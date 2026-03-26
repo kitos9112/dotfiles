@@ -5,14 +5,14 @@
       customType: "regex",
       datasourceTemplate: "github-releases",
       depNameTemplate: "microsoft/vscode",
-      description: "Process Microsoft VSCode version URLs",
+      description: "Process Microsoft VS Code template versions",
       fileMatch: [
-        ".*\\.chezmoiexternal\\.ya?ml",
+        "^home/\\.chezmoiexternal\\.ya?ml$",
       ],
       matchStrings: [
-        "https:\\/\\/update\\.code\\.visualstudio\\.com\\/(?<currentValue>\\d+\\.\\d+\\.\\d+)\\/(?<target>darwin(?:-arm64)?|linux-(?:x64|arm64))\\/stable",
+        "\\{\\{-?\\s*\\$vscodeVersion := \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\"\\s*-?\\}\\}",
       ],
-      autoReplaceStringTemplate: "https://update.code.visualstudio.com/{{newValue}}/{{{target}}}/stable",
+      autoReplaceStringTemplate: "{{- $vscodeVersion := \"{{newValue}}\" -}}",
       versioningTemplate: "semver-coerced",
     },
     {

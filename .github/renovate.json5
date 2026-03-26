@@ -10,9 +10,6 @@
     ":enablePreCommit",
     "github>kitos9112/dotfiles//.github/renovate/regexManagers.json5",
   ],
-  "repositories": [
-    "kitos9112/dotfiles"
-  ],
   "timezone": "Europe/London",
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "Renovate Dashboard",
