@@ -1,0 +1,32 @@
+{{- $home := .chezmoi.homeDir -}}
+{{- $vscodeDir := joinPath $home ".apps/vscode" -}}
+{{- $codeBin := joinPath $vscodeDir "code" -}}
+{{- $managedIcon := joinPath $home ".local/share/icons/hicolor/1024x1024/apps/vscode-portable.png" -}}
+{{- $preferredIcon := joinPath $vscodeDir "resources/app/resources/linux/code.png" -}}
+{{- $fallbackIcon := joinPath $vscodeDir "resources/app/out/media/code-icon.svg" -}}
+{{- $fallbackWorkbenchIcon := joinPath $vscodeDir "resources/app/out/vs/workbench/browser/media/code-icon.svg" -}}
+[Desktop Entry]
+Version=1.0
+Name=Visual Studio Code
+GenericName=Text Editor
+Comment=Code Editing. Redefined.
+Exec={{ $codeBin }} --unity-launch %F
+TryExec={{ $codeBin }}
+Icon={{- if stat $managedIcon -}}vscode-portable{{- else if stat $preferredIcon -}}{{ $preferredIcon }}{{- else if stat $fallbackIcon -}}{{ $fallbackIcon }}{{- else if stat $fallbackWorkbenchIcon -}}{{ $fallbackWorkbenchIcon }}{{- else -}}{{ $preferredIcon }}{{- end }}
+Terminal=false
+Type=Application
+Categories=Utility;TextEditor;Development;IDE;
+StartupNotify=true
+StartupWMClass=Code
+NoDisplay=true
+MimeType=text/plain;inode/directory;application/x-code-workspace;
+Keywords=vscode;code;editor;ide;development;
+Actions=new-window;open-home;
+
+[Desktop Action new-window]
+Name=New Window
+Exec={{ $codeBin }} --unity-launch --new-window
+
+[Desktop Action open-home]
+Name=Open Home
+Exec={{ $codeBin }} --unity-launch {{ $home }}

@@ -114,7 +114,6 @@ plugins=(
   ansible
   aliases
   alias-finder
-  history_msr
   zsh-syntax-highlighting
 )
 
@@ -147,6 +146,11 @@ fi
 # Add extra Zsh env variables or completions available in ~/.env.zsh.
 if [ -r "$HOME/.env.zsh" ]; then
   source "$HOME/.env.zsh"
+fi
+
+# Prefer the local portable VS Code CLI when it is installed.
+if [[ -d "$HOME/.apps/vscode/bin" && ":${PATH}:" != *":$HOME/.apps/vscode/bin:"* ]]; then
+  path=("$HOME/.apps/vscode/bin" "${path[@]}")
 fi
 
 # --- Runtime version managers ---

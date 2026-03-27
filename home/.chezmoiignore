@@ -1,1 +1,3 @@
+.apps/vscode
+.apps/vscode/**
 .local/share/fonts/.uuid

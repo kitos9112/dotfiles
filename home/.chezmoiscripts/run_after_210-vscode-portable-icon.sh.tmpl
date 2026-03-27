@@ -1,0 +1,17 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+
+set -eu -o pipefail
+
+vscode_dir="${HOME}/.apps/vscode"
+png_icon="${vscode_dir}/resources/app/resources/linux/code.png"
+svg_icon="${vscode_dir}/resources/app/out/media/code-icon.svg"
+icon_root="${HOME}/.local/share/icons"
+
+if [ -f "${png_icon}" ]; then
+  install -Dm644 "${png_icon}" "${icon_root}/hicolor/1024x1024/apps/vscode-portable.png"
+  install -Dm644 "${png_icon}" "${icon_root}/vscode-portable.png"
+elif [ -f "${svg_icon}" ]; then
+  install -Dm644 "${svg_icon}" "${icon_root}/hicolor/scalable/apps/vscode-portable.svg"
+fi
+{{ end -}}

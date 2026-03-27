@@ -63,6 +63,22 @@ XDG_CACHE_HOME="${tmp_home}/.cache" \
 DOTFILES_TEST=true chezmoi init --apply --source "$(pwd)" --exclude scripts --no-tty
 ```
 
+## Portable VS Code
+
+If the portable Linux tarball is installed at `~/.apps/vscode`, chezmoi now manages the VS Code launcher directly as code:
+
+- `~/.local/share/applications/code.desktop`
+- `~/.local/share/applications/vscode-portable.desktop`
+- `~/Desktop/Visual Studio Code.desktop`
+
+The desktop entries prefer a managed local icon named `vscode-portable`, and a hidden `code.desktop` alias helps GNOME/Ubuntu match the running VS Code window to the portable launcher.
+
+If `~/.apps/vscode` was previously added to chezmoi source state by mistake, remove it once with:
+
+```bash
+chezmoi forget --force ~/.apps/vscode
+```
+
 ## Chezmoi scripts
 
 Chezmoi uses general-purpose scripts to execute ordered operations in the system. They can run either:
