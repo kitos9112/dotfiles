@@ -1,0 +1,32 @@
+#!/bin/sh
+
+set -eu
+
+script_bin=$(command -v script || true)
+shell_bin=${SHELL:-/bin/zsh}
+
+if [ "${WEZTERM_DISABLE_SESSION_LOG:-0}" = "1" ] || [ -z "${script_bin}" ]; then
+  if [ "$#" -gt 0 ]; then
+    exec "$@"
+  fi
+
+  exec "${shell_bin}" -il
+fi
+
+umask 077
+
+state_home=${WEZTERM_SESSION_LOG_DIR:-${XDG_STATE_HOME:-$HOME/.state}/wezterm/sessions}
+date_path=$(date +%Y/%m/%d)
+log_dir="${state_home}/${date_path}"
+mkdir -p "${log_dir}"
+
+host_name=${HOSTNAME:-$(hostname 2>/dev/null || echo host)}
+host_name=${host_name%%.*}
+timestamp=$(date +%Y%m%dT%H%M%S)
+log_file=$(mktemp "${log_dir}/${host_name}-${timestamp}-XXXXXX.typescript")
+
+if [ "$#" -gt 0 ]; then
+  exec "${script_bin}" -q "${log_file}" "$@"
+fi
+
+exec "${script_bin}" -q "${log_file}" "${shell_bin}" -il

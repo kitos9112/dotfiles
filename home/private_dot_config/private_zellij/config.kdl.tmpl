@@ -218,6 +218,10 @@ keybinds {
     }
     shared {
         unbind "Alt f"
+{{- if eq .chezmoi.os "darwin" }}
+        unbind "Alt Left"
+        unbind "Alt Right"
+{{- end }}
         bind "Ctrl Shift f" { ToggleFloatingPanes; }
     }
 }
