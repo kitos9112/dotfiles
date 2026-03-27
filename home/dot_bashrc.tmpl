@@ -160,11 +160,6 @@ if [ -d "$HOME/.local/bin" ]; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
-# Add Poetry to bin if local user's dir exists
-if [ -d "$HOME/.poetry/bin" ]; then
-    PATH="$HOME/.poetry/bin:$PATH"
-fi
-
 # Add VScode to bin if local user's dir exists
 if [ -d "$HOME/.apps/vscode/bin" ]; then
     PATH="$HOME/.apps/vscode/bin:$PATH"
