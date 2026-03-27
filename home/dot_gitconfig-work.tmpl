@@ -1,0 +1,9 @@
+{{- if .work_email -}}
+{{- $workName := .work_name -}}
+{{- if not $workName -}}
+{{- $workName = .name -}}
+{{- end -}}
+[user]
+  name = {{ $workName }}
+  email = {{ .work_email }}
+{{- end -}}

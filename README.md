@@ -44,6 +44,32 @@ Leveraging off-the-shelf `Chezmoi` capabilities
 chezmoi init --apply --verbose https://github.com/kitos9112/dotfiles.git
 ```
 
+## Local Chezmoi Data
+
+Machine-specific values should live in local chezmoi config, not in the public repo. This repo already reads data from `~/.config/chezmoi/chezmoi.toml`.
+
+For Git identity, the default profile uses `personal_name` and `personal_email` when present. If `is_work = true` and `work_email` is set, the machine-wide default becomes the work identity. A work-only Git profile is also available via `work_gitdir` for path-based overrides.
+
+Example:
+
+```toml
+[data]
+  personal_name = "Marcos Soutullo"
+  personal_email = "personal@example.com"
+
+  work_name = "Marcos Soutullo"
+  work_email = "work@example.com"
+  work_gitdir = "~/workspace/company/"
+```
+
+With that configuration:
+
+- `~/.gitconfig` uses your personal identity by default, or your work identity when `is_work = true`.
+- `~/.gitconfig-work` is rendered automatically.
+- Git switches to the work identity only for repositories under `work_gitdir`.
+
+Existing installations should add those keys to `~/.config/chezmoi/chezmoi.toml` and then run `chezmoi apply`.
+
 ## Verification
 
 CI currently does two different checks:

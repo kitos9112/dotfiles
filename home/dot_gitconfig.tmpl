@@ -1,9 +1,27 @@
+{{- $personalName := .personal_name -}}
+{{- if not $personalName -}}
+{{- $personalName = .name -}}
+{{- end -}}
+{{- $personalEmail := .personal_email -}}
+{{- if not $personalEmail -}}
+{{- $personalEmail = .email -}}
+{{- end -}}
+{{- $workName := .work_name -}}
+{{- if not $workName -}}
+{{- $workName = .name -}}
+{{- end -}}
+{{- $defaultName := $personalName -}}
+{{- $defaultEmail := $personalEmail -}}
+{{- if and .is_work .work_email -}}
+{{- $defaultName = $workName -}}
+{{- $defaultEmail = .work_email -}}
+{{- end -}}
 [init]
   defaultBranch = main
 
 [user]
-  name = {{ .name }}
-  email = {{ .email }}
+  name = {{ $defaultName }}
+  email = {{ $defaultEmail }}
   {{ if .signing_key -}}
   signingKey = {{ .signing_key }}
   {{- end }}
@@ -45,4 +63,10 @@
 
 [gpg "ssh"]
   program = {{ .signing_ssh_program }}
+{{- end }}
+
+{{- if and .work_email .work_gitdir }}
+
+[includeIf "gitdir:{{ .work_gitdir }}"]
+  path = ~/.gitconfig-work
 {{- end }}
