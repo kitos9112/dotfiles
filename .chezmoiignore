@@ -8,6 +8,7 @@ tests/
 .vscode
 .ssh
 .github
+docs/
 .oh-my-zsh-custom/themes/powerlevel10k/**
 .oh-my-zsh-custom/plugins/zsh-syntax-highlighting/**
 scripts/install_dotfiles.sh
