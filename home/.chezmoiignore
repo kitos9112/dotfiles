@@ -1,3 +1,3 @@
-.apps/vscode
-.apps/vscode/**
+# Do not ignore .apps/vscode here: ignored externals are skipped before any
+# download or cache refresh logic runs.
 .local/share/fonts/.uuid

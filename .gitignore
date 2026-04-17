@@ -9,3 +9,6 @@
 
 # Chezmoi binary file
 home/bin/chezmoi
+
+# Portable VS Code is managed as an external, not committed source state.
+home/.apps/vscode/
