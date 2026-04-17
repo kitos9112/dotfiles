@@ -2,7 +2,7 @@
 {{- $cache := dict "chezmoi" .chezmoi -}}
 {{- $arch := includeTemplate "map-architectures" . -}}
 {{- $platform := includeTemplate "map-platforms" . -}}
-{{- $vscodeVersion := "1.115.0" -}}
+{{- $vscodeVersion := "1.116.0" -}}
 
 {{- template "read-versions-and-revisions-cache" $cache -}}
 
