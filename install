@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -eu
+
 echo_task() {
   printf "\033[0;34m--> %s\033[0m\n" "$*"
 }
@@ -9,15 +11,34 @@ error() {
   exit 1
 }
 
-set -eu
+is_unsigned_integer() {
+  case "$1" in
+    ""|*[!0-9]*) return 1 ;;
+    *) return 0 ;;
+  esac
+}
+
+validate_unsigned_integer() {
+  name="$1"
+  value="$2"
+
+  if ! is_unsigned_integer "${value}"; then
+    error "${name} must be a non-negative integer."
+  fi
+}
 
 retry_count="${DOTFILES_RETRY_COUNT:-3}"
 retry_delay="${DOTFILES_RETRY_DELAY:-5}"
-attempt=1
-success=false
+
+validate_unsigned_integer "DOTFILES_RETRY_COUNT" "${retry_count}"
+validate_unsigned_integer "DOTFILES_RETRY_DELAY" "${retry_delay}"
+
+if [ "${retry_count}" -eq 0 ]; then
+  error "DOTFILES_RETRY_COUNT must be greater than 0."
+fi
 
 if chezmoi="$(command -v chezmoi 2>/dev/null)"; then
-  :
+  echo_task "Using chezmoi from ${chezmoi}"
 else
   bin_dir="${HOME}/.local/bin"
   chezmoi="${bin_dir}/chezmoi"
@@ -35,63 +56,82 @@ fi
 # POSIX way to get script's dir: https://stackoverflow.com/a/29834779/12156188
 script_dir="$(cd -P -- "$(dirname -- "$0")" && pwd -P)"
 source_dir=""
+source_label=""
 
 if [ -n "${DOTFILES_SOURCE-}" ]; then
   source_dir="${DOTFILES_SOURCE}"
+  source_label="DOTFILES_SOURCE"
 elif [ -f "${script_dir}/.chezmoiversion" ]; then
   source_dir="${script_dir}"
+  source_label="local source"
 elif [ -f "${script_dir}/home/.chezmoiversion" ] || [ -f "${script_dir}/.chezmoiroot" ]; then
   source_dir="${script_dir}"
+  source_label="local source"
 fi
 
 set -- init
 
 if [ -n "${DOTFILES_ONE_SHOT-}" ]; then
+  echo_task "Mode: one-shot init"
   set -- "$@" --one-shot
 else
+  echo_task "Mode: init and apply"
   set -- "$@" --apply
 fi
 
 if [ -n "${DOTFILES_DEBUG-}" ]; then
+  echo_task "Debug output enabled"
   set -- "$@" --debug
 fi
 
 if [ -n "${DOTFILES_VERBOSE-}" ]; then
+  echo_task "Verbose output enabled"
   set -- "$@" --verbose
 fi
 
 if [ -n "${DOTFILES_CHEZMOI_INCLUDE-}" ]; then
+  echo_task "Using chezmoi include filter"
   set -- "$@" --include "${DOTFILES_CHEZMOI_INCLUDE}"
 fi
 
 if [ -n "${DOTFILES_CHEZMOI_EXCLUDE-}" ]; then
+  echo_task "Using chezmoi exclude filter"
   set -- "$@" --exclude "${DOTFILES_CHEZMOI_EXCLUDE}"
 fi
 
 if [ -n "${DOTFILES_NO_TTY-}" ]; then
+  echo_task "TTY prompts disabled"
   set -- "$@" --no-tty
 fi
 
 if [ -n "${source_dir}" ]; then
-  echo_task "Using ${source_dir} as chezmoi source"
+  echo_task "Using ${source_label}: ${source_dir}"
   set -- "$@" --source "${source_dir}"
 else
-  set -- "$@" "${DOTFILES_REPO:-github.com/${DOTFILES_USER:-kitos9112}/dotfiles}"
+  repo="${DOTFILES_REPO:-github.com/${DOTFILES_USER:-kitos9112}/dotfiles}"
+  if [ -n "${DOTFILES_REPO-}" ]; then
+    echo_task "Using remote chezmoi repository from DOTFILES_REPO"
+  else
+    echo_task "Using default remote chezmoi repository"
+  fi
+  set -- "$@" "${repo}"
 fi
 
-while [ "$attempt" -le "$retry_count" ]; do
-  echo_task "Attempt $attempt: Running chezmoi $*"
+attempt=1
+
+while [ "${attempt}" -le "${retry_count}" ]; do
+  echo_task "Attempt ${attempt}/${retry_count}: running chezmoi init"
 
   if "${chezmoi}" "$@"; then
-    success=true
-    break
-  else
-    echo_task "chezmoi init failed. Retrying in ${retry_delay} seconds..."
-    sleep "$retry_delay"
-    attempt=$((attempt+1))
+    exit 0
   fi
+
+  if [ "${attempt}" -lt "${retry_count}" ]; then
+    echo_task "chezmoi init failed on attempt ${attempt}. Retrying in ${retry_delay} seconds."
+    sleep "${retry_delay}"
+  fi
+
+  attempt=$((attempt + 1))
 done
 
-if [ "$success" = false ]; then
-  error "chezmoi init failed after $retry_count attempts."
-fi
+error "chezmoi init failed after ${retry_count} attempts."
