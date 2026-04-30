@@ -1,4 +1,5 @@
 {
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     ":enableRenovate",
     "config:recommended",
@@ -8,28 +9,71 @@
     ":separatePatchReleases",
     "docker:enableMajor",
     ":enablePreCommit",
-    "github>kitos9112/dotfiles//.github/renovate/regexManagers.json5",
   ],
   "timezone": "Europe/London",
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "Renovate Dashboard",
   "labels": [
-    "renovatebot"
+    "renovatebot",
   ],
   "commitMessageSuffix": "[ci-skip]",
   "onboarding": false,
   "gitAuthor": "henry-pa-bot <166536+henry-bot[bot]@users.noreply.github.com>",
   "suppressNotifications": [
-    "prIgnoreNotification"
+    "prIgnoreNotification",
   ],
   "ignoreTests": true,
   "rebaseWhen": "conflicted",
   "assignees": [
-    "@kitos9112"
+    "@kitos9112",
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "microsoft/vscode",
+      "description": "Process Microsoft VS Code template versions",
+      "fileMatch": [
+        "^home/\\.chezmoiexternal\\.ya?ml$",
+      ],
+      "matchStrings": [
+        "\\{\\{-?\\s*\\$vscodeVersion := \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\"\\s*-?\\}\\}",
+      ],
+      "autoReplaceStringTemplate": "{{#if newValue}}{{decodeBase64 \"e3stICR2c2NvZGVWZXJzaW9uIDo9ICI=\"}}{{newValue}}{{decodeBase64 \"IiAtfX0=\"}}{{/if}}",
+      "versioningTemplate": "semver-coerced",
+    },
+    {
+      "customType": "regex",
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "golang/go",
+      "description": "Process Golang version URLs",
+      "extractVersionTemplate": "^go(?<version>.*)$",
+      "fileMatch": [
+        "^home/\\.chezmoiexternal\\.ya?ml$",
+      ],
+      "matchStrings": [
+        "https:\\/\\/go\\.dev\\/dl\\/go(?<currentValue>\\d+\\.\\d+\\.\\d+)\\..*",
+      ],
+      "versioningTemplate": "semver",
+    },
+    {
+      "customType": "regex",
+      "description": "Process renovate comments in home templates",
+      "fileMatch": [
+        "^home\\/.*",
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.+?) packageName=(?<packageName>.+?)( extractVersion=(?<extractVersion>.+?))?( registryUrl=(?<registryUrl>.+?))?\\s+(?<depName>.+?) (?<currentValue>.+)",
+      ],
+      "extractVersionTemplate": "{{#if extractVersion}}{{extractVersion}}{{else}}^v?(?<version>.+)${{/if}}",
+    },
   ],
   "packageRules": [
     {
-      "matchPackageNames": ["node","python"],
+      "matchPackageNames": [
+        "node",
+        "python",
+      ],
       "minimumReleaseAge": "20 days",
     },
     {
@@ -37,15 +81,15 @@
         "minor",
         "patch",
         "pin",
-        "digest"
+        "digest",
       ],
-      "automerge": true
-    }
+      "automerge": true,
+    },
   ],
   "asdf": {
     "fileMatch": [
       "(^|/)\\.tool-versions$",
       "(^|/)dot_tool-versions.tmpl$",
-    ]
-  }
+    ],
+  },
 }
