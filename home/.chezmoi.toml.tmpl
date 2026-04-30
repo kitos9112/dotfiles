@@ -15,6 +15,19 @@
 
 {{- $isRoot := contains $workLaptop .chezmoi.hostname | not -}}
 {{- $isWork := contains $workLaptop .chezmoi.hostname -}}
+{{- $isRootOverride := env "DOTFILES_IS_ROOT" -}}
+{{- if eq $isRootOverride "true" -}}
+{{-   $isRoot = true -}}
+{{- else if eq $isRootOverride "false" -}}
+{{-   $isRoot = false -}}
+{{- end -}}
+
+{{- $isWorkOverride := env "DOTFILES_IS_WORK" -}}
+{{- if eq $isWorkOverride "true" -}}
+{{-   $isWork = true -}}
+{{- else if eq $isWorkOverride "false" -}}
+{{-   $isWork = false -}}
+{{- end -}}
 
 sourceDir = "{{ .chezmoi.sourceDir }}"
 progress = true
@@ -22,6 +35,7 @@ progress = true
 [data]
   # Here we "export" the variables, so we can access them outside this file
   osid = {{ $osid | quote }}
+  is_wsl = {{ $isWsl }}
 
   personal_name = "{{ $personalName }}"
   personal_email = "{{ $personalEmail }}"
