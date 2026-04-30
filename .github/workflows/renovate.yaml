@@ -16,12 +16,11 @@ on:
     - cron: "*/10 * * * *"
   push:
     branches:
-      - main
       - master
 
 env:
-  LOG_LEVEL: debug
-  DRY_RUN: false
+  LOG_LEVEL: info
+  RENOVATE_DRY_RUN: "false"
   RENOVATE_CONFIG_FILE: .github/renovate.json5
 
 jobs:
@@ -39,9 +38,9 @@ jobs:
           app-id: ${{ secrets.BOT_APP_ID }}
           private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
 
-      - name: Override default config from dispatch variables
+      - name: Override Renovate env from dispatch inputs
         run: |
-          echo "DRY_RUN=${{ github.event.inputs.dryRun || env.DRY_RUN }}" >> "$GITHUB_ENV"
+          echo "RENOVATE_DRY_RUN=${{ github.event.inputs.dryRun || env.RENOVATE_DRY_RUN }}" >> "$GITHUB_ENV"
           echo "LOG_LEVEL=${{ github.event.inputs.logLevel || env.LOG_LEVEL }}" >> "$GITHUB_ENV"
 
       - name: Renovate

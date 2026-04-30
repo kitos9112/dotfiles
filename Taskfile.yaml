@@ -4,22 +4,26 @@
 version: "3"
 
 vars:
-  RENOVATE_CONFIG: "tests/renovate-bot/local-config.js"
+  RENOVATE_LOCAL_CONFIG: "tests/renovate-bot/local-config.js"
 
 dotenv: ["~/.env"]
 
 tasks:
   run-renovate:
+    desc: Run Renovate in dry-run mode against this repository.
     env:
       GITHUB_TOKEN: "{{.GITHUB_TOKEN}}"
+    preconditions:
+      - sh: test -n "$GITHUB_TOKEN"
+        msg: GITHUB_TOKEN must be set to run Renovate locally.
     cmds:
-      - echo $GITHUB_TOKEN
       - >
+        RENOVATE_TOKEN="$GITHUB_TOKEN"
         docker run --rm
-        --volume "$(pwd)/tests/renovate-bot/local-config.js:/usr/src/app/config.js"
+        --env RENOVATE_TOKEN
+        --volume "$(pwd)/{{.RENOVATE_LOCAL_CONFIG}}:/usr/src/app/config.js:ro"
         renovate/renovate:slim
         --platform=github
-        --token=$GITHUB_TOKEN
         --print-config=true
         --force-cli=true
         --dry-run=full
