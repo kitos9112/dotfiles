@@ -4,11 +4,10 @@ name: lint YAML and Shell
 on: # yamllint disable-line rule:truthy
   pull_request:
     branches:
-      - main
+      - master
 
 env:
-  # Currently no way to detect automatically
-  DEFAULT_BRANCH: main
+  DEFAULT_BRANCH: master
 
 jobs:
   build:

@@ -44,6 +44,23 @@ Leveraging off-the-shelf `Chezmoi` capabilities
 chezmoi init --apply --verbose https://github.com/kitos9112/dotfiles.git
 ```
 
+### Installer controls
+
+The root `install` script accepts environment variables for test and recovery
+flows:
+
+- `DOTFILES_SOURCE` uses a local source checkout instead of the remote repo.
+- `DOTFILES_REPO` overrides the remote chezmoi repository.
+- `DOTFILES_ONE_SHOT=true` passes `--one-shot` instead of `--apply`.
+- `DOTFILES_CHEZMOI_INCLUDE` and `DOTFILES_CHEZMOI_EXCLUDE` pass include and
+  exclude filters to chezmoi.
+- `DOTFILES_NO_TTY=true` passes `--no-tty`.
+- `DOTFILES_VERBOSE=true` passes `--verbose`.
+- `DOTFILES_DEBUG=true` passes `--debug`.
+- `DOTFILES_RETRY_COUNT` and `DOTFILES_RETRY_DELAY` control retry behavior.
+- `DOTFILES_IS_ROOT=true|false` and `DOTFILES_IS_WORK=true|false` override the
+  default machine inference while rendering chezmoi config.
+
 ## Local Chezmoi Data
 
 Machine-specific values should live in local chezmoi config, not in the public repo. This repo already reads data from `~/.config/chezmoi/chezmoi.toml`.
@@ -70,6 +87,13 @@ With that configuration:
 
 Existing installations should add those keys to `~/.config/chezmoi/chezmoi.toml` and then run `chezmoi apply`.
 
+## Public-safe environment pointers
+
+The tracked `.env` file is allowed to exist in this public repository only for
+public-safe pointer values, such as 1Password item references. Do not store raw
+tokens, credentials, private keys, recovery codes, or machine-confidential
+values in `.env` or any other tracked file.
+
 ## Verification
 
 CI currently does two different checks:
@@ -87,6 +111,28 @@ XDG_DATA_HOME="${tmp_home}/.local/share" \
 XDG_STATE_HOME="${tmp_home}/.local/state" \
 XDG_CACHE_HOME="${tmp_home}/.cache" \
 DOTFILES_TEST=true chezmoi init --apply --source "$(pwd)" --exclude scripts --no-tty
+```
+
+To validate hooks locally through `uv`, run:
+
+```bash
+uvx pre-commit run --all-files
+```
+
+To validate the root installer path locally without running mutating scripts:
+
+```bash
+tmp_home="$(mktemp -d)"
+HOME="${tmp_home}" \
+XDG_CONFIG_HOME="${tmp_home}/.config" \
+XDG_DATA_HOME="${tmp_home}/.local/share" \
+XDG_STATE_HOME="${tmp_home}/.local/state" \
+XDG_CACHE_HOME="${tmp_home}/.cache" \
+DOTFILES_SOURCE="$(pwd)" \
+DOTFILES_TEST=true \
+DOTFILES_NO_TTY=true \
+DOTFILES_CHEZMOI_EXCLUDE=scripts \
+./install
 ```
 
 ## Portable VS Code
