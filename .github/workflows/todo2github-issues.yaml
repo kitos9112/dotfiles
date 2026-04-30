@@ -3,7 +3,6 @@ name: "Create GH issues based on TODO comments"
 on:
   push:
     branches:
-      - main
       - master
 jobs:
   build:
