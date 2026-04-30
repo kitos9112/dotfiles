@@ -1,7 +1,9 @@
 ---
+# Chezmoi Go-template source is not valid raw YAML before rendering.
 ignore: |
   .private/
   .vscode/
+  home/.chezmoiexternal.yaml
 extends: default
 rules:
   truthy:

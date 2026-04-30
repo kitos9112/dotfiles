@@ -427,11 +427,12 @@ tasks:
         msg: GITHUB_TOKEN must be set to run Renovate locally.
     cmds:
       - >
+        RENOVATE_TOKEN="$GITHUB_TOKEN"
         docker run --rm
+        --env RENOVATE_TOKEN
         --volume "$(pwd)/{{.RENOVATE_LOCAL_CONFIG}}:/usr/src/app/config.js:ro"
         renovate/renovate:slim
         --platform=github
-        --token="$GITHUB_TOKEN"
         --print-config=true
         --force-cli=true
         --dry-run=full
@@ -505,7 +506,7 @@ with:
 Run:
 
 ```bash
-rg -n 'echo \\$GITHUB_TOKEN|echo ".*GITHUB_TOKEN|echo .*GITHUB_TOKEN' Taskfile.yaml .github/workflows tests/renovate-bot
+rg -n 'echo \\$GITHUB_TOKEN|echo ".*GITHUB_TOKEN|echo .*GITHUB_TOKEN|--token=.*GITHUB_TOKEN|--token="?\\$GITHUB_TOKEN' Taskfile.yaml .github/workflows tests/renovate-bot
 ```
 
 Expected: no output and exit code `1`.
@@ -582,7 +583,8 @@ Replace the full contents of `.github/renovate.json5` with:
       "matchStrings": [
         "\\{\\{-?\\s*\\$vscodeVersion := \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\"\\s*-?\\}\\}",
       ],
-      "autoReplaceStringTemplate": "{{- $vscodeVersion := \"{{newValue}}\" -}}",
+      // Keeps literal chezmoi braces from being parsed as Renovate template delimiters.
+      "autoReplaceStringTemplate": "{{#if newValue}}{{decodeBase64 \"e3stICR2c2NvZGVWZXJzaW9uIDo9ICI=\"}}{{newValue}}{{decodeBase64 \"IiAtfX0=\"}}{{/if}}",
       "versioningTemplate": "semver-coerced",
     },
     {
@@ -872,7 +874,7 @@ Expected: command exits `0`.
 Run:
 
 ```bash
-rg -n 'echo \\$GITHUB_TOKEN|echo ".*GITHUB_TOKEN|echo .*GITHUB_TOKEN' .
+rg -n 'echo \\$GITHUB_TOKEN|echo ".*GITHUB_TOKEN|echo .*GITHUB_TOKEN|--token=.*GITHUB_TOKEN|--token="?\\$GITHUB_TOKEN' Taskfile.yaml .github home tests
 ```
 
 Expected: no output and exit code `1`.

@@ -39,6 +39,7 @@
       "matchStrings": [
         "\\{\\{-?\\s*\\$vscodeVersion := \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\"\\s*-?\\}\\}",
       ],
+      // Keeps literal chezmoi braces from being parsed as Renovate template delimiters.
       "autoReplaceStringTemplate": "{{#if newValue}}{{decodeBase64 \"e3stICR2c2NvZGVWZXJzaW9uIDo9ICI=\"}}{{newValue}}{{decodeBase64 \"IiAtfX0=\"}}{{/if}}",
       "versioningTemplate": "semver-coerced",
     },
