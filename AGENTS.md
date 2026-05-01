@@ -25,5 +25,5 @@
 
 ## Validation
 
-- Run `pre-commit run --all-files` when practical.
+- Run `uvx pre-commit run --all-files` when practical.
 - When changing distro targets or workflows, update `README.md` to match the actual CI matrix.

@@ -3,7 +3,6 @@
 {{ $personalName := "Marcos Soutullo Rodriguez" -}}
 {{- $personalEmail := "marcos.soutullo91@gmail.com" -}}
 {{- $personalSigningKey := "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHJQ/v90Djih+2baccSLZnFPhP9FHpIoNzqDPsJhLgCs" -}}
-{{- $workLaptop := "marcos-soutullo-laptop" -}}
 
 {{- $isWsl := or (env "WSL_DISTRO_NAME") (env "IS_WSL") | not | not -}}
 {{- $isFedora := lookPath "gnome-shell" | not | not -}}
@@ -13,8 +12,15 @@
 {{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
 {{- end -}}
 
-{{- $isRoot := contains $workLaptop .chezmoi.hostname | not -}}
-{{- $isWork := contains $workLaptop .chezmoi.hostname -}}
+{{- $isWork := promptBoolOnce . "is_work" "Is this a work machine?" -}}
+{{- $isWorkOverride := env "DOTFILES_IS_WORK" -}}
+{{- if eq $isWorkOverride "true" -}}
+{{-   $isWork = true -}}
+{{- else if eq $isWorkOverride "false" -}}
+{{-   $isWork = false -}}
+{{- end -}}
+
+{{- $isRoot := not $isWork -}}
 {{- $isRootOverride := env "DOTFILES_IS_ROOT" -}}
 {{- if eq $isRootOverride "true" -}}
 {{-   $isRoot = true -}}
@@ -22,11 +28,13 @@
 {{-   $isRoot = false -}}
 {{- end -}}
 
-{{- $isWorkOverride := env "DOTFILES_IS_WORK" -}}
-{{- if eq $isWorkOverride "true" -}}
-{{-   $isWork = true -}}
-{{- else if eq $isWorkOverride "false" -}}
-{{-   $isWork = false -}}
+{{- $workEmail := "" -}}
+{{- $workName := "" -}}
+{{- $workGitdir := "" -}}
+{{- if $isWork -}}
+{{-   $workEmail  = promptStringOnce . "work_email"  "Work email" -}}
+{{-   $workName   = promptStringOnce . "work_name"   "Work display name" -}}
+{{-   $workGitdir = promptStringOnce . "work_gitdir" "Work git directory (e.g. ~/workspace/transficc/)" -}}
 {{- end -}}
 
 sourceDir = "{{ .chezmoi.sourceDir }}"
@@ -42,6 +50,9 @@ progress = true
 
   is_root = {{ $isRoot }} # Whether or not to install stuff as root (e.g. brew)
   is_work = {{ $isWork }} # Whether or not this is my work laptop
+  work_email  = {{ $workEmail | quote }}
+  work_name   = {{ $workName | quote }}
+  work_gitdir = {{ $workGitdir | quote }}
 
   name = "{{ $personalName }}"
   {{- if not $isWork }}
