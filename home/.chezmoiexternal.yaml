@@ -74,8 +74,6 @@
 ".config/wireshark_profiles":
   type: "git-repo"
   url: "https://github.com/amwalding/wireshark_profiles.git"
-  include:
-    - "Profiles"
   refreshPeriod: "72h"
 
 {{ if eq .chezmoi.os "linux" }}
