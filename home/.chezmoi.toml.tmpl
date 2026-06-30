@@ -3,6 +3,7 @@
 {{ $personalName := "Marcos Soutullo Rodriguez" -}}
 {{- $personalEmail := "marcos.soutullo91@gmail.com" -}}
 {{- $personalSigningKey := "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHJQ/v90Djih+2baccSLZnFPhP9FHpIoNzqDPsJhLgCs" -}}
+{{- $githubUsername := "kitos9112" -}}
 
 {{- $isWsl := or (env "WSL_DISTRO_NAME") (env "IS_WSL") | not | not -}}
 {{- $isFedora := lookPath "gnome-shell" | not | not -}}
@@ -47,6 +48,7 @@ progress = true
 
   personal_name = "{{ $personalName }}"
   personal_email = "{{ $personalEmail }}"
+  github_username = "{{ $githubUsername }}"
 
   is_root = {{ $isRoot }} # Whether or not to install stuff as root (e.g. brew)
   is_work = {{ $isWork }} # Whether or not this is my work laptop

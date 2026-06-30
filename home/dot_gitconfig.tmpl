@@ -70,3 +70,6 @@
 [includeIf "gitdir:{{ .work_gitdir }}"]
   path = ~/.gitconfig-work
 {{- end }}
+
+[includeIf "gitdir:~/projects/github.com/"]
+  path = ~/.gitconfig-github

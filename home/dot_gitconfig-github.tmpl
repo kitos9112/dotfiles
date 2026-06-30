@@ -1,0 +1,6 @@
+# Identity for repositories under ~/projects/github.com
+# Overrides only the email with a GitHub noreply address. The user name,
+# signing key, commit.gpgsign and gpg.format are all inherited from
+# ~/.gitconfig, so commits here are still signed under the same name.
+[user]
+	email = {{ .github_username }}@users.noreply.github.com
