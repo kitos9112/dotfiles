@@ -55,7 +55,7 @@ jobs:
 
   macos:
     name: macOS Smoke
-    runs-on: macos-15
+    runs-on: macos-26
     env:
       DOTFILES_TEST: "true"
     steps:
