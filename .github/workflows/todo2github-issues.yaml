@@ -4,11 +4,17 @@ on:
   push:
     branches:
       - master
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: "ubuntu-24.04"
+    permissions:
+      contents: read
+      issues: write
     steps:
-      - uses: "actions/checkout@master"
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - name: "TODO to Github Issue"
-        uses: alstr/todo-to-issue-action@v5.1
+        uses: alstr/todo-to-issue-action@efb8b9830dd1eb59314ac2e886af7b917fad7d21 # v5.1
         id: "todo"

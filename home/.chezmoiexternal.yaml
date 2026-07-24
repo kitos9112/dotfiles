@@ -46,18 +46,14 @@
   url: "https://github.com/asdf-vm/asdf/releases/download/v{{ $asdfVersion }}/asdf-v{{ $asdfVersion }}-{{ .chezmoi.os }}-{{ .chezmoi.arch }}.tar.gz"
   path: asdf
 
-".local/bin/uv":
+{{ $uvVersion := includeTemplate "get-github-latest-version" (list "astral-sh/uv" $cache) }}
+{{- range list "uv" "uvx" }}
+".local/bin/{{ . }}":
   type: archive-file
-  {{ $uvVersion := includeTemplate "get-github-latest-version" (list "astral-sh/uv" $cache) }}
-  url: "https://github.com/astral-sh/uv/releases/download/{{ $uvVersion }}/uv-{{ $arch }}-{{ $platform }}-{{ .chezmoi.os }}{{ if eq .chezmoi.os "linux" }}-gnu{{ end }}.tar.gz"
+  url: "https://github.com/astral-sh/uv/releases/download/{{ $uvVersion }}/uv-{{ $arch }}-{{ $platform }}-{{ $cache.chezmoi.os }}{{ if eq $cache.chezmoi.os "linux" }}-gnu{{ end }}.tar.gz"
   stripComponents: 1
-  path: "uv"
-
-".local/bin/uvx":
-  type: archive-file
-  url: "https://github.com/astral-sh/uv/releases/download/{{ $uvVersion }}/uv-{{ $arch }}-{{ $platform }}-{{ .chezmoi.os }}{{ if eq .chezmoi.os "linux" }}-gnu{{ end }}.tar.gz"
-  stripComponents: 1
-  path: "uvx"
+  path: "{{ . }}"
+{{ end }}
 
 ".fzf":
   type: "git-repo"
@@ -76,25 +72,17 @@
   url: "https://github.com/amwalding/wireshark_profiles.git"
   refreshPeriod: "72h"
 
-{{ if eq .chezmoi.os "linux" }}
-".local/share/fonts":
+{{ $fontsDir := ".local/share/fonts" }}
+{{- if eq .chezmoi.os "darwin" }}{{ $fontsDir = "Library/Fonts" }}{{ end }}
+{{- $nerdFontsVersion := includeTemplate "get-github-latest-version" (list "ryanoasis/nerd-fonts" $cache) }}
+"{{ $fontsDir }}":
   type: "archive"
-  url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraMono.tar.xz"
+  url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ $nerdFontsVersion }}/FiraMono.tar.xz"
   include:
     - "*.otf"
-    - ".ttf"
+    - "*.ttf"
   exact: true
   refreshPeriod: "168h"
-{{- else if eq .chezmoi.os "darwin" }}
-"Library/Fonts":
-  type: "archive"
-  url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraMono.tar.xz"
-  include:
-    - "*.otf"
-    - ".ttf"
-  exact: true
-  refreshPeriod: "168h"
-{{ end }}
 
 ".config/alacritty/themes":
   type: "git-repo"

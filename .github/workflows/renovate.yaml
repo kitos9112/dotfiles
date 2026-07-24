@@ -2,6 +2,7 @@
 name: Schedule/Push - Renovate
 
 on:
+  # checkov:skip=CKV_GHA_7: dry-run/log-level inputs only tune Renovate, they cannot affect build output
   workflow_dispatch:
     inputs:
       dryRun:
@@ -13,7 +14,7 @@ on:
         default: "debug"
         required: false
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "0 * * * *"
   push:
     branches:
       - master
@@ -22,6 +23,9 @@ env:
   LOG_LEVEL: info
   RENOVATE_DRY_RUN: "false"
   RENOVATE_CONFIG_FILE: .github/renovate.json5
+
+permissions:
+  contents: read
 
 jobs:
   renovate:
@@ -32,7 +36,7 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Generate Token
-        uses: actions/create-github-app-token@v3
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
         id: generate-token
         with:
           app-id: ${{ secrets.BOT_APP_ID }}
@@ -44,7 +48,7 @@ jobs:
           echo "LOG_LEVEL=${{ github.event.inputs.logLevel || env.LOG_LEVEL }}" >> "$GITHUB_ENV"
 
       - name: Renovate
-        uses: renovatebot/github-action@v46.1.20
+        uses: renovatebot/github-action@3064367f740a1a91cca218698a63902689cce200 # v46.1.20
         with:
           configurationFile: ${{ env.RENOVATE_CONFIG_FILE }}
           token: "x-access-token:${{ steps.generate-token.outputs.token }}"
