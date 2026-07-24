@@ -1,0 +1,33 @@
+{{- if or (eq .chezmoi.os "darwin") (eq .chezmoi.os "linux") -}}
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+# Homebrew >=6 refuses to load formulae/casks from non-official taps until they
+# are trusted, warning on every command. Trust the taps this repo's Brewfile
+# installs, so a fresh machine is quiet without any manual `brew trust` calls.
+# Editing this list changes the script contents, which is what re-triggers
+# chezmoi's run_onchange execution.
+taps=(
+  1password/tap
+  aquasecurity/trivy
+  common-fate/granted
+  dty1er/tap
+  gabrie30/utils
+  go-task/tap
+  helm/tap
+  instrumenta/instrumenta
+  librespeed/tap
+)
+
+if ! command -v brew >/dev/null 2>&1; then
+  exit 0
+fi
+
+# trust.json lives in ${XDG_CONFIG_HOME}/homebrew when that variable is set and
+# ~/.homebrew otherwise. Interactive shells export it while non-interactive ones
+# typically do not, so populate both stores to keep trust consistent everywhere.
+printf "\033[0;34m--> Trusting %d Homebrew taps\033[0m\n" "${#taps[@]}"
+XDG_CONFIG_HOME="${HOME}/.config" brew trust --tap "${taps[@]}" >/dev/null
+env -u XDG_CONFIG_HOME brew trust --tap "${taps[@]}" >/dev/null
+{{- end -}}
