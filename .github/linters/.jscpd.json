@@ -1,0 +1,4 @@
+{
+  "threshold": 5,
+  "ignore": ["**/.git/**", "**/logs/**", "**/dot_p10k.zsh"]
+}
