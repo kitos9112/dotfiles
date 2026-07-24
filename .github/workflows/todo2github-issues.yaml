@@ -15,6 +15,9 @@ jobs:
       issues: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # The action creates issues via the API, not via git.
+          persist-credentials: false
       - name: "TODO to Github Issue"
         uses: alstr/todo-to-issue-action@efb8b9830dd1eb59314ac2e886af7b917fad7d21 # v5.1
         id: "todo"

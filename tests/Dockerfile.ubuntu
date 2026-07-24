@@ -6,8 +6,11 @@ FROM ${BASE_IMAGE}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# ca-certificates is listed explicitly because --no-install-recommends drops it,
+# and without a CA bundle curl cannot fetch the chezmoi installer over HTTPS.
 RUN apt-get update && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
+    ca-certificates \
     curl \
     file \
     git \

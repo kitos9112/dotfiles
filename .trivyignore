@@ -1,0 +1,5 @@
+# The images under tests/ exist only to prove the dotfiles bootstrap completes
+# during `docker build`. They are never run as long-lived containers, so a
+# HEALTHCHECK has nothing meaningful to report. Mirrors the equivalent
+# checkov:skip=CKV_DOCKER_2 already declared in those Dockerfiles.
+AVD-DS-0026
