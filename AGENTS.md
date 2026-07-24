@@ -16,7 +16,7 @@
 
 - Keep `.github/workflows/acceptance-tests.yaml` aligned with the Dockerfiles under `tests/`.
 - Acceptance coverage should track current AlmaLinux and Ubuntu releases. Replace stale targets instead of growing the matrix unless asked to do otherwise.
-- Current matrix targets are `almalinux-9`, `almalinux-10`, `ubuntu-24.04`, and `ubuntu-25.10`.
+- Current matrix targets are `almalinux-9`, `almalinux-10`, `ubuntu-24.04`, and `ubuntu-26.04`, built from the parameterized `tests/Dockerfile.<family>` files via the matrix `image` build-arg.
 
 ## Skills
 

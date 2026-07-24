@@ -9,7 +9,7 @@ The current smoke-test matrix covers the following Linux flavours:
 - AlmaLinux 9
 - AlmaLinux 10
 - Ubuntu 24.04
-- Ubuntu 25.10
+- Ubuntu 26.04
 
 macOS is verified separately on a GitHub-hosted macOS runner by rendering and applying the repo into a temporary home directory.
 

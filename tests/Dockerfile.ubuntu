@@ -1,0 +1,27 @@
+# checkov:skip=CKV_DOCKER_7: base image tag is supplied by the CI matrix via BASE_IMAGE
+# checkov:skip=CKV_DOCKER_2: smoke-test image, never run as a long-lived container
+# checkov:skip=CKV2_DOCKER_1: sudo is part of the dotfiles bootstrap under test
+ARG BASE_IMAGE=ubuntu:24.04
+FROM ${BASE_IMAGE}
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y \
+    curl \
+    file \
+    git \
+    iproute2 \
+    sudo && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m -s /bin/sh -d /home/docker-qa docker-qa && \
+    echo "docker-qa ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+USER docker-qa
+
+COPY --chown=docker-qa:docker-qa ./ /home/docker-qa/.dotfiles
+
+WORKDIR /home/docker-qa
+
+RUN DOTFILES_TEST=true DOTFILES_VERBOSE=true DOTFILES_NO_TTY=true DOTFILES_CHEZMOI_EXCLUDE=scripts .dotfiles/install

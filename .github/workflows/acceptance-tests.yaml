@@ -10,6 +10,9 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+permissions:
+  contents: read
+
 jobs:
   linux:
     name: Linux Smoke (${{ matrix.os }})
@@ -17,30 +20,32 @@ jobs:
 
     strategy:
       matrix:
-        os:
-          - almalinux-9
-          - almalinux-10
-          - ubuntu-24.04
-          - ubuntu-25.10
+        include:
+          - { os: almalinux-9, family: almalinux, image: "almalinux:9" }
+          - { os: almalinux-10, family: almalinux, image: "almalinux:10" }
+          - { os: ubuntu-24.04, family: ubuntu, image: "ubuntu:24.04" }
+          - { os: ubuntu-26.04, family: ubuntu, image: "ubuntu:26.04" }
 
     steps:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
 
       - name: Build smoke image
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
         with:
           context: .
           platforms: linux/amd64
-          file: ./tests/${{ matrix.os }}/Dockerfile
+          file: ./tests/Dockerfile.${{ matrix.family }}
+          build-args: |
+            BASE_IMAGE=${{ matrix.image }}
           push: false
           provenance: false
 
       - name: Notify about failure
-        uses: umahmood/pushover-actions@main
+        uses: umahmood/pushover-actions@5da31193f672e7418804bdb51836bdf20f393c8f # v1.1.0
         env:
           PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
           PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}

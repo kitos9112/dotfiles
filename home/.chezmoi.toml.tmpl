@@ -13,12 +13,16 @@
 {{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
 {{- end -}}
 
-{{- $isWork := promptBoolOnce . "is_work" "Is this a work machine?" -}}
+{{- $isWork := false -}}
 {{- $isWorkOverride := env "DOTFILES_IS_WORK" -}}
 {{- if eq $isWorkOverride "true" -}}
 {{-   $isWork = true -}}
 {{- else if eq $isWorkOverride "false" -}}
 {{-   $isWork = false -}}
+{{- else if hasKey . "is_work" -}}
+{{-   $isWork = .is_work -}}
+{{- else if stdinIsATTY -}}
+{{-   $isWork = promptBool "Is this a work machine?" -}}
 {{- end -}}
 
 {{- $isRoot := not $isWork -}}
@@ -33,9 +37,14 @@
 {{- $workName := "" -}}
 {{- $workGitdir := "" -}}
 {{- if $isWork -}}
-{{-   $workEmail  = promptStringOnce . "work_email"  "Work email" -}}
-{{-   $workName   = promptStringOnce . "work_name"   "Work display name" -}}
-{{-   $workGitdir = promptStringOnce . "work_gitdir" "Work git directory (e.g. ~/workspace/transficc/)" -}}
+{{-   $workEmail  = get . "work_email"  | default "" -}}
+{{-   $workName   = get . "work_name"   | default "" -}}
+{{-   $workGitdir = get . "work_gitdir" | default "" -}}
+{{-   if stdinIsATTY -}}
+{{-     $workEmail  = promptStringOnce . "work_email"  "Work email" -}}
+{{-     $workName   = promptStringOnce . "work_name"   "Work display name" -}}
+{{-     $workGitdir = promptStringOnce . "work_gitdir" "Work git directory (e.g. ~/workspace/transficc/)" -}}
+{{-   end -}}
 {{- end -}}
 
 sourceDir = "{{ .chezmoi.sourceDir }}"
