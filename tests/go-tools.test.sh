@@ -13,6 +13,7 @@ REPO_ROOT="$(
 GO_TOOLS_TEMPLATE="${REPO_ROOT}/home/.chezmoiscripts/run_onchange_after_104-install-go-tools.zsh.tmpl"
 ASDF_UPDATE_TEMPLATE="${REPO_ROOT}/home/.chezmoiscripts/run_after_099-update-asdf.sh.tmpl"
 GO_TOOLS_SOURCE="${REPO_ROOT}/home/private_dot_config/dotfiles/go-tools"
+ACCEPTANCE_WORKFLOW="${REPO_ROOT}/.github/workflows/acceptance-tests.yaml"
 
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/go-tools-tests.XXXXXX")"
 trap 'rm -rf "${TMP_ROOT}"' EXIT HUP INT TERM
@@ -37,6 +38,16 @@ assert_contains() {
   local message=$3
 
   grep -F -- "${needle}" "${path}" >/dev/null || fail "${message}"
+}
+
+assert_not_contains() {
+  local needle=$1
+  local path=$2
+  local message=$3
+
+  if grep -F -- "${needle}" "${path}" >/dev/null; then
+    fail "${message}"
+  fi
 }
 
 render_template() {
@@ -168,9 +179,35 @@ test_asdf_install_failure_propagates() {
   fi
 }
 
+test_go_tools_checks_are_wired_into_ci() {
+  printf '==> %s\n' "${FUNCNAME[0]}"
+
+  assert_contains \
+    "bash tests/go-tools.test.sh" \
+    "${ACCEPTANCE_WORKFLOW}" \
+    "acceptance workflow does not run the Go tools regression suite"
+  assert_contains \
+    "go -C home/private_dot_config/dotfiles/go-tools mod verify" \
+    "${ACCEPTANCE_WORKFLOW}" \
+    "acceptance workflow does not verify the Go tools module"
+  assert_contains \
+    "go -C home/private_dot_config/dotfiles/go-tools install tool" \
+    "${ACCEPTANCE_WORKFLOW}" \
+    "acceptance workflow does not compile the declared Go tools"
+  assert_contains \
+    "list -m -f '{{.Version}}' github.com/mbrt/gmailctl" \
+    "${ACCEPTANCE_WORKFLOW}" \
+    "acceptance workflow does not derive gmailctl's expected version from go.mod"
+  assert_not_contains \
+    "github.com/mbrt/gmailctl\\tv0.12.0" \
+    "${ACCEPTANCE_WORKFLOW}" \
+    "acceptance workflow hardcodes gmailctl's current version"
+}
+
 setup_case
 test_go_tools_install_normalizes_asdf_environment
 test_go_tools_script_fingerprints_inputs
 test_asdf_install_failure_propagates
+test_go_tools_checks_are_wired_into_ci
 
-printf 'ok: 3 tests passed\n'
+printf 'ok: 4 tests passed\n'

@@ -14,6 +14,45 @@ permissions:
   contents: read
 
 jobs:
+  go-tools:
+    name: Go Tool Manifest
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+        with:
+          go-version-file: home/private_dot_config/dotfiles/go-tools/go.mod
+          cache-dependency-path: home/private_dot_config/dotfiles/go-tools/go.sum
+
+      - name: Install chezmoi
+        run: |
+          mkdir -p "${RUNNER_TEMP}/bin"
+          sh -c "$(curl -fsLS https://get.chezmoi.io/lb)" -- -b "${RUNNER_TEMP}/bin"
+
+      - name: Test Go tool installer contract
+        run: |
+          export PATH="${RUNNER_TEMP}/bin:${PATH}"
+          bash tests/go-tools.test.sh
+
+      - name: Verify and compile Go tools
+        env:
+          GOBIN: ${{ runner.temp }}/go-tools-bin
+        run: |
+          mkdir -p "${GOBIN}"
+          go -C home/private_dot_config/dotfiles/go-tools mod verify
+          go -C home/private_dot_config/dotfiles/go-tools install tool
+          expected_version="$(
+            go -C home/private_dot_config/dotfiles/go-tools \
+              list -m -f '{{.Version}}' github.com/mbrt/gmailctl
+          )"
+          go version -m "${GOBIN}/gmailctl" |
+            grep -F $'mod\tgithub.com/mbrt/gmailctl\t'"${expected_version}"$'\t'
+
   linux:
     name: Linux Smoke (${{ matrix.os }})
     runs-on: ubuntu-24.04

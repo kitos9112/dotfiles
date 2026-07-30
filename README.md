@@ -96,10 +96,12 @@ values in `.env` or any other tracked file.
 
 ## Verification
 
-CI currently does two different checks:
+CI currently does three different checks:
 
 - Linux container smoke tests build the Dockerfiles under [`tests/`](./tests) and run the standalone installer in `DOTFILES_TEST=true` mode.
 - macOS smoke tests run `chezmoi init --apply` and `chezmoi verify` against a temporary home directory while excluding scripts.
+- The Go-tool job runs the installer contract test, verifies the module graph,
+  and compiles every declared Go tool with the manifest's pinned Go version.
 
 To reproduce the macOS-style verification locally:
 
