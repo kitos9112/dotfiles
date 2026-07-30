@@ -187,6 +187,10 @@ test_go_tools_checks_are_wired_into_ci() {
     "${ACCEPTANCE_WORKFLOW}" \
     "acceptance workflow does not run the Go tools regression suite"
   assert_contains \
+    "sudo apt-get install --yes zsh" \
+    "${ACCEPTANCE_WORKFLOW}" \
+    "acceptance workflow does not install the regression suite's Zsh dependency"
+  assert_contains \
     "go -C home/private_dot_config/dotfiles/go-tools mod verify" \
     "${ACCEPTANCE_WORKFLOW}" \
     "acceptance workflow does not verify the Go tools module"

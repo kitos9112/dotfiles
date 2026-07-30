@@ -29,8 +29,10 @@ jobs:
           go-version-file: home/private_dot_config/dotfiles/go-tools/go.mod
           cache-dependency-path: home/private_dot_config/dotfiles/go-tools/go.sum
 
-      - name: Install chezmoi
+      - name: Install test dependencies
         run: |
+          sudo apt-get update
+          sudo apt-get install --yes zsh
           mkdir -p "${RUNNER_TEMP}/bin"
           sh -c "$(curl -fsLS https://get.chezmoi.io/lb)" -- -b "${RUNNER_TEMP}/bin"
 
