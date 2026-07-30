@@ -28,7 +28,7 @@ started "Install all default ASDF tool versions..."
  LDFLAGS="-L/home/linuxbrew/.linuxbrew/lib" \
  ${ASDF} install
 {{ else }}
-  ${ASDF} install || echo ""
+  ${ASDF} install
 {{ end -}}
 
 success "All ASDF apps installed."

@@ -1,9 +1,0 @@
-{{- if or (eq .chezmoi.os "linux") ( eq .chezmoi.os "darwin") -}}
-#! /usr/bin/env zsh
-
-source {{ .chezmoi.sourceDir }}/scripts/.helpers
-
-${HOME}/.asdf/shims/go install \
-  github.com/mbrt/gmailctl/cmd/gmailctl@v0.11.0
-
-{{- end -}}
