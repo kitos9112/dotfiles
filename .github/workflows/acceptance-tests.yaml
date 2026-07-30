@@ -48,6 +48,12 @@ jobs:
           mkdir -p "${GOBIN}"
           go -C home/private_dot_config/dotfiles/go-tools mod verify
           go -C home/private_dot_config/dotfiles/go-tools install tool
+          if go -C home/private_dot_config/dotfiles/go-tools \
+            list -deps github.com/mbrt/gmailctl/cmd/gmailctl |
+            grep -q '^golang.org/x/crypto/openpgp'; then
+            echo "gmailctl unexpectedly imports the unsupported openpgp package" >&2
+            exit 1
+          fi
           expected_version="$(
             go -C home/private_dot_config/dotfiles/go-tools \
               list -m -f '{{.Version}}' github.com/mbrt/gmailctl

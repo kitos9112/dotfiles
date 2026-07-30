@@ -14,6 +14,7 @@ GO_TOOLS_TEMPLATE="${REPO_ROOT}/home/.chezmoiscripts/run_onchange_after_104-inst
 ASDF_UPDATE_TEMPLATE="${REPO_ROOT}/home/.chezmoiscripts/run_after_099-update-asdf.sh.tmpl"
 GO_TOOLS_SOURCE="${REPO_ROOT}/home/private_dot_config/dotfiles/go-tools"
 ACCEPTANCE_WORKFLOW="${REPO_ROOT}/.github/workflows/acceptance-tests.yaml"
+TRIVY_IGNORE="${REPO_ROOT}/.trivyignore"
 
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/go-tools-tests.XXXXXX")"
 trap 'rm -rf "${TMP_ROOT}"' EXIT HUP INT TERM
@@ -206,6 +207,14 @@ test_go_tools_checks_are_wired_into_ci() {
     "github.com/mbrt/gmailctl\\tv0.12.0" \
     "${ACCEPTANCE_WORKFLOW}" \
     "acceptance workflow hardcodes gmailctl's current version"
+  assert_contains \
+    "list -deps github.com/mbrt/gmailctl/cmd/gmailctl" \
+    "${ACCEPTANCE_WORKFLOW}" \
+    "acceptance workflow does not guard the openpgp advisory exception"
+  assert_contains \
+    "GO-2026-5932" \
+    "${TRIVY_IGNORE}" \
+    "Trivy does not document the module-level openpgp advisory exception"
 }
 
 setup_case
