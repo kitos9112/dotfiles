@@ -3,3 +3,8 @@
 # HEALTHCHECK has nothing meaningful to report. Mirrors the equivalent
 # checkov:skip=CKV_DOCKER_2 already declared in those Dockerfiles.
 AVD-DS-0026
+
+# Trivy reports this against the whole x/crypto module even though gmailctl's
+# compiled package graph does not import the unmaintained openpgp package.
+# The Go-tool CI job fails if that package ever enters the dependency graph.
+GO-2026-5932

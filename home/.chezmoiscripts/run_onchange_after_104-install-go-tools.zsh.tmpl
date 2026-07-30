@@ -1,0 +1,29 @@
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
+{{- $goToolsSource := joinPath .chezmoi.sourceDir "private_dot_config" "dotfiles" "go-tools" -}}
+#! /usr/bin/env zsh
+
+set -euo pipefail
+
+# These fingerprints make run_onchange follow both tool and runtime updates.
+# go.mod sha256: {{ include (joinPath $goToolsSource "go.mod") | sha256sum }}
+# go.sum sha256: {{ include (joinPath $goToolsSource "go.sum") | sha256sum }}
+# dot_tool-versions.tmpl sha256: {{ include (joinPath .chezmoi.sourceDir "dot_tool-versions.tmpl") | sha256sum }}
+
+ASDF="${HOME}/.local/bin/asdf"
+ASDF_DATA_DIR="${HOME}/.asdf"
+GO_TOOLS_DIR="${HOME}/.config/dotfiles/go-tools"
+
+if [[ ! -x "${ASDF}" ]]; then
+  print -u2 "asdf is not installed at ${ASDF}"
+  exit 1
+fi
+
+# An existing shell can still export these paths for the previous asdf Go
+# version after .tool-versions changes. Let asdf-golang rebuild them for the
+# selected runtime instead of mixing a new compiler with an old standard library.
+env -u GOROOT -u GOPATH -u GOBIN \
+  ASDF_DATA_DIR="${ASDF_DATA_DIR}" \
+  "${ASDF}" exec go -C "${GO_TOOLS_DIR}" install tool
+
+ASDF_DATA_DIR="${ASDF_DATA_DIR}" "${ASDF}" reshim golang
+{{- end -}}

@@ -1,6 +1,6 @@
-![Acceptance Tests](https://github.com/kitos9112/dotfiles/actions/workflows/acceptance-tests.yaml/badge.svg)
-
 # My Personal Public DOTfiles managed by `chezmoi`
+
+![Acceptance Tests](https://github.com/kitos9112/dotfiles/actions/workflows/acceptance-tests.yaml/badge.svg)
 
 This public Github repository has been built for my own benefit, however, feel free to sneak in and steal anything that would improve your own productivity.
 My plans rely on maintaining a `CI` workflow alongside GitHub Actions to ensure that my changes will not break across different OS flavours.
@@ -96,10 +96,12 @@ values in `.env` or any other tracked file.
 
 ## Verification
 
-CI currently does two different checks:
+CI currently does three different checks:
 
 - Linux container smoke tests build the Dockerfiles under [`tests/`](./tests) and run the standalone installer in `DOTFILES_TEST=true` mode.
 - macOS smoke tests run `chezmoi init --apply` and `chezmoi verify` against a temporary home directory while excluding scripts.
+- The Go-tool job runs the installer contract test, verifies the module graph,
+  and compiles every declared Go tool with the manifest's pinned Go version.
 
 To reproduce the macOS-style verification locally:
 
@@ -159,6 +161,27 @@ Chezmoi uses general-purpose scripts to execute ordered operations in the system
 - When their contents change (`run_once` or `run_onchange` scripts)
 
 [Application order](https://www.chezmoi.io/reference/application-order/)
+
+### Go developer tools
+
+Go-based command-line tools are declared in
+[`home/private_dot_config/dotfiles/go-tools/go.mod`](./home/private_dot_config/dotfiles/go-tools/go.mod).
+Chezmoi installs that manifest as `~/.config/dotfiles/go-tools/go.mod`, then
+`run_onchange_after_104-install-go-tools.zsh.tmpl` runs `go install tool`
+through the Go version selected by asdf.
+
+The installer reruns only when `go.mod`, `go.sum`, or the managed Go runtime
+changes. It deliberately clears inherited `GOROOT`, `GOPATH`, and `GOBIN`
+before entering the asdf environment, preventing an upgraded compiler from
+using the previous Go version's standard library.
+
+Renovate's native Go module manager updates tool requirements in this
+manifest. Add another Go CLI with Go 1.24 or newer by running:
+
+```bash
+~/.local/bin/asdf exec go -C home/private_dot_config/dotfiles/go-tools \
+  get -tool example.com/tool/cmd/tool@v1.2.3
+```
 
 Scripts are found in its own [directory](./home/.chezmoiscripts) to avoid being copied over to the target system.
 
