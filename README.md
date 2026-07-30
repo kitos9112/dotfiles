@@ -1,6 +1,6 @@
-![Acceptance Tests](https://github.com/kitos9112/dotfiles/actions/workflows/acceptance-tests.yaml/badge.svg)
-
 # My Personal Public DOTfiles managed by `chezmoi`
+
+![Acceptance Tests](https://github.com/kitos9112/dotfiles/actions/workflows/acceptance-tests.yaml/badge.svg)
 
 This public Github repository has been built for my own benefit, however, feel free to sneak in and steal anything that would improve your own productivity.
 My plans rely on maintaining a `CI` workflow alongside GitHub Actions to ensure that my changes will not break across different OS flavours.

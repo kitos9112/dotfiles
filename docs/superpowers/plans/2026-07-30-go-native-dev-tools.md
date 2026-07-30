@@ -20,10 +20,12 @@
 ### Task 1: Add a failing Go-tool installer regression test
 
 **Files:**
+
 - Create: `tests/go-tools.test.sh`
 - Test: `tests/go-tools.test.sh`
 
 **Interfaces:**
+
 - Consumes: the existing chezmoi templates and repository root layout.
 - Produces: a hermetic contract for the Go-tool installer and asdf failure propagation.
 
@@ -66,6 +68,7 @@ git commit -m "test: cover Go tool installation across asdf upgrades"
 ### Task 2: Add the Go-native manifest and reliable installer
 
 **Files:**
+
 - Create: `home/private_dot_config/dotfiles/go-tools/go.mod`
 - Create: `home/private_dot_config/dotfiles/go-tools/go.sum`
 - Create: `home/.chezmoiscripts/run_onchange_after_104-install-go-tools.zsh.tmpl`
@@ -74,6 +77,7 @@ git commit -m "test: cover Go tool installation across asdf upgrades"
 - Test: `tests/go-tools.test.sh`
 
 **Interfaces:**
+
 - Consumes: `~/.local/bin/asdf`, `~/.asdf`, and the Go version selected by `~/.tool-versions`.
 - Produces: `gmailctl` in the selected asdf Go installation and a refreshed asdf shim.
 
@@ -142,11 +146,13 @@ git commit -m "feat: manage Go developer tools declaratively"
 ### Task 3: Document, validate, and prepare the unpublished issue
 
 **Files:**
+
 - Modify: `README.md`
 - Create outside the repository: `/private/tmp/chezmoi-dev-tools-consolidation-issue.md`
 - Test: all repository checks.
 
 **Interfaces:**
+
 - Consumes: the final Go-tool manifest and installer behavior.
 - Produces: operator documentation and a public-safe issue draft that has not been submitted.
 
@@ -199,7 +205,8 @@ gh issue create \
 - [ ] **Step 6: Commit documentation**
 
 ```bash
-git add README.md docs/superpowers/specs/2026-07-30-go-native-dev-tools-design.md \
+git add README.md \
+  docs/superpowers/specs/2026-07-30-go-native-dev-tools-design.md \
   docs/superpowers/plans/2026-07-30-go-native-dev-tools.md
 git commit -m "docs: explain Go developer tool management"
 ```
