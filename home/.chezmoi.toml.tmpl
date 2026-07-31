@@ -6,7 +6,11 @@
 {{- $githubUsername := "kitos9112" -}}
 
 {{- $isWsl := or (env "WSL_DISTRO_NAME") (env "IS_WSL") | not | not -}}
-{{- $isFedora := lookPath "gnome-shell" | not | not -}}
+
+{{- /* machine_class decides whether GUI-only components (1Password app, Ghostty,
+       Nerd Fonts, GNOME settings) are installed. The detection logic lives in
+       .chezmoitemplates/machine-class so scripts resolve it identically. */ -}}
+{{- $machineClass := includeTemplate "machine-class" . | trim -}}
 
 {{- $osid := .chezmoi.os -}}
 {{- if hasKey .chezmoi.osRelease "id" -}}
@@ -54,6 +58,7 @@ progress = true
   # Here we "export" the variables, so we can access them outside this file
   osid = {{ $osid | quote }}
   is_wsl = {{ $isWsl }}
+  machine_class = {{ $machineClass | quote }} # "desktop" (GUI present) or "server" (CLI only)
 
   personal_name = "{{ $personalName }}"
   personal_email = "{{ $personalEmail }}"

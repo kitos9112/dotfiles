@@ -1,0 +1,15 @@
+---
+# Font settings shared by .chezmoiexternal.yaml, the terminal configs and the
+# font-cache refresh script.
+#
+# This lives in .chezmoidata/ rather than a .chezmoidata.yaml.tmpl file because
+# chezmoi only loads literal .chezmoidata.$FORMAT files — a .tmpl suffix is not
+# honoured, so templated data files are silently ignored.
+
+fontsDir: .local/share/fonts
+
+terminalFont:
+  # Family name as fontconfig reports it, used by the terminal configs.
+  name: FiraMono Nerd Font
+  # Release asset in ryanoasis/nerd-fonts fetched by .chezmoiexternal.yaml.
+  archive: FiraMono.tar.xz

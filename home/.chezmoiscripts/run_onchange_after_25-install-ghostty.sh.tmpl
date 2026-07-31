@@ -1,0 +1,68 @@
+{{- $machineClass := includeTemplate "machine-class" . | trim -}}
+{{- if and (eq .chezmoi.os "linux") .is_root (eq $machineClass "desktop") (or (eq .chezmoi.osRelease.id "ubuntu") (eq .chezmoi.osRelease.id "debian")) -}}
+#! /usr/bin/env bash
+{{ includeTemplate "scripts-library" . }}
+
+# Ghostty publishes no official apt repository, so this installs the community
+# ghostty-ubuntu deb built for the running Ubuntu series. The asset URL is
+# discovered from the GitHub release rather than constructed, so a change in
+# their file-naming scheme does not silently break the install.
+#
+# ghostty manifest sha256: {{ .packages.ghostty | toJson | sha256sum }}
+
+GHOSTTY_VERSION={{ .packages.ghostty.version | quote }}
+GHOSTTY_RELEASE={{ .packages.ghostty.release | quote }}
+GHOSTTY_REPO={{ .packages.ghostty.repo | quote }}
+
+if [[ "${DOTFILES_TEST:-}" == true ]]; then
+  log_info "Skipping Ghostty installation in test mode"
+  exit 0
+fi
+
+installed_version="$(dpkg-query --showformat='${Version}' --show ghostty 2>/dev/null || true)"
+if [[ "${installed_version}" == "${GHOSTTY_VERSION}"* ]]; then
+  log_green "Ghostty ${installed_version} is already installed"
+  exit 0
+fi
+
+arch="$(dpkg --print-architecture)"
+# shellcheck disable=SC1091
+ubuntu_series="$(. /etc/os-release && echo "${VERSION_ID}")"
+
+function find_deb_url() {
+  local ref="$1"
+  curl --fail --silent --show-error --location \
+    "https://api.github.com/repos/${GHOSTTY_REPO}/releases/${ref}" 2>/dev/null |
+    grep --only-matching 'https://[^"]*\.deb' |
+    grep -- "_${arch}_" |
+    grep -- "${ubuntu_series}" |
+    head -n 1
+}
+
+log_task "Resolving Ghostty ${GHOSTTY_VERSION} deb for ${ubuntu_series}/${arch}"
+deb_url="$(find_deb_url "tags/${GHOSTTY_VERSION}-${GHOSTTY_RELEASE}")"
+if [[ -z "${deb_url}" ]]; then
+  log_info "Pinned release not found; falling back to the latest Ghostty release"
+  deb_url="$(find_deb_url latest)"
+fi
+
+if [[ -z "${deb_url}" ]]; then
+  # Ghostty is a convenience, not a prerequisite: warn and let the apply finish.
+  log_manual_action "No Ghostty deb found for ${ubuntu_series}/${arch}; install it manually from https://ghostty.org"
+  exit 0
+fi
+
+workdir="$(mktemp --directory)"
+trap 'rm -rf "${workdir}"' EXIT HUP INT TERM
+
+log_task "Downloading ${deb_url}"
+if ! curl --fail --silent --show-error --location --output "${workdir}/ghostty.deb" "${deb_url}"; then
+  log_manual_action "Failed to download Ghostty; install it manually from https://ghostty.org"
+  exit 0
+fi
+
+log_task "Installing Ghostty"
+# apt-get, not dpkg, so runtime dependencies are resolved.
+sudo apt-get install --yes "${workdir}/ghostty.deb"
+log_green "Ghostty $(dpkg-query --showformat='${Version}' --show ghostty) installed"
+{{- end -}}

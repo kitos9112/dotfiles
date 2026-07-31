@@ -1,0 +1,43 @@
+{{- if and (eq .chezmoi.os "linux") .is_root -}}
+#! /usr/bin/env zsh
+
+set -euo pipefail
+
+# Re-run whenever the brew manifest changes.
+# brew manifest sha256: {{ .packages.brew | toJson | sha256sum }}
+
+BREW="/home/linuxbrew/.linuxbrew/bin/brew"
+
+if [[ ! -x "${BREW}" ]]; then
+  echo "▶️  Installing Homebrew"
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/7f43d760bdb28c7813b06874eeabc46bd37a843e/install.sh)"
+fi
+
+taps=(
+{{- range .packages.brew.taps }}
+  {{ . | quote }}
+{{- end }}
+)
+
+formulae=(
+{{- range .packages.brew.common | uniq | sortAlpha }}
+  {{ . | quote }}
+{{- end }}
+)
+
+"${BREW}" --version
+
+for tap in "${taps[@]}"; do
+  "${BREW}" tap "${tap}"
+done
+
+# `brew install` aborts the whole batch on the first unavailable formula, so a
+# single bad entry must not stop the rest of the bootstrap.
+echo "▶️  Installing ${#formulae[@]} Homebrew formulae"
+"${BREW}" install "${formulae[@]}" || echo "⚠️  Some formulae failed to install; continuing"
+
+"${BREW}" update && "${BREW}" upgrade
+
+# Install fzf key bindings and completions without prompting.
+/home/linuxbrew/.linuxbrew/opt/fzf/install --all
+{{- end -}}

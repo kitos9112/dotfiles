@@ -1,0 +1,32 @@
+{{- if and (eq .chezmoi.os "linux") .is_root (or (eq .chezmoi.osRelease.id "ubuntu") (eq .chezmoi.osRelease.id "debian")) -}}
+{{- $machineClass := includeTemplate "machine-class" . | trim -}}
+{{- $aptPackages := .packages.apt.common -}}
+{{- if eq $machineClass "desktop" -}}
+{{-   $aptPackages = concat $aptPackages .packages.apt.desktop -}}
+{{- else -}}
+{{-   $aptPackages = concat $aptPackages .packages.apt.server -}}
+{{- end -}}
+{{- $aptPackages = $aptPackages | uniq | sortAlpha -}}
+#! /usr/bin/env bash
+{{ includeTemplate "scripts-library" . }}
+
+# Re-run whenever the manifest or the resolved profile changes.
+# apt manifest sha256: {{ .packages.apt | toJson | sha256sum }}
+# machine_class: {{ $machineClass }}
+
+export DEBIAN_FRONTEND=noninteractive
+
+packages=(
+{{- range $aptPackages }}
+  {{ . | quote }}
+{{- end }}
+)
+
+log_task "Installing {{ len $aptPackages }} apt packages for the '{{ $machineClass }}' profile"
+sudo apt-get update
+sudo apt-get install --yes "${packages[@]}"
+
+# locale-gen needs the `locales` package, which the list above provides.
+log_task "Generating locale {{ .locale }}"
+sudo locale-gen {{ .locale | quote }}
+{{- end -}}

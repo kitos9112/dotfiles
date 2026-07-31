@@ -1,0 +1,26 @@
+# Ghostty configuration — managed by chezmoi.
+# Kept deliberately close to dot_wezterm.lua so both terminals feel the same.
+# Reference: https://ghostty.org/docs/config/reference
+
+font-family = {{ .terminalFont.name }}
+font-size = 12
+
+# WezTerm's Galizur scheme has no Ghostty equivalent, so no theme is pinned
+# here. Pick one from `ghostty +list-themes` and add e.g. `theme = GruvboxDark`.
+background-opacity = 1.0
+window-padding-x = 4
+window-padding-y = 2
+
+# Matches WezTerm's scrollback budget (bytes in Ghostty, lines in WezTerm).
+scrollback-limit = 100000000
+
+window-inherit-working-directory = true
+confirm-close-surface = true
+copy-on-select = clipboard
+shell-integration = detect
+shell-integration-features = cursor,sudo,title
+
+{{ if eq .chezmoi.os "darwin" -}}
+# Left Option behaves like Meta for shell editing; right Option keeps accents.
+macos-option-as-alt = left
+{{ end -}}

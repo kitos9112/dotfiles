@@ -72,17 +72,20 @@
   url: "https://github.com/amwalding/wireshark_profiles.git"
   refreshPeriod: "72h"
 
-{{ $fontsDir := ".local/share/fonts" }}
+{{/* Fonts are only useful where something renders them, so CLI-only machines skip the download. */}}
+{{- if eq (includeTemplate "machine-class" .) "desktop" }}
+{{ $fontsDir := .fontsDir }}
 {{- if eq .chezmoi.os "darwin" }}{{ $fontsDir = "Library/Fonts" }}{{ end }}
 {{- $nerdFontsVersion := includeTemplate "get-github-latest-version" (list "ryanoasis/nerd-fonts" $cache) }}
 "{{ $fontsDir }}":
   type: "archive"
-  url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ $nerdFontsVersion }}/FiraMono.tar.xz"
+  url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ $nerdFontsVersion }}/{{ .terminalFont.archive }}"
   include:
     - "*.otf"
     - "*.ttf"
   exact: true
   refreshPeriod: "168h"
+{{- end }}
 
 ".config/alacritty/themes":
   type: "git-repo"

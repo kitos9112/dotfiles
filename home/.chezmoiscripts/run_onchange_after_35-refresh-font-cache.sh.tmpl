@@ -1,0 +1,31 @@
+{{- $machineClass := includeTemplate "machine-class" . | trim -}}
+{{- if and (eq .chezmoi.os "linux") (eq $machineClass "desktop") -}}
+#! /usr/bin/env bash
+{{ includeTemplate "scripts-library" . }}
+
+# Newly downloaded Nerd Fonts stay invisible to applications until fontconfig
+# rebuilds its cache, which leaves powerlevel10k and Ghostty rendering tofu.
+#
+# font: {{ .terminalFont.name }} ({{ .terminalFont.archive }})
+
+FONTS_DIR="${HOME}/{{ .fontsDir }}"
+
+if ! command -v fc-cache >/dev/null 2>&1; then
+  log_info "fontconfig is not installed; skipping font cache refresh"
+  exit 0
+fi
+
+if [[ ! -d "${FONTS_DIR}" ]]; then
+  log_info "No font directory at ${FONTS_DIR}; nothing to refresh"
+  exit 0
+fi
+
+log_task "Refreshing the font cache in ${FONTS_DIR}"
+fc-cache --force "${FONTS_DIR}"
+
+if fc-list : family | grep --quiet --fixed-strings {{ .terminalFont.name | quote }}; then
+  log_green "{{ .terminalFont.name }} is available to applications"
+else
+  log_manual_action "{{ .terminalFont.name }} is still not visible to fontconfig; check ${FONTS_DIR}"
+fi
+{{- end -}}

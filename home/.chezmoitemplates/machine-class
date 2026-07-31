@@ -1,0 +1,33 @@
+{{- /*
+Resolve the machine class: "desktop" (GUI present) or "server" (CLI only).
+
+Single source of truth, included by .chezmoi.toml.tmpl and by every
+profile-aware script. Resolving it per render rather than trusting the
+persisted value means a machine whose chezmoi.toml predates machine_class
+still gets the right answer instead of silently falling back to "server".
+
+Resolution order:
+  1. DOTFILES_PROFILE environment override
+  2. machine_class persisted in chezmoi.toml by a previous init
+  3. GUI auto-detection
+  4. "server"
+
+Usage: {{ $machineClass := includeTemplate "machine-class" . | trim }}
+*/ -}}
+{{- $override := env "DOTFILES_PROFILE" -}}
+{{- $persisted := get . "machine_class" | default "" -}}
+{{- if or (eq $override "desktop") (eq $override "server") -}}
+{{-   $override -}}
+{{- else if $override -}}
+{{-   fail (printf "DOTFILES_PROFILE must be \"desktop\" or \"server\", got %q" $override) -}}
+{{- else if or (eq $persisted "desktop") (eq $persisted "server") -}}
+{{-   $persisted -}}
+{{- else if eq .chezmoi.os "darwin" -}}
+{{-   "desktop" -}}
+{{- else if or (env "XDG_CURRENT_DESKTOP") (env "DESKTOP_SESSION") (env "WAYLAND_DISPLAY") -}}
+{{-   "desktop" -}}
+{{- else if lookPath "gnome-shell" -}}
+{{-   "desktop" -}}
+{{- else -}}
+{{-   "server" -}}
+{{- end -}}

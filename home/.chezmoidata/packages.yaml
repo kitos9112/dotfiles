@@ -1,0 +1,116 @@
+---
+# Declarative package manifests consumed by home/.chezmoiscripts/.
+#
+# Editing any list here changes the rendered hash inside the corresponding
+# run_onchange_ script, so the install step re-runs on the next `chezmoi apply`
+# — on existing machines as well as fresh ones.
+#
+# Layout:
+#   common  - every machine
+#   desktop - machines with a GUI (machine_class == "desktop")
+#   server  - CLI-only machines (machine_class == "server")
+
+packages:
+  apt:
+    common:
+      - build-essential
+      - curl
+      - direnv
+      - file
+      - findutils
+      - git
+      - iproute2
+      - jq
+      - libacl1
+      - libacl1-dev
+      - libb2-dev
+      - libbz2-dev
+      - libedit-dev
+      - liblz4-dev
+      - liblzma-dev
+      - libncurses5-dev
+      - libreadline-dev
+      - libsqlite3-dev
+      - libssl-dev
+      - libxml2-dev
+      - libxmlsec1-dev
+      - libzstd-dev
+      - llvm
+      - locales
+      - net-tools
+      - python3
+      - python3-dev
+      - python3-pip
+      - sed
+      - socat
+      - software-properties-common
+      - sshpass
+      - tk-dev
+      - tmux
+      - unzip
+      - vim
+      - wget
+      - wireguard
+      - wireguard-tools
+      - xz-utils
+      - zlib1g-dev
+      - zsh
+    # The 1Password desktop app only exists on GUI machines; servers get the
+    # CLI alone and authenticate with `op account add`.
+    desktop:
+      - 1password
+      - 1password-cli
+      - fontconfig
+    server:
+      - 1password-cli
+
+  brew:
+    taps:
+      - common-fate/granted
+    common:
+      - aws-rotate-key
+      - awscli
+      - borgbackup
+      - chezmoi
+      - direnv
+      - docker-credential-helper-ecr
+      - figlet
+      - fluxcd/tap/flux
+      - fzf
+      - gcc
+      - gh
+      - git-crypt
+      - go
+      - go-task/tap/go-task
+      - gomplate
+      - granted
+      - iperf3
+      - k9s
+      - kubernetes-cli
+      - kubeseal
+      - kustomize
+      - pre-commit
+      - shellcheck
+      - sops
+      - vale
+      - yq
+
+  # Ghostty ships no official apt repository; the community ghostty-ubuntu
+  # project publishes per-release debs.
+  ghostty:
+    version: "1.2.2"
+    repo: mkasberg/ghostty-ubuntu
+    # Release-asset revision suffix used by ghostty-ubuntu tags.
+    release: "0"
+
+  # AI coding CLIs. Each tool self-updates after installation; bumping a pin
+  # here re-runs the installer so a machine can be forced back onto a known
+  # channel.
+  ai_clis:
+    claude:
+      channel: stable
+    opencode:
+      channel: stable
+    codex:
+      npm_package: "@openai/codex"
+      version: latest
