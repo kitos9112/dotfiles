@@ -18,20 +18,31 @@ export PATH="${HOME}/.asdf/shims:${PATH}"
 export PATH="/home/linuxbrew/.linuxbrew/bin:${PATH}"
 {{ end -}}
 
+# Neither step is a bootstrap prerequisite, and both routinely fail on a fresh
+# machine: `plugin update --all` errors when no plugins exist yet, and `install`
+# compiles Node and Go from source, which breaks on a missing build dependency.
+# Under `set -e` either one aborted the entire apply, so a first init failed part
+# way through and left the rest of the dotfiles unapplied. Warn and continue.
 started "Update all ASDF plugins..."
-${ASDF} plugin update --all
-success "All ASDF plugins updated."
+if ${ASDF} plugin update --all; then
+  success "All ASDF plugins updated."
+else
+  warn "Could not update every ASDF plugin; continuing."
+fi
+
 started "Install all default ASDF tool versions..."
 {{ if .is_wsl }}
- CC=/home/linuxbrew/.linuxbrew/bin/gcc-14 \
- CPPFLAGS="-I/home/linuxbrew/.linuxbrew/include" \
- LDFLAGS="-L/home/linuxbrew/.linuxbrew/lib" \
- ${ASDF} install
+if CC=/home/linuxbrew/.linuxbrew/bin/gcc-14 \
+  CPPFLAGS="-I/home/linuxbrew/.linuxbrew/include" \
+  LDFLAGS="-L/home/linuxbrew/.linuxbrew/lib" \
+  ${ASDF} install; then
 {{ else }}
-  ${ASDF} install
+if ${ASDF} install; then
 {{ end -}}
-
-success "All ASDF apps installed."
+  success "All ASDF apps installed."
+else
+  warn "Some ASDF tool versions failed to install; re-run 'asdf install' after checking build dependencies."
+fi
 
 export PATH="${PATH_old}"
 

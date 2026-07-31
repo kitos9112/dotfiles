@@ -33,9 +33,18 @@
        .chezmoitemplates/is-root so the install scripts resolve it identically.
        Work machines default to no sudo, but many do grant it, so ask once and
        persist the answer instead of requiring DOTFILES_IS_ROOT on every run. */ -}}
-{{- $isRoot := eq (includeTemplate "is-root" .) "true" -}}
-{{- if and $isWork (not (env "DOTFILES_IS_ROOT")) (not (hasKey . "is_root")) stdinIsATTY -}}
-{{-   $isRoot = promptBool "Can this work machine use sudo (to install apt and brew packages)?" -}}
+{{- /* is_work is still a local variable at this point, not yet part of the
+       template data, so it has to be passed in explicitly: otherwise the shared
+       template sees no work flag and a non-interactive work machine wrongly
+       resolves to sudo-capable. is_root is forwarded only when a previous init
+       persisted it, so the template can still tell "persisted" from "unset". */ -}}
+{{- $rootCtx := dict "is_work" $isWork -}}
+{{- if hasKey . "is_root" -}}
+{{-   $_ := set $rootCtx "is_root" .is_root -}}
+{{- end -}}
+{{- $isRoot := eq (includeTemplate "is-root" $rootCtx) "true" -}}
+{{- if and (not (env "DOTFILES_IS_ROOT")) (not (hasKey . "is_root")) stdinIsATTY -}}
+{{-   $isRoot = promptBool "Can this machine use sudo (to install apt, Homebrew and system packages)?" $isRoot -}}
 {{- end -}}
 
 {{- $workEmail := "" -}}

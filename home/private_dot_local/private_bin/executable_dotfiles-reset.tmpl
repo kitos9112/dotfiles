@@ -1,0 +1,77 @@
+#! /usr/bin/env bash
+{{ includeTemplate "scripts-library" . }}
+
+# Tear chezmoi back down to a pre-init state so `chezmoi init` can be rerun from
+# scratch. Only chezmoi's own config, source checkout, cache and script state are
+# removed; files already applied into $HOME are left exactly where they are,
+# because deleting those would take real dotfiles with them.
+#
+# Usage:
+#   dotfiles-reset                       # show what would be removed
+#   dotfiles-reset --yes                 # actually remove it
+#   dotfiles-reset --yes --keep-source   # keep the source checkout, reset state only
+
+DRY_RUN=true
+KEEP_SOURCE=false
+
+while (($# > 0)); do
+  case "$1" in
+    --yes | -y)
+      DRY_RUN=false
+      shift
+      ;;
+    --keep-source)
+      KEEP_SOURCE=true
+      shift
+      ;;
+    -h | --help)
+      sed -n '4,13p' "$0"
+      exit 0
+      ;;
+    *)
+      error "Unknown argument: $1"
+      ;;
+  esac
+done
+
+CONFIG_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}/chezmoi"
+CACHE_DIR="${XDG_CACHE_HOME:-${HOME}/.cache}/chezmoi"
+SOURCE_DIR="${XDG_DATA_HOME:-${HOME}/.local/share}/chezmoi"
+
+targets=("${CONFIG_DIR}" "${CACHE_DIR}")
+if [[ "${KEEP_SOURCE}" == false ]]; then
+  targets+=("${SOURCE_DIR}")
+fi
+
+log_task "chezmoi reset plan"
+for target in "${targets[@]}"; do
+  if [[ -e "${target}" ]]; then
+    printf '  remove  %s\n' "${target}"
+  else
+    printf '  absent  %s\n' "${target}"
+  fi
+done
+
+if [[ "${KEEP_SOURCE}" == true ]]; then
+  log_info "Keeping the source checkout at ${SOURCE_DIR}"
+fi
+
+log_info "Files already applied into ${HOME} are left untouched."
+
+if [[ "${DRY_RUN}" == true ]]; then
+  log_c "Nothing was removed. Re-run with --yes to proceed."
+  exit 0
+fi
+
+# The state database lives inside CONFIG_DIR, so removing that directory is what
+# clears run_once and run_onchange bookkeeping and makes every script eligible
+# to run again on the next init.
+for target in "${targets[@]}"; do
+  if [[ -e "${target}" ]]; then
+    rm -rf "${target}"
+    log_green "removed ${target}"
+  fi
+done
+
+log_green "chezmoi is back to a pre-init state"
+log_c "Bootstrap again with: sh -c \"\$(curl -fsLS https://raw.githubusercontent.com/{{ .github_username }}/dotfiles/master/install)\""

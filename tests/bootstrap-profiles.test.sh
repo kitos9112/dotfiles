@@ -238,8 +238,40 @@ for script in \
 	esac
 done
 
+echo "== first-bootstrap resilience =="
+# fzf shell integration must run in the `after` stage, because ~/.fzf is an
+# external and does not exist while `before` scripts run. Living in the Homebrew
+# script also skipped it entirely on machines without sudo.
+fzf_script="${SCRIPTS_DIR}/run_after_015-fzf-shell-integration.sh.tmpl"
+if [[ -f "${fzf_script}" ]]; then
+	pass "fzf shell integration runs in the after stage"
+else
+	fail "run_after_015-fzf-shell-integration.sh.tmpl is missing"
+fi
+
+assert_not_contains "$(cat "${SCRIPTS_DIR}/run_onchange_before_04-linux-brew-packages.zsh.tmpl")" \
+	"opt/fzf/install --all" "the before-stage brew script no longer sets up fzf"
+
+# realpath on an absent path exits non-zero, which aborted the apply under set -e.
+# shellcheck disable=SC2016 # matching literal shell source, not expanding it
+assert_contains "$(cat "${SCRIPTS_DIR}/run_after_800-create-symblinks.sh.tmpl")" \
+	'if [[ ! -e "$HOME/$path" ]]' "the symlink script skips absent paths"
+
+# A toolchain build failure must not abort the whole apply.
+for guarded in run_after_099-update-asdf.sh.tmpl run_after_900-finalizers.zsh.tmpl; do
+	if grep -qE 'plugin update --all(\)|;| \|\|)' "${SCRIPTS_DIR}/${guarded}" &&
+		grep -qE '\|\| echo|^if \$\{ASDF\}|if \$\{ASDF\}' "${SCRIPTS_DIR}/${guarded}"; then
+		pass "${guarded} tolerates asdf failures"
+	else
+		fail "${guarded} still aborts the apply when asdf fails"
+	fi
+done
+
+assert_contains "$(cat "${SCRIPTS_DIR}/run_after_900-finalizers.zsh.tmpl")" \
+	"command -v brew" "the finalizer guards brew being absent from PATH"
+
 echo "== managed helpers =="
-for helper in dotfiles-doctor gnome-settings-export; do
+for helper in dotfiles-doctor dotfiles-reset gnome-settings-export; do
 	path="${SOURCE_DIR}/private_dot_local/private_bin/executable_${helper}.tmpl"
 	if [[ ! -f "${path}" ]]; then
 		fail "${helper} is missing"

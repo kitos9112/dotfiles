@@ -14,6 +14,11 @@ tasks:
     cmds:
       - "{{.HOME}}/.local/bin/dotfiles-doctor"
 
+  reset:
+    desc: Show what a chezmoi reset would remove (pass -- --yes to actually do it).
+    cmds:
+      - "{{.HOME}}/.local/bin/dotfiles-reset {{.CLI_ARGS}}"
+
   gnome-export:
     desc: Dump the curated GNOME dconf settings into this repository for review.
     preconditions:

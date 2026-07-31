@@ -149,6 +149,28 @@ task doctor         # report drift between the repo and the live session
 Exports land in `home/private_dot_config/dotfiles/gnome/` for review before
 committing. On another desktop, `chezmoi apply` replays them via `dconf load`.
 
+## Starting over from scratch
+
+To get back to a pre-init state and bootstrap again:
+
+```sh
+dotfiles-reset          # dry run: prints exactly what would be removed
+dotfiles-reset --yes    # remove chezmoi config, state, cache and source checkout
+```
+
+`task reset -- --yes` does the same. This clears `~/.config/chezmoi` (which holds
+`chezmoistate.boltdb`, the `run_once` and `run_onchange` bookkeeping),
+`~/.cache/chezmoi` and the source checkout, so every script becomes eligible to
+run again. Files already applied into `$HOME` are deliberately left alone —
+removing those would take unmanaged dotfiles with them. Add `--keep-source` to
+reset state while keeping the checkout you are working in.
+
+A first init is not expected to be all-or-nothing: steps that are conveniences
+rather than prerequisites (asdf toolchain builds, Homebrew updates, fzf shell
+integration, GNOME imports) warn and continue instead of aborting the apply, so
+one missing build dependency cannot leave the rest of the dotfiles unapplied.
+Run `task doctor` afterwards to see what actually landed.
+
 ## Health check
 
 ```sh

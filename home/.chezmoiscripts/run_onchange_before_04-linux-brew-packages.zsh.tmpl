@@ -38,6 +38,7 @@ echo "▶️  Installing ${#formulae[@]} Homebrew formulae"
 
 "${BREW}" update && "${BREW}" upgrade
 
-# Install fzf key bindings and completions without prompting.
-/home/linuxbrew/.linuxbrew/opt/fzf/install --all
+# fzf shell integration is set up by run_after_015-fzf-shell-integration, which
+# runs late enough for the ~/.fzf external to exist and also covers machines that
+# never get Homebrew.
 {{- end -}}
