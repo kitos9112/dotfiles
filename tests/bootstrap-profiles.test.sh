@@ -87,6 +87,55 @@ else
 	pass "an invalid DOTFILES_PROFILE is rejected"
 fi
 
+echo "== sudo (is_root) resolution =="
+root_probe="${TMP_ROOT}/is-root.tmpl"
+printf '{{ includeTemplate "is-root" . | trim }}\n' > "${root_probe}"
+
+resolved="$(DOTFILES_IS_ROOT=true render "${root_probe}" | tr -d '\n')"
+if [[ "${resolved}" == "true" ]]; then
+	pass "DOTFILES_IS_ROOT=true grants sudo"
+else
+	fail "DOTFILES_IS_ROOT=true resolved to '${resolved}'"
+fi
+
+resolved="$(DOTFILES_IS_ROOT=false render "${root_probe}" | tr -d '\n')"
+if [[ "${resolved}" == "false" ]]; then
+	pass "DOTFILES_IS_ROOT=false withholds sudo"
+else
+	fail "DOTFILES_IS_ROOT=false resolved to '${resolved}'"
+fi
+
+if DOTFILES_IS_ROOT=yes render "${root_probe}" >/dev/null 2>&1; then
+	fail "an invalid DOTFILES_IS_ROOT was accepted"
+else
+	pass "an invalid DOTFILES_IS_ROOT is rejected"
+fi
+
+# The regression this guards: a work machine has is_root=false persisted, and
+# chezmoi only re-renders the config template on `init`. Scripts must therefore
+# resolve sudo through the shared template, or DOTFILES_IS_ROOT=true is ignored
+# by a plain `chezmoi apply` and no apt packages ever install.
+for sudo_script in \
+	run_once_before_00-linux-prepare.sh.tmpl \
+	run_once_before_01-linux-install-prereq.sh.tmpl \
+	run_onchange_before_03-linux-apt-packages.sh.tmpl \
+	run_onchange_before_04-linux-brew-packages.zsh.tmpl \
+	run_onchange_after_25-install-ghostty.sh.tmpl; do
+
+	if grep -q 'includeTemplate "is-root"' "${SCRIPTS_DIR}/${sudo_script}"; then
+		pass "${sudo_script} resolves sudo through the shared template"
+	else
+		fail "${sudo_script} reads .is_root directly, so DOTFILES_IS_ROOT is ignored on apply"
+	fi
+done
+
+# A work machine with sudo must actually get the apt batch. The OS guard is
+# stripped so this is deterministic on any host.
+work_apt_body="${TMP_ROOT}/apt-sudo.tmpl"
+sed '1d;$d' "${SCRIPTS_DIR}/run_onchange_before_03-linux-apt-packages.sh.tmpl" > "${work_apt_body}"
+assert_contains "$(DOTFILES_IS_ROOT=true DOTFILES_IS_WORK=true render "${work_apt_body}")" \
+	"apt-get install" "a work machine with sudo still installs apt packages"
+
 echo "== data manifests =="
 for data_file in packages.yaml fonts.yaml gnome.yaml; do
 	if [[ -f "${SOURCE_DIR}/.chezmoidata/${data_file}" ]]; then

@@ -1,0 +1,36 @@
+{{- /*
+Resolve whether this machine may install system packages with sudo.
+
+"is_root" is the historical name for "we are allowed to run sudo here". Work
+machines default to false because they are often locked down, but plenty of them
+do grant sudo, so the answer has to be overridable per machine and it has to
+stick.
+
+Single source of truth, included by .chezmoi.toml.tmpl and by every script that
+installs system packages. Scripts resolve it here rather than reading .is_root
+from the config because chezmoi only re-renders the config template on `init`:
+without this, DOTFILES_IS_ROOT=true would be ignored by a plain `chezmoi apply`.
+
+Resolution order:
+  1. DOTFILES_IS_ROOT environment override
+  2. is_root persisted in chezmoi.toml by a previous init
+  3. false on work machines, true otherwise
+
+Returns the string "true" or "false".
+
+Usage: {{ if eq (includeTemplate "is-root" . | trim) "true" }}
+*/ -}}
+{{- $override := env "DOTFILES_IS_ROOT" -}}
+{{- if eq $override "true" -}}
+{{-   "true" -}}
+{{- else if eq $override "false" -}}
+{{-   "false" -}}
+{{- else if $override -}}
+{{-   fail (printf "DOTFILES_IS_ROOT must be \"true\" or \"false\", got %q" $override) -}}
+{{- else if hasKey . "is_root" -}}
+{{-   if .is_root }}true{{ else }}false{{ end -}}
+{{- else if get . "is_work" | default false -}}
+{{-   "false" -}}
+{{- else -}}
+{{-   "true" -}}
+{{- end -}}

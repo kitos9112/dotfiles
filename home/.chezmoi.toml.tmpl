@@ -29,12 +29,13 @@
 {{-   $isWork = promptBool "Is this a work machine?" -}}
 {{- end -}}
 
-{{- $isRoot := not $isWork -}}
-{{- $isRootOverride := env "DOTFILES_IS_ROOT" -}}
-{{- if eq $isRootOverride "true" -}}
-{{-   $isRoot = true -}}
-{{- else if eq $isRootOverride "false" -}}
-{{-   $isRoot = false -}}
+{{- /* Whether sudo may be used to install system packages. Detection lives in
+       .chezmoitemplates/is-root so the install scripts resolve it identically.
+       Work machines default to no sudo, but many do grant it, so ask once and
+       persist the answer instead of requiring DOTFILES_IS_ROOT on every run. */ -}}
+{{- $isRoot := eq (includeTemplate "is-root" .) "true" -}}
+{{- if and $isWork (not (env "DOTFILES_IS_ROOT")) (not (hasKey . "is_root")) stdinIsATTY -}}
+{{-   $isRoot = promptBool "Can this work machine use sudo (to install apt and brew packages)?" -}}
 {{- end -}}
 
 {{- $workEmail := "" -}}

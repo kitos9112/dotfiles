@@ -1,4 +1,4 @@
-{{- if and (eq .chezmoi.os "linux") .is_root (or (eq .chezmoi.osRelease.id "ubuntu") (eq .chezmoi.osRelease.id "debian")) -}}
+{{- if and (eq .chezmoi.os "linux") (eq (includeTemplate "is-root" . | trim) "true") (or (eq .chezmoi.osRelease.id "ubuntu") (eq .chezmoi.osRelease.id "debian")) -}}
 {{- $machineClass := includeTemplate "machine-class" . | trim -}}
 {{- $aptPackages := .packages.apt.common -}}
 {{- if eq $machineClass "desktop" -}}

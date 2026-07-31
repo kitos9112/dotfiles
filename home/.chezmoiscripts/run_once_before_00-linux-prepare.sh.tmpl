@@ -6,7 +6,7 @@ set -ev -o pipefail
 source {{ .chezmoi.sourceDir }}/scripts/.helpers
 
 # Assess whether this is an ubuntu or debian system and check is the root flag is set
-{{ if .is_root -}}
+{{ if eq (includeTemplate "is-root" . | trim) "true" -}}
 
 check_sudo
 

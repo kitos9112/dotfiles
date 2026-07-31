@@ -59,7 +59,35 @@ flows:
 - `DOTFILES_DEBUG=true` passes `--debug`.
 - `DOTFILES_RETRY_COUNT` and `DOTFILES_RETRY_DELAY` control retry behavior.
 - `DOTFILES_IS_ROOT=true|false` and `DOTFILES_IS_WORK=true|false` override the
-  default machine inference while rendering chezmoi config.
+  default machine inference while rendering chezmoi config. An unrecognised
+  `DOTFILES_IS_ROOT` fails the render rather than guessing.
+
+## Sudo on work machines
+
+`is_root` records whether sudo may be used to install system packages (apt,
+Homebrew, the 1Password repository). Work machines default to `false` because
+they are often locked down, but many do grant sudo, and those need the packages.
+
+Resolution order is `DOTFILES_IS_ROOT`, then the value persisted in
+`~/.config/chezmoi/chezmoi.toml`, then `false` on work machines and `true`
+elsewhere. On a first interactive `chezmoi init` of a work machine you are asked
+once and the answer is stored, so later runs need no environment variable.
+
+To grant sudo on a work machine that was already set up as locked down:
+
+```sh
+DOTFILES_IS_ROOT=true chezmoi init --apply
+```
+
+The install scripts resolve this through
+[`home/.chezmoitemplates/is-root`](./home/.chezmoitemplates/is-root) rather than
+reading `is_root` from the config, because chezmoi only re-renders the config
+template on `init`. Without that, `DOTFILES_IS_ROOT=true` would be ignored by a
+plain `chezmoi apply` and no packages would install.
+
+One side effect worth knowing: `.chezmoiexternal.yaml` installs portable VS Code,
+Go and direnv only when `is_root` is `false`. Flipping a machine to `true` stops
+those user-local downloads on the assumption you will install them system-wide.
 - `DOTFILES_PROFILE=desktop|server` overrides GUI auto-detection (see below). An
   unrecognised value fails the render rather than guessing.
 

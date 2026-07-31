@@ -4,7 +4,7 @@
 set -ev -o pipefail
 set +x
 # Assess whether this is an ubuntu or debian system and check is the root flag is set
-{{ if .is_root -}}
+{{ if eq (includeTemplate "is-root" . | trim) "true" -}}
 {{ if or (eq .chezmoi.osRelease.id "ubuntu") (eq .chezmoi.osRelease.id "debian") -}}
 
 # Package installation lives in run_onchange_before_03-linux-apt-packages, which

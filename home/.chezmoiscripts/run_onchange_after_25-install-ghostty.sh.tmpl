@@ -1,5 +1,5 @@
 {{- $machineClass := includeTemplate "machine-class" . | trim -}}
-{{- if and (eq .chezmoi.os "linux") .is_root (eq $machineClass "desktop") (or (eq .chezmoi.osRelease.id "ubuntu") (eq .chezmoi.osRelease.id "debian")) -}}
+{{- if and (eq .chezmoi.os "linux") (eq (includeTemplate "is-root" . | trim) "true") (eq $machineClass "desktop") (or (eq .chezmoi.osRelease.id "ubuntu") (eq .chezmoi.osRelease.id "debian")) -}}
 #! /usr/bin/env bash
 {{ includeTemplate "scripts-library" . }}
 
