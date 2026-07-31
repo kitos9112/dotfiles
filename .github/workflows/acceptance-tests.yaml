@@ -61,6 +61,25 @@ jobs:
           go version -m "${GOBIN}/gmailctl" |
             grep -F $'mod\tgithub.com/mbrt/gmailctl\t'"${expected_version}"$'\t'
 
+  bootstrap-profiles:
+    name: Bootstrap Profile Contract
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Install chezmoi
+        run: |
+          mkdir -p "${RUNNER_TEMP}/bin"
+          sh -c "$(curl -fsLS https://get.chezmoi.io/lb)" -- -b "${RUNNER_TEMP}/bin"
+
+      - name: Test desktop and server profile contracts
+        run: |
+          export PATH="${RUNNER_TEMP}/bin:${PATH}"
+          bash tests/bootstrap-profiles.test.sh
+
   linux:
     name: Linux Smoke (${{ matrix.os }})
     runs-on: ubuntu-24.04

@@ -1,0 +1,43 @@
+---
+# Curated GNOME dconf paths kept in version control.
+#
+# Shared by the export helper (~/.local/bin/gnome-settings-export) and the
+# import script (run_onchange_after_30-gnome-settings), so a path only ever has
+# to be added in one place. The file/path pairing is explicit rather than
+# derived from the filename because dconf path components themselves contain
+# dashes (settings-daemon, media-keys), so no mechanical encoding round-trips
+# safely.
+#
+# Deliberately excluded: monitor layout, window geometry and recently-used
+# files, which are machine-specific and would fight between boxes.
+
+gnome:
+  settings:
+    - path: /org/gnome/desktop/interface/
+      file: desktop-interface.ini
+    - path: /org/gnome/desktop/wm/keybindings/
+      file: wm-keybindings.ini
+    - path: /org/gnome/desktop/wm/preferences/
+      file: wm-preferences.ini
+    - path: /org/gnome/desktop/input-sources/
+      file: desktop-input-sources.ini
+    - path: /org/gnome/desktop/peripherals/
+      file: desktop-peripherals.ini
+    - path: /org/gnome/desktop/session/
+      file: desktop-session.ini
+    - path: /org/gnome/settings-daemon/plugins/media-keys/
+      file: media-keys.ini
+    - path: /org/gnome/settings-daemon/plugins/power/
+      file: power.ini
+    - path: /org/gnome/shell/
+      file: shell.ini
+    - path: /org/gnome/terminal/legacy/
+      file: terminal-legacy.ini
+
+  # Transient state that dconf dumps but which must never be committed or
+  # replayed onto another machine.
+  excludedKeys:
+    - command-history
+    - app-picker-layout
+    - welcome-dialog-last-shown-version
+    - looking-glass-history

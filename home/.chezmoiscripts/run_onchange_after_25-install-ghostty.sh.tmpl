@@ -31,12 +31,14 @@ ubuntu_series="$(. /etc/os-release && echo "${VERSION_ID}")"
 
 function find_deb_url() {
   local ref="$1"
+  # `|| true` because head exits after one line and SIGPIPEs the greps upstream,
+  # which pipefail would otherwise turn into a fatal error instead of "no match".
   curl --fail --silent --show-error --location \
     "https://api.github.com/repos/${GHOSTTY_REPO}/releases/${ref}" 2>/dev/null |
     grep --only-matching 'https://[^"]*\.deb' |
     grep -- "_${arch}_" |
     grep -- "${ubuntu_series}" |
-    head -n 1
+    head -n 1 || true
 }
 
 log_task "Resolving Ghostty ${GHOSTTY_VERSION} deb for ${ubuntu_series}/${arch}"

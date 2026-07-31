@@ -1,0 +1,42 @@
+{{- $machineClass := includeTemplate "machine-class" . | trim -}}
+{{- if and (eq .chezmoi.os "linux") (eq $machineClass "desktop") -}}
+{{- $gnomeSource := joinPath .chezmoi.sourceDir "private_dot_config" "dotfiles" "gnome" -}}
+#! /usr/bin/env bash
+{{ includeTemplate "scripts-library" . }}
+
+# Replay the committed GNOME settings. Each exported .ini is fingerprinted below
+# so editing one re-runs the load, and adding a new path to .chezmoidata/gnome.yaml
+# without exporting it yet is a no-op rather than an error.
+#
+{{ range (glob (joinPath $gnomeSource "*.ini")) -}}
+# {{ base . }} sha256: {{ include . | sha256sum }}
+{{ end }}
+GNOME_DIR="${HOME}/.config/dotfiles/gnome"
+
+if ! command -v dconf >/dev/null 2>&1; then
+  log_info "dconf is not installed; skipping GNOME settings import"
+  exit 0
+fi
+
+# dconf writes through the session bus; without one it fails or, worse, writes
+# to a throwaway bus that silently loses the settings.
+if [[ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]]; then
+  log_info "No D-Bus session bus; skipping GNOME settings import"
+  exit 0
+fi
+
+loaded=0
+{{ range .gnome.settings }}
+if [[ -s "${GNOME_DIR}/{{ .file }}" ]]; then
+  log_task "Loading {{ .path }} from {{ .file }}"
+  dconf load {{ .path | quote }} < "${GNOME_DIR}/{{ .file }}"
+  loaded=$((loaded + 1))
+fi
+{{- end }}
+
+if ((loaded == 0)); then
+  log_info "No exported GNOME settings found; run 'gnome-settings-export' to create them"
+else
+  log_green "Loaded ${loaded} GNOME settings group(s)"
+fi
+{{- end -}}

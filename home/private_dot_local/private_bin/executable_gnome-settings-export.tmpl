@@ -1,0 +1,74 @@
+#! /usr/bin/env bash
+{{ includeTemplate "scripts-library" . }}
+
+# Dump the curated GNOME dconf paths into the chezmoi source tree so they can be
+# reviewed and committed. Counterpart to run_onchange_after_30-gnome-settings,
+# which replays them on other machines.
+#
+# Usage: gnome-settings-export [--source <dir>]
+
+SOURCE_DIR=""
+
+while (($# > 0)); do
+  case "$1" in
+    --source)
+      SOURCE_DIR="${2:-}"
+      shift 2
+      ;;
+    -h | --help)
+      echo "Usage: gnome-settings-export [--source <chezmoi source dir>]"
+      exit 0
+      ;;
+    *)
+      error "Unknown argument: $1"
+      ;;
+  esac
+done
+
+if ! command -v dconf >/dev/null 2>&1; then
+  error "dconf is not installed; nothing to export"
+fi
+
+if [[ -z "${SOURCE_DIR}" ]]; then
+  SOURCE_DIR="$(chezmoi source-path)"
+fi
+
+GNOME_DIR="${SOURCE_DIR}/private_dot_config/dotfiles/gnome"
+mkdir -p "${GNOME_DIR}"
+
+# Transient keys dconf reports but that must not travel between machines.
+excluded_keys=(
+{{- range .gnome.excludedKeys }}
+  {{ . | quote }}
+{{- end }}
+)
+
+function strip_excluded_keys() {
+  local -a filters=()
+  local key
+  for key in "${excluded_keys[@]}"; do
+    filters+=(-e "/^${key}=/d")
+  done
+  sed "${filters[@]}"
+}
+
+exported=0
+skipped=0
+
+{{ range .gnome.settings }}
+target="${GNOME_DIR}/{{ .file }}"
+dump="$(dconf dump {{ .path | quote }} | strip_excluded_keys)"
+if [[ -n "${dump}" ]]; then
+  printf '%s\n' "${dump}" > "${target}"
+  log_green "{{ .path }} -> {{ .file }}"
+  exported=$((exported + 1))
+else
+  # An empty dump means every key is still at its default: writing an empty file
+  # would only create noise in the diff.
+  log_info "{{ .path }} has no non-default settings; skipping"
+  skipped=$((skipped + 1))
+fi
+{{- end }}
+
+log_task "Exported ${exported} group(s), skipped ${skipped}"
+log_c "Review and commit with: chezmoi cd && git add private_dot_config/dotfiles/gnome && git status"

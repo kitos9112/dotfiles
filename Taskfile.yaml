@@ -9,6 +9,24 @@ vars:
 dotenv: ["~/.env"]
 
 tasks:
+  doctor:
+    desc: Check that this machine finished bootstrapping correctly.
+    cmds:
+      - "{{.HOME}}/.local/bin/dotfiles-doctor"
+
+  gnome-export:
+    desc: Dump the curated GNOME dconf settings into this repository for review.
+    preconditions:
+      - sh: command -v dconf >/dev/null 2>&1
+        msg: dconf is required; run this on a GNOME desktop.
+    cmds:
+      - "{{.HOME}}/.local/bin/gnome-settings-export --source {{.TASKFILE_DIR}}/home"
+
+  test-bootstrap:
+    desc: Run the bootstrap profile contract tests.
+    cmds:
+      - bash tests/bootstrap-profiles.test.sh
+
   run-renovate:
     desc: Run Renovate in dry-run mode against this repository.
     env:

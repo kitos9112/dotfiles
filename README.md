@@ -60,6 +60,76 @@ flows:
 - `DOTFILES_RETRY_COUNT` and `DOTFILES_RETRY_DELAY` control retry behavior.
 - `DOTFILES_IS_ROOT=true|false` and `DOTFILES_IS_WORK=true|false` override the
   default machine inference while rendering chezmoi config.
+- `DOTFILES_PROFILE=desktop|server` overrides GUI auto-detection (see below). An
+  unrecognised value fails the render rather than guessing.
+
+## Machine profiles
+
+Every machine resolves to a `machine_class` of `desktop` (a GUI is present) or
+`server` (CLI only). Detection order is `DOTFILES_PROFILE`, then the value
+persisted in `~/.config/chezmoi/chezmoi.toml`, then GUI auto-detection
+(`XDG_CURRENT_DESKTOP`, `DESKTOP_SESSION`, `WAYLAND_DISPLAY` or `gnome-shell` on
+`PATH`), then `server`. The logic lives in
+[`home/.chezmoitemplates/machine-class`](./home/.chezmoitemplates/machine-class)
+and is resolved on every render, so a machine whose config predates the setting
+still classifies correctly.
+
+What the profile changes:
+
+| Component | `desktop` | `server` |
+| --- | --- | --- |
+| 1Password | app plus CLI, QR sign-in walkthrough | CLI only, `op account add` |
+| Ghostty | installed and configured | skipped |
+| Nerd Font and `fc-cache` | installed | skipped |
+| GNOME dconf settings | imported | skipped |
+| AI CLIs, apt/brew packages | installed | installed |
+
+Bootstrap a headless box with no prompts:
+
+```sh
+DOTFILES_PROFILE=server DOTFILES_NO_TTY=true sh -c "$(curl -fsLS https://raw.githubusercontent.com/kitos9112/dotfiles/master/install)"
+```
+
+1Password sign-in is skipped when there is no TTY; finish it later with
+`op account add` on a server, or by signing into the app on a desktop. Nothing in
+the bootstrap blocks waiting for input.
+
+## Packages
+
+apt and Homebrew manifests live in
+[`home/.chezmoidata/packages.yaml`](./home/.chezmoidata/packages.yaml), split into
+`common`, `desktop` and `server` lists. The installers are `run_onchange_`
+scripts fingerprinted against those lists, so adding a package reaches existing
+machines on the next `chezmoi apply` — not just freshly bootstrapped ones.
+
+Data files must be literal `.chezmoidata/*.yaml`. chezmoi does not template data
+files, so a `.chezmoidata.yaml.tmpl` is loaded by nothing and its values silently
+disappear from the template data.
+
+## GNOME settings
+
+A curated set of dconf paths is version controlled, listed in
+[`home/.chezmoidata/gnome.yaml`](./home/.chezmoidata/gnome.yaml). Monitor layout,
+window geometry and recently-used files are deliberately excluded so machines do
+not fight each other.
+
+```sh
+task gnome-export   # dump the current session's settings into this repo
+task doctor         # report drift between the repo and the live session
+```
+
+Exports land in `home/private_dot_config/dotfiles/gnome/` for review before
+committing. On another desktop, `chezmoi apply` replays them via `dconf load`.
+
+## Health check
+
+```sh
+task doctor
+```
+
+Checks the profile, chezmoi drift, 1Password sign-in, the SSH agent and git
+signing helper, the AI CLIs, the terminal font, and GNOME drift. Non-applicable
+checks are reported as skipped; only real breakage sets a non-zero exit code.
 
 ## Local Chezmoi Data
 
@@ -96,12 +166,17 @@ values in `.env` or any other tracked file.
 
 ## Verification
 
-CI currently does three different checks:
+CI currently does four different checks:
 
-- Linux container smoke tests build the Dockerfiles under [`tests/`](./tests) and run the standalone installer in `DOTFILES_TEST=true` mode.
+- Linux container smoke tests build the Dockerfiles under [`tests/`](./tests) and run the standalone installer in `DOTFILES_TEST=true` mode. The Ubuntu image pins `DOTFILES_PROFILE=server`, which is the headless path.
 - macOS smoke tests run `chezmoi init --apply` and `chezmoi verify` against a temporary home directory while excluding scripts.
 - The Go-tool job runs the installer contract test, verifies the module graph,
   and compiles every declared Go tool with the manifest's pinned Go version.
+- The bootstrap-profile job runs [`tests/bootstrap-profiles.test.sh`](./tests/bootstrap-profiles.test.sh),
+  which renders every profile-aware template under both profiles and asserts the
+  desktop/server split, the `create_` seeding of AI CLI configs, and that no
+  `grep --quiet` sits inside a `pipefail` pipeline. Run it locally with
+  `task test-bootstrap`.
 
 To reproduce the macOS-style verification locally:
 
@@ -161,6 +236,26 @@ Chezmoi uses general-purpose scripts to execute ordered operations in the system
 - When their contents change (`run_once` or `run_onchange` scripts)
 
 [Application order](https://www.chezmoi.io/reference/application-order/)
+
+Bootstrap order on Linux, after the 1Password repository and keys are in place:
+
+| Script | Purpose |
+| --- | --- |
+| `run_onchange_before_03-linux-apt-packages` | apt packages for the resolved profile, then `locale-gen` |
+| `run_onchange_before_04-linux-brew-packages` | Homebrew and its formulae |
+| `run_once_after_20-1password-signin` | 1Password sign-in (app QR, or `op account add`) |
+| `run_onchange_after_25-install-ghostty` | Ghostty deb, desktop only |
+| `run_onchange_after_30-gnome-settings` | `dconf load` of the committed settings |
+| `run_onchange_after_35-refresh-font-cache` | `fc-cache` after the Nerd Font external lands |
+| `run_onchange_after_40-install-ai-clis` | `claude`, `opencode` and `codex` |
+
+### AI CLI defaults
+
+The AI CLIs are installed with their own installers so they keep self-updating.
+Their baseline configs use chezmoi's `create_` attribute, which writes the file
+only when it does not already exist — an already-configured machine keeps its
+own `~/.claude/settings.json`, `~/.config/opencode/opencode.json` and
+`~/.codex/config.toml` untouched.
 
 ### Go developer tools
 

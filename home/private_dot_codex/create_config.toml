@@ -1,0 +1,6 @@
+# Codex defaults seeded on new machines. chezmoi's create_ attribute means an
+# existing ~/.codex/config.toml is left alone, so local tweaks survive.
+# Reference: https://github.com/openai/codex
+
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"

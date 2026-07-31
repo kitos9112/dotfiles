@@ -23,7 +23,9 @@ fi
 log_task "Refreshing the font cache in ${FONTS_DIR}"
 fc-cache --force "${FONTS_DIR}"
 
-if fc-list : family | grep --quiet --fixed-strings {{ .terminalFont.name | quote }}; then
+# --count, not --quiet: grep --quiet exits on the first match and SIGPIPEs
+# fc-list, which pipefail then reports as a failure at random.
+if fc-list : family | grep --count --fixed-strings {{ .terminalFont.name | quote }} >/dev/null; then
   log_green "{{ .terminalFont.name }} is available to applications"
 else
   log_manual_action "{{ .terminalFont.name }} is still not visible to fontconfig; check ${FONTS_DIR}"

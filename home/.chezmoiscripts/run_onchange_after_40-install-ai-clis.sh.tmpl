@@ -1,0 +1,67 @@
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
+#! /usr/bin/env bash
+{{ includeTemplate "scripts-library" . }}
+
+# Install the AI coding CLIs through their own installers, which is the
+# supported path and lets each tool self-update afterwards. Bumping a pin in
+# .chezmoidata/packages.yaml re-runs this script, which is how a machine gets
+# pulled back onto a known channel.
+#
+# ai_clis manifest sha256: {{ .packages.ai_clis | toJson | sha256sum }}
+
+CLAUDE_CHANNEL={{ .packages.ai_clis.claude.channel | quote }}
+OPENCODE_CHANNEL={{ .packages.ai_clis.opencode.channel | quote }}
+CODEX_PACKAGE={{ .packages.ai_clis.codex.npm_package | quote }}
+CODEX_VERSION={{ .packages.ai_clis.codex.version | quote }}
+
+if [[ "${DOTFILES_TEST:-}" == true ]]; then
+  log_info "Skipping AI CLI installation in test mode"
+  exit 0
+fi
+
+ensure_path_entry "${HOME}/.local/bin"
+
+# Each installer is independent: one being unavailable must not stop the others
+# or fail the whole apply, since none of them is a bootstrap prerequisite.
+function install_tool() {
+  local name="$1"
+  shift
+
+  if "$@"; then
+    log_green "${name} installed"
+  else
+    log_manual_action "${name} installation failed; install it manually later"
+  fi
+}
+
+function install_claude() {
+  curl -fsSL "https://claude.ai/install.sh" | bash -s -- "${CLAUDE_CHANNEL}"
+}
+
+function install_opencode() {
+  curl -fsSL "https://opencode.ai/install" | bash
+}
+
+function install_codex() {
+  if ! command -v npm >/dev/null 2>&1; then
+    log_info "npm is unavailable, so Codex is skipped; it is installed via npm"
+    return 0
+  fi
+
+  local spec="${CODEX_PACKAGE}"
+  if [[ "${CODEX_VERSION}" != "latest" ]]; then
+    spec="${CODEX_PACKAGE}@${CODEX_VERSION}"
+  fi
+
+  npm install --global "${spec}"
+}
+
+log_task "Installing Claude Code (${CLAUDE_CHANNEL})"
+install_tool "Claude Code" install_claude
+
+log_task "Installing opencode (${OPENCODE_CHANNEL})"
+install_tool opencode install_opencode
+
+log_task "Installing Codex (${CODEX_PACKAGE}@${CODEX_VERSION})"
+install_tool Codex install_codex
+{{- end -}}
