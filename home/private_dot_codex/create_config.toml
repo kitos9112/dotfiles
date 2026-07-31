@@ -2,5 +2,10 @@
 # existing ~/.codex/config.toml is left alone, so local tweaks survive.
 # Reference: https://github.com/openai/codex
 
-approval_policy = "on-request"
-sandbox_mode = "workspace-write"
+# Left intentionally empty: an unrecognised key here would break Codex on a
+# brand-new machine, and the useful settings (model, reasoning effort, sandbox
+# and approval policy) are personal choices best made once per machine.
+# Start from `codex --help` or the upstream docs, for example:
+#
+#   model = "gpt-5-codex"
+#   model_reasoning_effort = "medium"
