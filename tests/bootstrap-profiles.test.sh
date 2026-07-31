@@ -131,6 +131,15 @@ assert_contains "$(DOTFILES_PROFILE=desktop render "${externals}")" "nerd-fonts"
 assert_not_contains "$(DOTFILES_PROFILE=server render "${externals}")" "nerd-fonts" \
 	"server skips the Nerd Font download"
 
+echo "== ghostty config is desktop-only =="
+# The install script is profile-gated, so the config must be too: a server has no
+# terminal emulator to read it.
+ignore_file="${SOURCE_DIR}/.chezmoiignore"
+assert_contains "$(DOTFILES_PROFILE=server render "${ignore_file}")" ".config/ghostty" \
+	"server ignores the Ghostty config"
+assert_not_contains "$(DOTFILES_PROFILE=desktop render "${ignore_file}")" ".config/ghostty" \
+	"desktop keeps the Ghostty config"
+
 echo "== rendered scripts are valid shell =="
 for script in \
 	run_onchange_before_03-linux-apt-packages.sh.tmpl \

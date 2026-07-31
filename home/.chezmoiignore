@@ -1,3 +1,10 @@
 # Do not ignore .apps/vscode here: ignored externals are skipped before any
 # download or cache refresh logic runs.
 .local/share/fonts/.uuid
+
+{{ if ne (includeTemplate "machine-class" .) "desktop" -}}
+# Ghostty is only installed on GUI machines, so a server should not carry a
+# config file for a terminal it will never run.
+.config/ghostty
+.config/ghostty/**
+{{ end -}}
