@@ -98,10 +98,13 @@ packages:
   # Ghostty ships no official apt repository; the community ghostty-ubuntu
   # project publishes per-release debs.
   ghostty:
-    version: "1.2.2"
     repo: mkasberg/ghostty-ubuntu
-    # Release-asset revision suffix used by ghostty-ubuntu tags.
-    release: "0"
+    # Upstream Ghostty version, matched against the installed dpkg version
+    # (which looks like 1.3.1-0.ppa2) to decide whether to reinstall.
+    version: "1.3.1"
+    # Full release tag, which carries a packaging suffix beyond the version:
+    # tags look like 1.3.1-0-ppa2, so this cannot be derived from version alone.
+    tag: "1.3.1-0-ppa2"
 
   # AI coding CLIs. Each tool self-updates after installation; bumping a pin
   # here re-runs the installer so a machine can be forced back onto a known

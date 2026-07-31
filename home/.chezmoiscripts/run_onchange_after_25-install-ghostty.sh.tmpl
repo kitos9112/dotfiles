@@ -11,7 +11,7 @@
 # ghostty manifest sha256: {{ .packages.ghostty | toJson | sha256sum }}
 
 GHOSTTY_VERSION={{ .packages.ghostty.version | quote }}
-GHOSTTY_RELEASE={{ .packages.ghostty.release | quote }}
+GHOSTTY_TAG={{ .packages.ghostty.tag | quote }}
 GHOSTTY_REPO={{ .packages.ghostty.repo | quote }}
 
 if [[ "${DOTFILES_TEST:-}" == true ]]; then
@@ -26,31 +26,52 @@ if [[ "${installed_version}" == "${GHOSTTY_VERSION}"* ]]; then
 fi
 
 arch="$(dpkg --print-architecture)"
+# Assets are named per distribution series: Ubuntu builds carry the numeric
+# release (ghostty_..._amd64_24.04.deb) while Debian builds carry the codename
+# (..._amd64_trixie.deb), so try the number first and fall back to the codename.
 # shellcheck disable=SC1091
-ubuntu_series="$(. /etc/os-release && echo "${VERSION_ID}")"
+series="$(. /etc/os-release && echo "${VERSION_ID:-}")"
+# shellcheck disable=SC1091
+series_codename="$(. /etc/os-release && echo "${VERSION_CODENAME:-}")"
 
 function find_deb_url() {
   local ref="$1"
+  local match="$2"
+
   # `|| true` because head exits after one line and SIGPIPEs the greps upstream,
   # which pipefail would otherwise turn into a fatal error instead of "no match".
   curl --fail --silent --show-error --location \
     "https://api.github.com/repos/${GHOSTTY_REPO}/releases/${ref}" 2>/dev/null |
     grep --only-matching 'https://[^"]*\.deb' |
     grep -- "_${arch}_" |
-    grep -- "${ubuntu_series}" |
+    grep -- "_${match}\.deb" |
     head -n 1 || true
 }
 
-log_task "Resolving Ghostty ${GHOSTTY_VERSION} deb for ${ubuntu_series}/${arch}"
-deb_url="$(find_deb_url "tags/${GHOSTTY_VERSION}-${GHOSTTY_RELEASE}")"
+function find_deb_url_for_series() {
+  local ref="$1"
+  local url=""
+
+  if [[ -n "${series}" ]]; then
+    url="$(find_deb_url "${ref}" "${series}")"
+  fi
+  if [[ -z "${url}" && -n "${series_codename}" ]]; then
+    url="$(find_deb_url "${ref}" "${series_codename}")"
+  fi
+
+  printf '%s' "${url}"
+}
+
+log_task "Resolving Ghostty ${GHOSTTY_VERSION} deb for ${series:-${series_codename}}/${arch}"
+deb_url="$(find_deb_url_for_series "tags/${GHOSTTY_TAG}")"
 if [[ -z "${deb_url}" ]]; then
-  log_info "Pinned release not found; falling back to the latest Ghostty release"
-  deb_url="$(find_deb_url latest)"
+  log_info "Tag ${GHOSTTY_TAG} has no matching asset; falling back to the latest release"
+  deb_url="$(find_deb_url_for_series latest)"
 fi
 
 if [[ -z "${deb_url}" ]]; then
   # Ghostty is a convenience, not a prerequisite: warn and let the apply finish.
-  log_manual_action "No Ghostty deb found for ${ubuntu_series}/${arch}; install it manually from https://ghostty.org"
+  log_manual_action "No Ghostty deb for ${series:-${series_codename}}/${arch}; install it manually from https://ghostty.org"
   exit 0
 fi
 
