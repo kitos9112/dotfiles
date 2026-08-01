@@ -270,6 +270,29 @@ done
 assert_contains "$(cat "${SCRIPTS_DIR}/run_after_900-finalizers.zsh.tmpl")" \
 	"command -v brew" "the finalizer guards brew being absent from PATH"
 
+echo "== login shell on directory accounts =="
+# chsh only edits /etc/passwd, so it cannot change the shell of a FreeIPA/LDAP/AD
+# account. The old code compared against /etc/passwd, never matched for those
+# users, and aborted the bootstrap when the resulting sudo chsh failed.
+omz_script="${SCRIPTS_DIR}/run_once_before_02-install-omz.sh.tmpl"
+omz_source="$(cat "${omz_script}")"
+
+# shellcheck disable=SC2016 # these are literal shell snippets to match, not expansions
+assert_not_contains "${omz_source}" 'awk -F ":${HOME}:" ' \
+	"the login-shell check no longer parses /etc/passwd by home directory"
+# shellcheck disable=SC2016
+assert_contains "${omz_source}" 'grep -q "^${username}:" /etc/passwd' \
+	"chsh only runs for accounts with a local passwd entry"
+assert_contains "${omz_source}" "if sudo chsh" \
+	"a failing chsh cannot abort the bootstrap"
+
+# The bashrc handover is the only thing that gives a directory account zsh, so it
+# must trigger for any non-zsh login shell, not just for bash.
+# shellcheck disable=SC2016
+assert_contains "$(cat "${SOURCE_DIR}/dot_bashrc.tmpl")" \
+	'"$(basename -- "${SHELL:-}")" != "zsh"' \
+	"dot_bashrc hands over to zsh from any non-zsh login shell"
+
 echo "== managed helpers =="
 for helper in dotfiles-doctor dotfiles-reset gnome-settings-export; do
 	path="${SOURCE_DIR}/private_dot_local/private_bin/executable_${helper}.tmpl"

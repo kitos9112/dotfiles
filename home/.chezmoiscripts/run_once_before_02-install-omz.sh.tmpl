@@ -1,12 +1,51 @@
 {{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
 #! /usr/bin/env bash
 
-set -ev -o pipefail
+set -e -o pipefail
 
-# 1. Change default sh to ZSH
-{{ if .is_root -}}
-if [[ $(awk -F ":${HOME}:" 'NF>1 {print $2}' /etc/passwd) != $(which zsh) ]]; then
-  sudo chsh -s $(which zsh) $(whoami)
+# Make zsh the login shell.
+#
+# chsh only edits /etc/passwd, so it cannot change the shell of a directory
+# account (FreeIPA/SSSD, LDAP, AD). On those machines the user has no local
+# passwd entry at all, the old /etc/passwd comparison never matched, and the
+# resulting `sudo chsh` failed and aborted the whole bootstrap under `set -e`.
+#
+# So: only attempt chsh for accounts that really are local, never treat a failure
+# as fatal, and rely on the guarded `exec zsh` in dot_bashrc everywhere else.
+{{ if eq (includeTemplate "is-root" . | trim) "true" -}}
+zsh_path="$(command -v zsh || true)"
+
+if [[ -z "${zsh_path}" ]]; then
+  echo "zsh is not installed yet; leaving the login shell alone"
+  exit 0
+fi
+
+username="$(id -un)"
+
+# getent resolves local and directory accounts alike, unlike reading /etc/passwd.
+current_shell="$(getent passwd "${username}" 2>/dev/null | awk -F: '{print $NF}')"
+
+if [[ "${current_shell}" == "${zsh_path}" ]]; then
+  echo "zsh is already the login shell"
+  exit 0
+fi
+
+# chsh edits /etc/passwd and nothing else, so a literal entry there is exactly the
+# precondition for it to work. Checked directly rather than with
+# `getent --service files`, which is a glibc extension and is absent on macOS.
+if grep -q "^${username}:" /etc/passwd 2>/dev/null; then
+  if sudo chsh -s "${zsh_path}" "${username}"; then
+    echo "Login shell changed to ${zsh_path}"
+  else
+    echo "Could not change the login shell; dot_bashrc will start zsh instead"
+  fi
+else
+  echo "${username} has no /etc/passwd entry, so chsh cannot change its shell."
+  echo "dot_bashrc execs zsh for interactive sessions, so no action is needed."
+{{ if eq .chezmoi.os "linux" -}}
+  echo "To make it permanent, change the shell in your directory, e.g.:"
+  echo "  ipa user-mod ${username} --shell=${zsh_path}"
+{{ end -}}
 fi
 
 {{- end -}}

@@ -55,6 +55,12 @@ section "Profile"
 ok "machine_class is ${MACHINE_CLASS}"
 if [[ "$(basename "${SHELL:-}")" == "zsh" ]]; then
   ok "default shell is zsh"
+{{- if eq .chezmoi.os "linux" }}
+elif ! grep -q "^$(id -un):" /etc/passwd 2>/dev/null; then
+  # chsh only edits /etc/passwd, so telling a directory account (IPA/LDAP/AD) to
+  # run it would be advice that cannot work.
+  skip "login shell is ${SHELL:-unset}; $(id -un) has no /etc/passwd entry, so ~/.bashrc starts zsh instead"
+{{- end }}
 else
   warn_check "default shell is ${SHELL:-unset}, expected zsh (chsh -s \"\$(command -v zsh)\")"
 fi

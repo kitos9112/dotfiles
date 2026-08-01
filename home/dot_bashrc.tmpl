@@ -175,9 +175,17 @@ export PATH=${HOME}/.local/bin:${HOME}/bin:${HOME}/.asdf/shims:/opt/homebrew/bin
 [ -f ~/.config/tabtab/__tabtab.bash ] && . ~/.config/tabtab/__tabtab.bash || true
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-# If it's an interactive session, the running shell is not BASH and zsh is available, then use it.
-# Check more if zsh is available in PATH
-if [[ -n "$PS1" && -x "$(command -v zsh)" && "$(basename -- "$SHELL")" == "bash" ]]; then
+# Hand interactive sessions over to zsh when it is not already the login shell.
+#
+# This is the only way a directory account (FreeIPA/SSSD, LDAP, AD) gets zsh:
+# chsh cannot edit a non-local passwd entry, so $SHELL stays whatever the
+# directory says. Matching "not zsh" rather than "is bash" also covers
+# directories that hand out /bin/sh.
+#
+# No exec loop: SHELL is set to zsh first, so the new shell sees $SHELL as zsh.
+# A deliberate `bash` started from zsh also stays put, because $SHELL is already
+# zsh there.
+if [[ -n "$PS1" && -x "$(command -v zsh)" && "$(basename -- "${SHELL:-}")" != "zsh" ]]; then
     export SHELL=$(command -v zsh)
     exec "$SHELL" -l
 fi
