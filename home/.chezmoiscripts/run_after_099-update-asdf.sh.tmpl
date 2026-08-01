@@ -14,7 +14,7 @@ fi
 PATH_old="${PATH}"
 export PATH="${HOME}/.asdf/shims:${PATH}"
 
-{{ if .is_root -}}
+{{ if eq (includeTemplate "use-homebrew" . | trim) "true" -}}
 export PATH="/home/linuxbrew/.linuxbrew/bin:${PATH}"
 {{ end -}}
 

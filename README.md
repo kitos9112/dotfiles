@@ -85,9 +85,35 @@ reading `is_root` from the config, because chezmoi only re-renders the config
 template on `init`. Without that, `DOTFILES_IS_ROOT=true` would be ignored by a
 plain `chezmoi apply` and no packages would install.
 
-One side effect worth knowing: `.chezmoiexternal.yaml` installs portable VS Code,
-Go and direnv only when `is_root` is `false`. Flipping a machine to `true` stops
-those user-local downloads on the assumption you will install them system-wide.
+## Homebrew
+
+Homebrew is a separate decision from sudo. Having root to install apt packages
+says nothing about wanting linuxbrew, so `use_homebrew` is its own flag:
+
+| | macOS | Linux |
+| --- | --- | --- |
+| Default | on | **off** |
+| Override | `DOTFILES_HOMEBREW=true\|false` | same |
+| Prompt | never | once, on an interactive `init` |
+
+Resolution mirrors `is_root`: environment override, then the persisted value,
+then the platform default. It lives in
+[`home/.chezmoitemplates/use-homebrew`](./home/.chezmoitemplates/use-homebrew).
+
+So a work machine with sudo installs the apt list and no Homebrew, and a personal
+Linux box opts in once:
+
+```sh
+DOTFILES_HOMEBREW=true chezmoi init --apply
+```
+
+The formulae in `packages.brew` are simply skipped on machines without Homebrew;
+they are not reinstalled from another source. Tools that matter everywhere come
+from apt, asdf or the Go tool manifest instead.
+
+Portable VS Code, Go and direnv follow **`use_homebrew` being false**, not sudo,
+because they stand in for Homebrew-installed tooling. A sudo-capable machine that
+opted out of brew still gets them.
 - `DOTFILES_PROFILE=desktop|server` overrides GUI auto-detection (see below). An
   unrecognised value fails the render rather than guessing.
 

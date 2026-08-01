@@ -115,11 +115,12 @@ fi
 # chezmoi only re-renders the config template on `init`. Scripts must therefore
 # resolve sudo through the shared template, or DOTFILES_IS_ROOT=true is ignored
 # by a plain `chezmoi apply` and no apt packages ever install.
+# The Homebrew script is deliberately absent: it is gated on use-homebrew, not on
+# sudo, and is covered by the Homebrew independence checks above.
 for sudo_script in \
 	run_once_before_00-linux-prepare.sh.tmpl \
 	run_once_before_01-linux-install-prereq.sh.tmpl \
 	run_onchange_before_03-linux-apt-packages.sh.tmpl \
-	run_onchange_before_04-linux-brew-packages.zsh.tmpl \
 	run_onchange_after_25-install-ghostty.sh.tmpl; do
 
 	if grep -q 'includeTemplate "is-root"' "${SCRIPTS_DIR}/${sudo_script}"; then
@@ -135,6 +136,59 @@ work_apt_body="${TMP_ROOT}/apt-sudo.tmpl"
 sed '1d;$d' "${SCRIPTS_DIR}/run_onchange_before_03-linux-apt-packages.sh.tmpl" > "${work_apt_body}"
 assert_contains "$(DOTFILES_IS_ROOT=true DOTFILES_IS_WORK=true render "${work_apt_body}")" \
 	"apt-get install" "a work machine with sudo still installs apt packages"
+
+echo "== Homebrew is independent of sudo =="
+brew_probe="${TMP_ROOT}/use-homebrew.tmpl"
+printf '{{ includeTemplate "use-homebrew" . | trim }}\n' > "${brew_probe}"
+
+resolved="$(DOTFILES_HOMEBREW=true render "${brew_probe}" | tr -d '\n')"
+if [[ "${resolved}" == "true" ]]; then
+	pass "DOTFILES_HOMEBREW=true enables Homebrew"
+else
+	fail "DOTFILES_HOMEBREW=true resolved to '${resolved}'"
+fi
+
+if DOTFILES_HOMEBREW=maybe render "${brew_probe}" >/dev/null 2>&1; then
+	fail "an invalid DOTFILES_HOMEBREW was accepted"
+else
+	pass "an invalid DOTFILES_HOMEBREW is rejected"
+fi
+
+# The point of the split: sudo must not drag Homebrew in with it.
+resolved="$(DOTFILES_IS_ROOT=true DOTFILES_HOMEBREW=false render "${brew_probe}" | tr -d '\n')"
+if [[ "${resolved}" == "false" ]]; then
+	pass "granting sudo does not enable Homebrew"
+else
+	fail "sudo forced Homebrew on (resolved '${resolved}')"
+fi
+
+resolved="$(DOTFILES_IS_ROOT=false DOTFILES_HOMEBREW=true render "${root_probe}" | tr -d '\n')"
+if [[ "${resolved}" == "false" ]]; then
+	pass "enabling Homebrew does not grant sudo"
+else
+	fail "Homebrew forced sudo on (resolved '${resolved}')"
+fi
+
+# Every Homebrew consumer must key off the new flag, or the axes silently recouple.
+for brew_consumer in \
+	".chezmoiscripts/run_onchange_before_04-linux-brew-packages.zsh.tmpl" \
+	".chezmoiscripts/run_after_099-update-asdf.sh.tmpl" \
+	".chezmoiscripts/run_after_900-finalizers.zsh.tmpl" \
+	"dot_oh-my-zsh-custom/env.zsh.tmpl" \
+	".chezmoiexternal.yaml"; do
+
+	if grep -q 'includeTemplate "use-homebrew"' "${SOURCE_DIR}/${brew_consumer}"; then
+		pass "$(basename "${brew_consumer}") gates Homebrew on use-homebrew"
+	else
+		fail "$(basename "${brew_consumer}") still ties Homebrew to sudo"
+	fi
+done
+
+# A sudo-capable machine that opted out of brew still needs the portable tooling.
+assert_contains "$(DOTFILES_IS_ROOT=true DOTFILES_HOMEBREW=false render "${SOURCE_DIR}/.chezmoiexternal.yaml")" \
+	"apps/vscode" "sudo without Homebrew still fetches portable tooling"
+assert_not_contains "$(DOTFILES_HOMEBREW=true render "${SOURCE_DIR}/.chezmoiexternal.yaml")" \
+	"apps/vscode" "Homebrew machines skip the portable tooling"
 
 echo "== data manifests =="
 for data_file in packages.yaml fonts.yaml gnome.yaml; do

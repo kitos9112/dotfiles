@@ -44,7 +44,15 @@
 {{- end -}}
 {{- $isRoot := eq (includeTemplate "is-root" $rootCtx) "true" -}}
 {{- if and (not (env "DOTFILES_IS_ROOT")) (not (hasKey . "is_root")) stdinIsATTY -}}
-{{-   $isRoot = promptBool "Can this machine use sudo (to install apt, Homebrew and system packages)?" $isRoot -}}
+{{-   $isRoot = promptBool "Can this machine use sudo (to install apt and other system packages)?" $isRoot -}}
+{{- end -}}
+
+{{- /* Whether Homebrew is used here. Independent of sudo on purpose: a work
+       machine can have sudo for apt and still have no reason to run linuxbrew.
+       macOS always uses it; Linux is opt-in and remembers the answer. */ -}}
+{{- $useHomebrew := eq (includeTemplate "use-homebrew" .) "true" -}}
+{{- if and (ne .chezmoi.os "darwin") (not (env "DOTFILES_HOMEBREW")) (not (hasKey . "use_homebrew")) stdinIsATTY -}}
+{{-   $useHomebrew = promptBool "Install and use Homebrew on this machine?" $useHomebrew -}}
 {{- end -}}
 
 {{- $workEmail := "" -}}
@@ -74,7 +82,8 @@ progress = true
   personal_email = "{{ $personalEmail }}"
   github_username = "{{ $githubUsername }}"
 
-  is_root = {{ $isRoot }} # Whether or not to install stuff as root (e.g. brew)
+  is_root = {{ $isRoot }} # Whether sudo may be used for system packages (apt, dnf)
+  use_homebrew = {{ $useHomebrew }} # Whether Homebrew is used here; independent of sudo
   is_work = {{ $isWork }} # Whether or not this is my work laptop
   work_email  = {{ $workEmail | quote }}
   work_name   = {{ $workName | quote }}

@@ -1,0 +1,35 @@
+{{- /*
+Resolve whether Homebrew is used on this machine.
+
+Deliberately independent of is-root. Having sudo says nothing about wanting
+Homebrew: a locked-down work machine may well grant sudo for apt while having no
+business running linuxbrew, and the two were previously welded together behind a
+single is_root flag.
+
+macOS defaults to true, since Homebrew is the norm there. Linux defaults to
+false and is opt-in per machine, so a sudo-capable Linux box gets apt packages
+and nothing else unless it asks for brew.
+
+Resolution order:
+  1. DOTFILES_HOMEBREW environment override
+  2. use_homebrew persisted in chezmoi.toml by a previous init
+  3. true on macOS, false on Linux
+
+Returns the string "true" or "false".
+
+Usage: {{ if eq (includeTemplate "use-homebrew" . | trim) "true" }}
+*/ -}}
+{{- $override := env "DOTFILES_HOMEBREW" -}}
+{{- if eq $override "true" -}}
+{{-   "true" -}}
+{{- else if eq $override "false" -}}
+{{-   "false" -}}
+{{- else if $override -}}
+{{-   fail (printf "DOTFILES_HOMEBREW must be \"true\" or \"false\", got %q" $override) -}}
+{{- else if hasKey . "use_homebrew" -}}
+{{-   if .use_homebrew }}true{{ else }}false{{ end -}}
+{{- else if eq .chezmoi.os "darwin" -}}
+{{-   "true" -}}
+{{- else -}}
+{{-   "false" -}}
+{{- end -}}

@@ -10,7 +10,7 @@ PATH_old="${PATH}"
 # FIXME(WA): This is a hack to make sure that `asdf` and `brew` is in the path
 export PATH="${HOME}/.local/bin:${HOME}/.asdf/shims:${PATH}"
 
-{{ if eq (includeTemplate "is-root" . | trim) "true" -}}
+{{ if eq (includeTemplate "use-homebrew" . | trim) "true" -}}
 # `brew --prefix` was expanded unguarded and prefixed with $HOME, which both
 # produced a bogus PATH entry and aborted the apply under `set -e` whenever brew
 # was not yet on PATH — exactly the case on a first bootstrap.

@@ -1,4 +1,4 @@
-{{- if and (eq .chezmoi.os "linux") (eq (includeTemplate "is-root" . | trim) "true") -}}
+{{- if and (eq .chezmoi.os "linux") (eq (includeTemplate "use-homebrew" . | trim) "true") -}}
 #! /usr/bin/env zsh
 
 set -euo pipefail
