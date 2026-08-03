@@ -24,6 +24,18 @@ if ! command -v brew >/dev/null 2>&1; then
   exit 0
 fi
 
+# Homebrew refuses to write either trust store when group or world permissions
+# are present. ~/.homebrew is not managed by chezmoi, and a previous setup may
+# have created either directory with a permissive umask.
+trust_stores=(
+  "${HOME}/.config/homebrew"
+  "${HOME}/.homebrew"
+)
+for trust_store in "${trust_stores[@]}"; do
+  mkdir -p -- "${trust_store}"
+  chmod 700 -- "${trust_store}"
+done
+
 # trust.json lives in ${XDG_CONFIG_HOME}/homebrew when that variable is set and
 # ~/.homebrew otherwise. Interactive shells export it while non-interactive ones
 # typically do not, so populate both stores to keep trust consistent everywhere.

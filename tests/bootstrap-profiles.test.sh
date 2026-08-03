@@ -324,6 +324,36 @@ done
 assert_contains "$(cat "${SCRIPTS_DIR}/run_after_900-finalizers.zsh.tmpl")" \
 	"command -v brew" "the finalizer guards brew being absent from PATH"
 
+echo "== Homebrew trust-store permissions =="
+# Homebrew 6 refuses to write trust.json if either of the stores the script
+# updates is group- or world-writable. Use a fake brew so this is a pure
+# source-contract test and does not require a Homebrew installation.
+trust_script="${SCRIPTS_DIR}/run_onchange_after_01-brew-trust-taps.sh.tmpl"
+trust_home="${TMP_ROOT}/homebrew-trust-home"
+trust_bin="${TMP_ROOT}/homebrew-trust-bin"
+mkdir -p "${trust_home}/.config/homebrew" "${trust_home}/.homebrew" "${trust_bin}"
+chmod 775 "${trust_home}/.config/homebrew" "${trust_home}/.homebrew"
+printf '#!/usr/bin/env bash\nexit 0\n' > "${trust_bin}/brew"
+chmod 755 "${trust_bin}/brew"
+
+rendered_trust_script="${TMP_ROOT}/brew-trust-taps.sh"
+DOTFILES_HOMEBREW=true render "${trust_script}" > "${rendered_trust_script}"
+PATH="${trust_bin}:${PATH}" HOME="${trust_home}" bash "${rendered_trust_script}"
+
+for trust_store in "${trust_home}/.config/homebrew" "${trust_home}/.homebrew"; do
+	if [[ "$(stat -c '%a' "${trust_store}")" == "700" ]]; then
+		pass "$(basename "${trust_store}") trust store is private"
+	else
+		fail "${trust_store} trust store is not mode 700"
+	fi
+done
+
+if [[ -f "${SOURCE_DIR}/private_dot_config/private_homebrew/brew.env" ]]; then
+	pass "the managed Homebrew directory has the private_ attribute"
+else
+	fail "the managed Homebrew directory is not private_"
+fi
+
 echo "== login shell on directory accounts =="
 # chsh only edits /etc/passwd, so it cannot change the shell of a FreeIPA/LDAP/AD
 # account. The old code compared against /etc/passwd, never matched for those
@@ -368,7 +398,7 @@ echo "== AI CLI defaults never clobber =="
 for seed in \
 	dot_claude/create_settings.json \
 	private_dot_config/private_opencode/create_opencode.json \
-	private_dot_codex/create_config.toml; do
+	private_dot_codex/create_private_config.toml; do
 
 	if [[ -f "${SOURCE_DIR}/${seed}" ]]; then
 		pass "${seed} is seeded with create_"
