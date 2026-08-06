@@ -23,4 +23,6 @@ shell-integration-features = cursor,sudo,title
 {{ if eq .chezmoi.os "darwin" -}}
 # Left Option behaves like Meta for shell editing; right Option keeps accents.
 macos-option-as-alt = left
+# British keyboard: Option+3 produces #, but left Option is also used as Meta.
+keybind = alt+3=text:\x23
 {{ end -}}
