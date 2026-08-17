@@ -112,7 +112,8 @@ progress = true
   editor = "vi"
   {{- end }}
 
-  locale = "en_GB.UTF-8"
+  # locale lives in .chezmoidata/locale.yaml: it is a static constant, and keeping
+  # it here made it invisible to anything rendering from the source tree alone.
   uname_arch = "{{ output "uname" "-m" | trim }}"
 
 [sourceVCS]

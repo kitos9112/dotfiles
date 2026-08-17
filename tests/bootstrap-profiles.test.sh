@@ -22,6 +22,23 @@ SCRIPTS_DIR="${SOURCE_DIR}/.chezmoiscripts"
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/bootstrap-profiles.XXXXXX")"
 trap 'rm -rf "${TMP_ROOT}"' EXIT HUP INT TERM
 
+# Generate a config from .chezmoi.toml.tmpl into a throwaway HOME instead of
+# reading the developer's own ~/.config/chezmoi/chezmoi.toml. Relying on the real
+# one made these tests pass locally and fail in CI: keys defined in the config
+# template resolved on an already-initialised machine and were simply absent on a
+# fresh checkout, so `chezmoi apply`-time breakage only ever showed up in CI.
+# Deriving the config from the template keeps the fixture from drifting and
+# renders exactly what a freshly-initialised machine would.
+TEST_HOME="${TMP_ROOT}/home"
+TEST_CHEZMOI_CONFIG="${TEST_HOME}/.config/chezmoi/chezmoi.toml"
+mkdir -p "${TEST_HOME}"
+HOME="${TEST_HOME}" chezmoi init --source "${SOURCE_DIR}"
+
+[[ -f "${TEST_CHEZMOI_CONFIG}" ]] || {
+	printf 'chezmoi init did not produce a config at %s\n' "${TEST_CHEZMOI_CONFIG}" >&2
+	exit 1
+}
+
 failures=0
 
 function pass() {
@@ -55,7 +72,8 @@ function render() {
 	# Render a source-tree template with chezmoi's real data.
 	local file="$1"
 	shift
-	chezmoi execute-template --source "${SOURCE_DIR}" "$@" < "${file}"
+	chezmoi execute-template --config "${TEST_CHEZMOI_CONFIG}" \
+		--source "${SOURCE_DIR}" "$@" < "${file}"
 }
 
 echo "== machine-class resolution =="
@@ -207,8 +225,8 @@ else
 	pass "no templated .chezmoidata files"
 fi
 
-data_keys="$(chezmoi data --source "${SOURCE_DIR}" --format json)"
-for key in packages terminalFont gnome fontsDir; do
+data_keys="$(chezmoi data --config "${TEST_CHEZMOI_CONFIG}" --source "${SOURCE_DIR}" --format json)"
+for key in packages terminalFont gnome fontsDir locale; do
 	assert_contains "${data_keys}" "\"${key}\"" "template data exposes ${key}"
 done
 

@@ -1,0 +1,12 @@
+---
+# System locale shared by the Linux prepare and apt package scripts.
+#
+# This lives in .chezmoidata/ rather than the [data] block of .chezmoi.toml.tmpl
+# because that config file only exists after `chezmoi init` has run. Templates
+# rendered straight from the source tree — the contract tests, and any
+# `chezmoi execute-template --source home` — saw no `locale` key at all and
+# failed with "map has no entry for key". A static constant has no reason to be
+# machine-derived, so it belongs in the source tree where every consumer can see
+# it. Machine-specific values (osid, is_root, machine_class) stay in the config.
+
+locale: en_GB.UTF-8
