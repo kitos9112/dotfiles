@@ -168,17 +168,34 @@ test_go_tools_script_fingerprints_inputs() {
 		fail "installer does not fingerprint all three change inputs"
 }
 
-test_asdf_install_failure_propagates() {
+# `asdf install` compiles Node and Go from source, so a missing build dependency
+# on a fresh machine makes it fail routinely. Under `set -e` that aborted the
+# whole apply and left the rest of the dotfiles uninstalled, so the script now
+# warns and continues — the same contract tests/bootstrap-profiles.test.sh
+# asserts against the source. The install must still be attempted and the
+# failure still reported, or a script that quietly did nothing would pass.
+test_asdf_install_failure_is_tolerated() {
 	printf '==> %s\n' "${FUNCNAME[0]}"
 	: >"${LOG_FILE}"
 
-	if HOME="${HOME_DIR}" \
+	local warnings="${CASE_DIR}/asdf-update.out"
+
+	if ! HOME="${HOME_DIR}" \
 		PATH="/usr/bin:/bin" \
 		ASDF_MOCK_LOG="${LOG_FILE}" \
 		ASDF_MOCK_FAIL_INSTALL=1 \
-		bash "${ASDF_UPDATE_SCRIPT}"; then
-		fail "asdf update script suppressed an asdf install failure"
+		bash "${ASDF_UPDATE_SCRIPT}" >"${warnings}" 2>&1; then
+		fail "a failing asdf install aborted the apply instead of warning"
 	fi
+
+	assert_contains \
+		$'cmd\tinstall' \
+		"${LOG_FILE}" \
+		"asdf update script never attempted the install"
+	assert_contains \
+		"failed to install" \
+		"${warnings}" \
+		"a failing asdf install was swallowed without a warning"
 }
 
 test_go_tools_checks_are_wired_into_ci() {
@@ -221,7 +238,7 @@ test_go_tools_checks_are_wired_into_ci() {
 setup_case
 test_go_tools_install_normalizes_asdf_environment
 test_go_tools_script_fingerprints_inputs
-test_asdf_install_failure_propagates
+test_asdf_install_failure_is_tolerated
 test_go_tools_checks_are_wired_into_ci
 
 printf 'ok: 4 tests passed\n'
