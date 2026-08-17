@@ -1,0 +1,55 @@
+# shellcheck shell=bash
+#
+# Shared helpers for the Kerberos and FreeIPA tools in ~/.local/bin
+# (get-krb-ticket.sh, ipa-get-secret).
+#
+# Include this AFTER "scripts-library". These tools handle passwords, OTPs and
+# retrieved secrets, so the xtrace that scripts-library turns on under
+# DOTFILES_DEBUG has to be undone here, or a debug run prints credentials to the
+# terminal. The helpers below also rely on scripts-library's log_* and error.
+
+# Never trace: xtrace would echo passwords, OTPs and decoded secrets.
+if [[ $- == *x* ]]; then
+  set +x
+fi
+
+# Exit 127 keeps the "command not found" convention these tools used before the
+# shared library existed, so a missing client is distinguishable from a failed
+# lookup. scripts-library's error() exits 1, hence the explicit exit here.
+function require_commands() {
+  local cmd
+
+  for cmd in "$@"; do
+    if ! command -v "${cmd}" >/dev/null 2>&1; then
+      log_error "missing dependency: ${cmd}"
+      exit 127
+    fi
+  done
+}
+
+# Exit 2 is reserved for "you called me wrong", so callers can tell a usage
+# mistake from a Kerberos or FreeIPA failure.
+function usage_error() {
+  log_error "$@"
+  exit 2
+}
+
+# Path of the current Kerberos credential cache, empty when there is none.
+# klist is allowed to fail: under `set -e` with `pipefail` a bare pipeline would
+# abort before the caller gets to report a friendlier error.
+function krb_ticket_cache() {
+  { klist 2>/dev/null || true; } | awk '/Ticket cache:/ { print $3 }'
+}
+
+# True when a live, unexpired ticket exists. `klist -s` is supported by both MIT
+# krb5 (Homebrew, and what dot_zshrc puts first on PATH) and Heimdal (stock
+# macOS), so this works whichever one resolves.
+function krb_ticket_valid() {
+  klist -s >/dev/null 2>&1
+}
+
+function require_krb_ticket() {
+  if ! krb_ticket_valid; then
+    error "no valid Kerberos ticket; run 'get-krb-ticket.sh -h' and obtain one first"
+  fi
+}

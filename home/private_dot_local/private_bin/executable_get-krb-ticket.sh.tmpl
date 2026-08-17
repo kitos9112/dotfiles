@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
+{{ includeTemplate "scripts-library" . }}
+{{ includeTemplate "freeipa-library" . }}
 # get-krb-ticket.sh — kinit via 1Password (PW+OTP), with FAST armor
 # Usage:
 #   get-krb-ticket.sh -p "op://vault/item/password" -o "op://vault/item/one-time password?attribute=otp" [-u principal] [-A]
-set -euo pipefail
-
-# if caller had xtrace on, disable to avoid echoing anything
-[[ $- == *x* ]] && set +x
 
 usage() {
   cat <<'USAGE'
@@ -33,23 +31,31 @@ while getopts ":p:o:u:hA" opt; do
     o) OTP_REF="$OPTARG" ;;
     u) PRINCIPAL="$OPTARG" ;;
     A) ARMOR_TICKET="1" ;;
-    h) usage; exit 0 ;;
-    \?) echo "Unknown option: -$OPTARG" >&2; usage; exit 2 ;;
-    :)  echo "Option -$OPTARG requires an argument." >&2; usage; exit 2 ;;
+    h)
+      usage
+      exit 0
+      ;;
+    \?)
+      usage >&2
+      usage_error "Unknown option: -${OPTARG}"
+      ;;
+    :)
+      usage >&2
+      usage_error "Option -${OPTARG} requires an argument."
+      ;;
   esac
 done
 
 # required inputs
-[[ -z "$PW_REF" ]] && { echo "Error: -p <password ref> is required." >&2; exit 2; }
+if [[ -z "$PW_REF" ]]; then
+  usage >&2
+  usage_error "-p <password ref> is required."
+fi
 if [[ "$ARMOR_TICKET" == "1" && -z "$OTP_REF" ]]; then
-  echo "Error: -o <otp ref> is required when -A is set." >&2
-  exit 2
+  usage_error "-o <otp ref> is required when -A is set."
 fi
 
-# deps
-for c in op expect kinit klist awk; do
-  command -v "$c" >/dev/null 2>&1 || { echo "missing dependency: $c" >&2; exit 127; }
-done
+require_commands op expect kinit klist awk
 
 # 1) Bootstrap: plain kinit with PW only (no OTP)
 PW_REF="$PW_REF" PRINCIPAL="$PRINCIPAL" expect -c '
@@ -65,8 +71,10 @@ PW_REF="$PW_REF" PRINCIPAL="$PRINCIPAL" expect -c '
 '
 
 # detect armor cache
-ARMOR="$(klist 2>/dev/null | awk "/Ticket cache:/{print \$3}")"
-[[ -z "$ARMOR" ]] && { echo "failed to obtain armor cache" >&2; exit 1; }
+ARMOR="$(krb_ticket_cache)"
+if [[ -z "$ARMOR" ]]; then
+  error "failed to obtain armor cache"
+fi
 
 # 2) Optional FAST ticket: kinit -T <armor> with PW+OTP
 if [[ "$ARMOR_TICKET" == "1" ]]; then
@@ -85,5 +93,5 @@ if [[ "$ARMOR_TICKET" == "1" ]]; then
     send -- "$pw$otp\r"
     expect eof
   '
-  echo "Obtained Kerberos ticket for principal '$PRINCIPAL' using FAST armor."
+  log_green "Obtained Kerberos ticket for principal '$PRINCIPAL' using FAST armor."
 fi
