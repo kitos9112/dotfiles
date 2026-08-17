@@ -1,7 +1,7 @@
 # shellcheck shell=bash
 #
 # Shared helpers for the Kerberos and FreeIPA tools in ~/.local/bin
-# (get-krb-ticket.sh, ipa-get-secret).
+# (get-krb-ticket.sh, get-ipa-secret).
 #
 # Include this AFTER "scripts-library". These tools handle passwords, OTPs and
 # retrieved secrets, so the xtrace that scripts-library turns on under
