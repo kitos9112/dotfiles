@@ -22,20 +22,28 @@ SCRIPTS_DIR="${SOURCE_DIR}/.chezmoiscripts"
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/bootstrap-profiles.XXXXXX")"
 trap 'rm -rf "${TMP_ROOT}"' EXIT HUP INT TERM
 
-# Generate a config from .chezmoi.toml.tmpl into a throwaway HOME instead of
-# reading the developer's own ~/.config/chezmoi/chezmoi.toml. Relying on the real
-# one made these tests pass locally and fail in CI: keys defined in the config
-# template resolved on an already-initialised machine and were simply absent on a
-# fresh checkout, so `chezmoi apply`-time breakage only ever showed up in CI.
-# Deriving the config from the template keeps the fixture from drifting and
-# renders exactly what a freshly-initialised machine would.
-TEST_HOME="${TMP_ROOT}/home"
-TEST_CHEZMOI_CONFIG="${TEST_HOME}/.config/chezmoi/chezmoi.toml"
-mkdir -p "${TEST_HOME}"
-HOME="${TEST_HOME}" chezmoi init --source "${SOURCE_DIR}"
+# Render .chezmoi.toml.tmpl into a throwaway config rather than reading the
+# developer's own ~/.config/chezmoi/chezmoi.toml. Relying on the real one made
+# these tests pass locally and fail in CI: keys defined in the config template
+# resolved on an already-initialised machine and were simply absent on a fresh
+# checkout, so apply-time breakage only ever surfaced in CI. Deriving the config
+# from the template keeps this fixture from drifting away from it.
+#
+# `execute-template --init` writes exactly where it is told. `chezmoi init` does
+# not: it resolves its own config path through XDG_CONFIG_HOME, which the GitHub
+# runners set, so overriding HOME alone put the config outside the sandbox and
+# left this suite unable to find it. The empty --config keeps any answers already
+# persisted on this machine from leaking into the render.
+EMPTY_CHEZMOI_CONFIG="${TMP_ROOT}/empty-chezmoi.toml"
+TEST_CHEZMOI_CONFIG="${TMP_ROOT}/chezmoi.toml"
+: > "${EMPTY_CHEZMOI_CONFIG}"
+chezmoi execute-template --init --config "${EMPTY_CHEZMOI_CONFIG}" \
+	--source "${SOURCE_DIR}" \
+	< "${SOURCE_DIR}/.chezmoi.toml.tmpl" > "${TEST_CHEZMOI_CONFIG}"
 
-[[ -f "${TEST_CHEZMOI_CONFIG}" ]] || {
-	printf 'chezmoi init did not produce a config at %s\n' "${TEST_CHEZMOI_CONFIG}" >&2
+grep -q '^\[data\]' "${TEST_CHEZMOI_CONFIG}" || {
+	printf 'rendering .chezmoi.toml.tmpl produced no [data] block; got:\n' >&2
+	cat "${TEST_CHEZMOI_CONFIG}" >&2
 	exit 1
 }
 
