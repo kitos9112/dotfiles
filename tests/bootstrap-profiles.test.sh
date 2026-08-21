@@ -422,7 +422,6 @@ echo "== AI CLI defaults never clobber =="
 # chezmoi's create_ attribute seeds a file only when the target is absent, which
 # is what keeps an already-configured machine's settings intact.
 for seed in \
-	dot_claude/create_settings.json \
 	private_dot_config/private_opencode/create_opencode.json \
 	private_dot_codex/create_private_config.toml; do
 
@@ -432,6 +431,109 @@ for seed in \
 		fail "${seed} is missing or not using the create_ attribute"
 	fi
 done
+
+echo "== Claude settings merge =="
+# ~/.claude/settings.json cannot use create_ like the seeds above, because
+# Claude Code rewrites it at runtime (theme, model, effortLevel, plugin
+# toggles). A write-once seed could therefore never ship a later hook or
+# permission change to a machine that already has the file -- which is exactly
+# what create_ did here for as long as it was used. It uses modify_ instead:
+# chezmoi pipes the current file in on stdin and takes the script's stdout as
+# the new contents, so the script merges rather than replaces.
+#
+# That trades create_'s blunt guarantee for a conditional one, so assert the
+# behaviour rather than the filename: keys the application owns must still win,
+# and only the explicitly managed keys may be forced.
+claude_modify="${SOURCE_DIR}/dot_claude/modify_settings.json.tmpl"
+if [[ ! -f "${claude_modify}" ]]; then
+	fail "dot_claude/modify_settings.json.tmpl is missing"
+elif ! command -v jq >/dev/null 2>&1; then
+	# The script itself needs jq, so a missing jq breaks apply, not just this
+	# test. Fail loudly instead of skipping.
+	fail "jq is required to exercise the Claude settings merge"
+else
+	merge="${TMP_ROOT}/modify_settings"
+	render "${claude_modify}" > "${merge}"
+	chmod +x "${merge}"
+
+	assert_contains "$(cat "${claude_modify}")" '{{ .chezmoi.homeDir }}' \
+		"the SessionStart hook path is templated, not hardcoded to one home"
+
+	# A fresh machine has no target file, so chezmoi hands the script empty
+	# stdin and the entire output becomes the new settings.json.
+	seeded="$(: | "${merge}")"
+	if printf '%s' "${seeded}" | jq -e . > /dev/null; then
+		pass "the fresh-machine seed is valid JSON"
+	else
+		fail "the fresh-machine seed is not valid JSON"
+	fi
+	assert_contains "${seeded}" '"EnterWorktree"' \
+		"the seed denies EnterWorktree"
+	assert_contains "${seeded}" '.claude/hooks/context-mode-cache-heal.mjs' \
+		"the seed wires up the SessionStart hook"
+
+	# An already-configured machine. Everything Claude Code owns has to survive,
+	# including keys this repo has never heard of.
+	existing="${TMP_ROOT}/claude-existing-settings.json"
+	cat > "${existing}" <<'JSON'
+{
+  "theme": "light",
+  "model": "stub-model",
+  "permissions": {
+    "allow": ["Bash(only-mine:*)"],
+    "deny": ["StaleEntry"]
+  },
+  "env": {"STALE_KEY": "1"},
+  "localOnlyKey": true
+}
+JSON
+
+	merged="$("${merge}" < "${existing}")"
+	assert_contains "$(printf '%s' "${merged}" | jq -r '.theme')" "light" \
+		"a theme written at runtime survives the merge"
+	assert_contains "$(printf '%s' "${merged}" | jq -r '.model')" "stub-model" \
+		"a model written at runtime survives the merge"
+	assert_contains "$(printf '%s' "${merged}" | jq -c '.permissions.allow')" "only-mine" \
+		"a machine-local allow-list survives the merge"
+	assert_contains "$(printf '%s' "${merged}" | jq -r '.localOnlyKey')" "true" \
+		"keys this repo does not manage survive the merge"
+
+	# The managed tier is forced instead. jq's recursive merge replaces arrays
+	# rather than concatenating them, so a stale deny entry is dropped rather
+	# than accumulating forever.
+	assert_contains "$(printf '%s' "${merged}" | jq -c '.permissions.deny')" "EnterWorktree" \
+		"the managed deny-list is forced onto an existing file"
+	assert_not_contains "$(printf '%s' "${merged}" | jq -c '.permissions.deny')" "StaleEntry" \
+		"the managed deny-list replaces rather than appends"
+	assert_contains "$(printf '%s' "${merged}" | jq -r '.env.HOMEBREW_NO_ASK')" "1" \
+		"the managed env is forced onto an existing file"
+	assert_contains \
+		"$(printf '%s' "${merged}" | jq -r '[.hooks[][].hooks[].command] | join(" ")')" \
+		"rtk hook claude" \
+		"the managed hooks are forced onto an existing file"
+
+	# chezmoi verify re-runs the script against the file it just wrote, so drift
+	# here fails the macOS smoke job rather than this one.
+	if [[ "$(printf '%s' "${merged}" | "${merge}")" == "${merged}" ]]; then
+		pass "re-merging an already-merged file changes nothing"
+	else
+		fail "the merge is not idempotent on an existing file"
+	fi
+	if [[ "$(printf '%s' "${seeded}" | "${merge}")" == "${seeded}" ]]; then
+		pass "re-merging the fresh-machine seed changes nothing"
+	else
+		fail "the merge is not idempotent on the seed"
+	fi
+
+	# A malformed settings.json silently disables every setting in it. Replacing
+	# it with the seed would throw away whatever was being edited at the time,
+	# so the script has to refuse and let a human look at it.
+	if printf '{ not json' | "${merge}" > /dev/null 2>&1; then
+		fail "a malformed settings.json was overwritten instead of rejected"
+	else
+		pass "a malformed settings.json is rejected rather than clobbered"
+	fi
+fi
 
 echo "== no SIGPIPE-prone pipelines =="
 # `grep --quiet` closes the pipe on its first match. Under pipefail the upstream

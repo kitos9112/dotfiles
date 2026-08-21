@@ -1,0 +1,147 @@
+#!/usr/bin/env bash
+#
+# ~/.claude/settings.json -- managed by chezmoi.
+#
+# chezmoi's `modify_` contract: the current target contents arrive on stdin and
+# this script's stdout becomes the new contents. That buys idempotent key
+# merging, which a plain managed file cannot do -- Claude Code rewrites this
+# file at runtime (theme, model, effortLevel, plugin toggles), so overwriting it
+# wholesale would fight the application.
+#
+# Three tiers, precedence left-to-right in the jq expression below:
+#
+#   defaults  Seeded on a fresh machine, then whatever is on disk wins forever.
+#             Use for anything Claude Code writes by itself.
+#   current   What is on disk right now. Preserves those runtime writes.
+#   managed   Forced on every apply, so edits here actually reach every machine.
+#             Use only for keys Claude Code never touches on its own.
+#
+# jq's `*` is a recursive object merge; arrays are replaced, not concatenated.
+# That is deliberate for permissions.deny -- it stays exactly this list. Do not
+# add --sort-keys: jq preserves input key order, which keeps diffs minimal.
+#
+# jq is guaranteed present: home/.chezmoidata/packages.yaml installs it from a
+# run_once_before_ script, and chezmoi runs those before applying file targets.
+set -euo pipefail
+
+current="$(cat)"
+if [ -z "${current//[[:space:]]/}" ]; then
+  current='{}'
+fi
+
+# Fail loudly rather than clobber. A malformed settings.json silently disables
+# every setting in it, so a human should look at it before we replace it.
+if ! printf '%s' "$current" | jq -e . >/dev/null 2>&1; then
+  printf '%s\n' "modify_settings.json: existing ~/.claude/settings.json is not valid JSON; refusing to overwrite. Fix or delete it, then re-run chezmoi apply." >&2
+  exit 1
+fi
+
+# `env` and `hooks` are empty here on purpose. Their real values live in the
+# managed tier below, but jq takes key order from its left operand, so without
+# a placeholder they would be appended to the end of the file on every fresh
+# write and churn the diff. An empty object reserves the slot; the recursive
+# merge fills it. Do not put real values here -- managed stays the one source
+# of truth for them.
+defaults='{
+  "env": {},
+  "permissions": {
+    "allow": [
+      "Bash(echo:*)",
+      "Bash(brew update:*)",
+      "Bash(brew upgrade:*)",
+      "Bash(brew tap:*)",
+      "Bash(brew outdated:*)",
+      "Bash(rtk brew update:*)",
+      "Bash(rtk brew upgrade:*)",
+      "Bash(rtk brew tap:*)",
+      "Bash(rtk brew outdated:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(chezmoi diff:*)",
+      "Bash(chezmoi data:*)"
+    ]
+  },
+  "model": "claude-fable-5[1m]",
+  "hooks": {},
+  "disableArtifact": true,
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "context-mode@context-mode": true,
+    "ecc@ecc": true,
+    "mattpocock-skills@mattpocock": true,
+    "cloudflare@cloudflare": true
+  },
+  "extraKnownMarketplaces": {
+    "context-mode": {
+      "source": {
+        "source": "github",
+        "repo": "mksglu/context-mode"
+      }
+    },
+    "ecc": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/affaan-m/ECC.git"
+      }
+    },
+    "mattpocock": {
+      "source": {
+        "source": "github",
+        "repo": "mattpocock/skills"
+      }
+    },
+    "cloudflare": {
+      "source": {
+        "source": "github",
+        "repo": "cloudflare/skills"
+      }
+    }
+  },
+  "effortLevel": "xhigh",
+  "autoUpdatesChannel": "stable",
+  "tui": "fullscreen",
+  "skipWorkflowUsageWarning": true,
+  "theme": "dark",
+  "includeCoAuthoredBy": true
+}'
+
+managed='{
+  "env": {
+    "HOMEBREW_NO_ASK": "1"
+  },
+  "permissions": {
+    "deny": [
+      "EnterWorktree"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"{{ .chezmoi.homeDir }}/.claude/hooks/context-mode-cache-heal.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}'
+
+jq -n \
+  --argjson def "$defaults" \
+  --argjson cur "$current" \
+  --argjson mgd "$managed" \
+  '$def * $cur * $mgd'

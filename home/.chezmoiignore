@@ -2,6 +2,27 @@
 # download or cache refresh logic runs.
 .local/share/fonts/.uuid
 
+# Claude Code. Only CLAUDE.md, RTK.md, settings.json and hooks/ are tracked --
+# see dot_claude/. Everything below is machine-local runtime state,
+# regenerable, or private, and this repo is PUBLIC. These patterns are
+# defensive: none of these paths are in the source tree today, so they exist to
+# stop an accidental `chezmoi add -r ~/.claude` from committing 2+ GB of
+# conversation transcripts, shell history, or credentials somewhere
+# world-readable.
+.claude/settings.local.json
+.claude/.credentials.json
+.claude/projects/**
+.claude/plugins/**
+.claude/context-mode/**
+.claude/spikes/**
+.claude/statsig/**
+.claude/shell-snapshots/**
+.claude/todos/**
+.claude/cache/**
+.claude/telemetry/**
+.claude/history.jsonl
+.claude/*.log
+
 {{ if ne (includeTemplate "machine-class" .) "desktop" -}}
 # Ghostty is only installed on GUI machines, so a server should not carry a
 # config file for a terminal it will never run.
