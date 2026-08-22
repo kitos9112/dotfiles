@@ -29,3 +29,12 @@
 .config/ghostty
 .config/ghostty/**
 {{ end -}}
+
+{{ if or (ne .chezmoi.os "darwin") (ne (includeTemplate "machine-class" .) "desktop") -}}
+# iTerm2 exists only on macOS, and only on a desktop. The dynamic profile staged
+# here is copied into iTerm2's DynamicProfiles directory by
+# run_onchange_after_36-darwin-terminal-fonts.sh, so anywhere else it is dead
+# weight.
+.config/iterm2
+.config/iterm2/**
+{{ end -}}

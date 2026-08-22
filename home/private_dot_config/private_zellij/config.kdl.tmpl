@@ -280,7 +280,7 @@ plugins {
 load_plugins {
 }
 web_client {
-    font "FiraMono Nerd Font"
+    font "{{ .terminalFont.name }}"
 }
 
 // Use a simplified UI without special fonts (arrow glyphs)

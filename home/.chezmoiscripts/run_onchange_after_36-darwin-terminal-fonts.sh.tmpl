@@ -1,0 +1,123 @@
+{{- if and (eq .chezmoi.os "darwin") (eq (includeTemplate "machine-class" . | trim) "desktop") -}}
+#! /usr/bin/env bash
+{{ includeTemplate "scripts-library" . }}
+
+# The font for the two macOS terminals that keep it in preferences rather than in
+# a config file. Ghostty, WezTerm, Alacritty, Hyper and Zellij all read a
+# chezmoi-managed file and need nothing from this script.
+#
+# run_onchange fingerprint, so editing .chezmoidata/fonts.yaml re-applies this:
+# font: {{ .terminalFont.name }} / {{ .terminalFont.postScriptName }} at {{ .terminalFont.size }}pt
+
+FONT_POSTSCRIPT={{ .terminalFont.postScriptName | quote }}
+FONT_SIZE={{ .terminalFont.size | quote }}
+PROFILE_NAME="dotfiles"
+ITERM_PROFILE_SOURCE="${HOME}/.config/iterm2/dotfiles-profile.json"
+ITERM_PROFILE_DIR="${HOME}/Library/Application Support/iTerm2/DynamicProfiles"
+
+# CoreText is the only authority on whether a font actually resolves. fc-list
+# would need fontconfig, which stock macOS does not have -- which is precisely
+# why the old dotfiles-doctor font check skipped silently on every Mac.
+function font_is_installed() {
+  local resolved
+  resolved="$(osascript -l JavaScript \
+    -e "ObjC.import('AppKit'); \$.NSFont.fontWithNameSize('${FONT_POSTSCRIPT}', ${FONT_SIZE}).isNil() ? 'missing' : 'found'" \
+    2>/dev/null || true)"
+
+  [[ "${resolved}" == "found" ]]
+}
+
+if ! font_is_installed; then
+  log_manual_action "${FONT_POSTSCRIPT} is not installed; re-run 'chezmoi apply' once the font download has finished"
+  exit 0
+fi
+
+# iTerm2 watches DynamicProfiles/ and reloads what it finds there immediately, so
+# its font needs no plist surgery and no restart.
+if [[ ! -d /Applications/iTerm.app ]]; then
+  log_info "iTerm2 is not installed; skipping its profile"
+elif [[ ! -f "${ITERM_PROFILE_SOURCE}" ]]; then
+  log_manual_action "${ITERM_PROFILE_SOURCE} is missing; cannot install the iTerm2 profile"
+else
+  log_task "Installing the ${PROFILE_NAME} iTerm2 dynamic profile"
+  mkdir -p "${ITERM_PROFILE_DIR}"
+  # Copied rather than symlinked: iTerm2 watches this directory, and a symlink
+  # whose target changed does not reliably raise an event for the link itself.
+  cp "${ITERM_PROFILE_SOURCE}" "${ITERM_PROFILE_DIR}/${PROFILE_NAME}.json"
+
+  # Read the Guid back out of the profile so it stays defined in exactly one
+  # place. plutil parses JSON, so this needs no jq on a freshly bootstrapped Mac.
+  iterm_guid="$(plutil -extract Profiles.0.Guid raw -o - "${ITERM_PROFILE_SOURCE}")"
+
+  if pgrep -x iTerm2 > /dev/null 2>&1; then
+    # iTerm2 holds its preferences in memory and rewrites them on quit, so a
+    # write now would be silently discarded. The profile file is already in
+    # place either way; only the "make it default" step has to wait.
+    log_info "iTerm2 is running; pick the ${PROFILE_NAME} profile there, or quit iTerm2 and re-run to make it the default"
+  else
+    defaults write com.googlecode.iterm2 "Default Bookmark Guid" -string "${iterm_guid}"
+    log_green "iTerm2 will open the ${PROFILE_NAME} profile by default"
+  fi
+fi
+
+# Terminal.app stores its font as an NSKeyedArchiver-encoded NSFont inside the
+# profile dict, so there is no plain string for `defaults write` to set. Its
+# AppleScript interface does expose font name and font size as plain text, but
+# Terminal.sdef declares the settings-set collection access="r", so a script can
+# only edit profiles that already exist -- it cannot create this one.
+#
+# So: build the archived font with JXA (built into macOS, no dependencies) and
+# edit an exported copy of the preferences. Going through `defaults
+# export`/`import` keeps cfprefsd in the loop; editing the plist under
+# ~/Library/Preferences directly races its cache and the change gets reverted.
+if pgrep -x Terminal > /dev/null 2>&1; then
+  log_manual_action "Terminal.app is running and rewrites its preferences on quit; quit it and re-run 'chezmoi apply' to set its font"
+else
+  log_task "Setting the Terminal.app ${PROFILE_NAME} profile font"
+
+  font_blob="$(osascript -l JavaScript -e "
+    ObjC.import('AppKit');
+    var font = \$.NSFont.fontWithNameSize('${FONT_POSTSCRIPT}', ${FONT_SIZE});
+    var err = Ref();
+    var data = \$.NSKeyedArchiver.archivedDataWithRootObjectRequiringSecureCodingError(font, false, err);
+    \$.NSString.alloc.initWithDataEncoding(data.base64EncodedDataWithOptions(0), \$.NSUTF8StringEncoding).js
+  ")"
+
+  # An explicit XXXXXX template, not `mktemp -t`: a Mac with GNU coreutils ahead
+  # of /usr/bin in PATH gets GNU mktemp, which rejects a -t template with no X's.
+  prefs="$(mktemp "${TMPDIR:-/tmp}/terminal-prefs.XXXXXX")"
+  # `defaults export` succeeds even for a domain that has no plist yet, so a Mac
+  # whose Terminal has never been customised is not a special case.
+  defaults export com.apple.Terminal "${prefs}"
+
+  current_default="$(plutil -extract 'Default Window Settings' raw -o - "${prefs}" 2>/dev/null || true)"
+  : "${current_default:=Basic}"
+
+  if ! plutil -extract "Window Settings.${PROFILE_NAME}" raw -o - "${prefs}" > /dev/null 2>&1; then
+    # Seed the managed profile from whatever is default now, so colours and
+    # window geometry carry over instead of resetting. A default that Terminal
+    # ships built-in has no dict in preferences, hence the bare-profile branch.
+    seed="${prefs}.seed"
+    if plutil -extract "Window Settings.${current_default}" xml1 -o "${seed}" "${prefs}" 2>/dev/null; then
+      plutil -insert "Window Settings.${PROFILE_NAME}" -xml "$(cat "${seed}")" "${prefs}"
+      rm -f "${seed}"
+      log_info "Seeded the ${PROFILE_NAME} profile from ${current_default}"
+    else
+      plutil -insert "Window Settings.${PROFILE_NAME}" -dictionary "${prefs}"
+      # Usually because the current default is a profile Terminal ships built in,
+      # which has no dict in preferences to copy. A profile name containing a dot
+      # would also land here, since plutil keypaths are dot-separated.
+      log_info "Created a bare ${PROFILE_NAME} profile; no stored settings found for ${current_default}"
+    fi
+  fi
+
+  plutil -replace "Window Settings.${PROFILE_NAME}.name" -string "${PROFILE_NAME}" "${prefs}"
+  plutil -replace "Window Settings.${PROFILE_NAME}.Font" -data "${font_blob}" "${prefs}"
+  plutil -replace 'Default Window Settings' -string "${PROFILE_NAME}" "${prefs}"
+  plutil -replace 'Startup Window Settings' -string "${PROFILE_NAME}" "${prefs}"
+
+  defaults import com.apple.Terminal "${prefs}"
+  rm -f "${prefs}"
+  log_green "Terminal.app will open ${PROFILE_NAME} with ${FONT_POSTSCRIPT} at ${FONT_SIZE}pt"
+fi
+{{- end -}}

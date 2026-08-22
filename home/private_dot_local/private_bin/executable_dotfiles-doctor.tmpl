@@ -11,6 +11,8 @@
 
 MACHINE_CLASS={{ $machineClass | quote }}
 TERMINAL_FONT={{ .terminalFont.name | quote }}
+TERMINAL_FONT_POSTSCRIPT={{ .terminalFont.postScriptName | quote }}
+TERMINAL_FONT_SIZE={{ .terminalFont.size | quote }}
 SIGNING_SSH_PROGRAM={{ .signing_ssh_program | default "" | quote }}
 
 failures=0
@@ -144,6 +146,57 @@ if [[ "${MACHINE_CLASS}" == "desktop" ]]; then
   check_command ghostty Ghostty || true
 {{- end }}
 
+{{- if eq .chezmoi.os "darwin" }}
+  # fc-list belongs to fontconfig, which stock macOS does not ship. This check
+  # therefore reported "fontconfig not installed" on every Mac and verified
+  # nothing at all. CoreText is the authority on macOS and built-in JXA reaches
+  # it with no dependencies to install.
+  font_resolved="$(osascript -l JavaScript \
+    -e "ObjC.import('AppKit'); \$.NSFont.fontWithNameSize('${TERMINAL_FONT_POSTSCRIPT}', ${TERMINAL_FONT_SIZE}).isNil() ? 'missing' : 'found'" \
+    2>/dev/null || true)"
+  if [[ "${font_resolved}" == "found" ]]; then
+    ok "${TERMINAL_FONT_POSTSCRIPT} resolves through CoreText"
+  else
+    fail "${TERMINAL_FONT_POSTSCRIPT} does not resolve; check ~/Library/Fonts"
+  fi
+
+  # Installed is not the same as configured. Ghostty, WezTerm, Alacritty, Hyper
+  # and Zellij read a chezmoi-managed file and cannot drift. These two keep their
+  # font in preferences, so they are the only ones that can quietly fall behind
+  # .chezmoidata/fonts.yaml -- which is the whole reason this check exists.
+  #
+  # The font is an NSKeyedArchiver blob, and the PostScript name survives inside
+  # it as readable text. openssl rather than base64, and tr rather than strings:
+  # base64's decode flag differs between the BSD and GNU builds, and strings
+  # comes from the Xcode command line tools, which need not be installed.
+  terminal_profile="$(defaults read com.apple.Terminal "Default Window Settings" 2>/dev/null || true)"
+  if [[ -z "${terminal_profile}" ]]; then
+    skip "Terminal.app has no default profile set yet"
+  else
+    terminal_font="$(defaults export com.apple.Terminal - 2>/dev/null |
+      plutil -extract "Window Settings.${terminal_profile}.Font" raw -o - - 2>/dev/null |
+      openssl base64 -d -A 2>/dev/null | tr -cd '[:print:]' || true)"
+    if [[ "${terminal_font}" == *"${TERMINAL_FONT_POSTSCRIPT}"* ]]; then
+      ok "Terminal.app profile '${terminal_profile}' uses ${TERMINAL_FONT_POSTSCRIPT}"
+    else
+      warn_check "Terminal.app profile '${terminal_profile}' is not using ${TERMINAL_FONT_POSTSCRIPT}; quit Terminal.app and run 'chezmoi apply'"
+    fi
+  fi
+
+  if [[ ! -d /Applications/iTerm.app ]]; then
+    skip "iTerm2 is not installed"
+  else
+    iterm_profile="${HOME}/Library/Application Support/iTerm2/DynamicProfiles/dotfiles.json"
+    if [[ ! -f "${iterm_profile}" ]]; then
+      warn_check "the iTerm2 dotfiles profile is not installed; run 'chezmoi apply'"
+    elif iterm_font="$(plutil -extract 'Profiles.0.Normal Font' raw -o - "${iterm_profile}" 2>/dev/null || true)" &&
+      [[ "${iterm_font}" == "${TERMINAL_FONT_POSTSCRIPT} ${TERMINAL_FONT_SIZE}" ]]; then
+      ok "the iTerm2 dotfiles profile uses ${TERMINAL_FONT_POSTSCRIPT} at ${TERMINAL_FONT_SIZE}pt"
+    else
+      warn_check "the iTerm2 dotfiles profile says '${iterm_font}', not '${TERMINAL_FONT_POSTSCRIPT} ${TERMINAL_FONT_SIZE}'; run 'chezmoi apply'"
+    fi
+  fi
+{{- else }}
   if command -v fc-list >/dev/null 2>&1; then
     # --count, not --quiet: grep --quiet exits on the first match and SIGPIPEs
     # fc-list, which pipefail then reports as a failed check at random.
@@ -155,6 +208,42 @@ if [[ "${MACHINE_CLASS}" == "desktop" ]]; then
   else
     skip "fontconfig not installed, cannot check fonts"
   fi
+
+  # Installed is not the same as configured. GNOME Terminal keeps its font in
+  # dconf rather than in a file this repo renders, so it is the Linux counterpart
+  # of the Terminal.app check and the only one here that can drift.
+  if ! command -v dconf >/dev/null 2>&1; then
+    skip "dconf not installed, cannot check the GNOME Terminal font"
+  else
+    gnome_profiles="$(dconf read '/org/gnome/terminal/legacy/profiles:/list' 2>/dev/null || true)"
+    gnome_profiles="$(printf '%s' "${gnome_profiles}" | tr -d "[]' ")"
+    if [[ -z "${gnome_profiles}" ]]; then
+      skip "GNOME Terminal has no profiles yet"
+    else
+      gnome_drift=0
+      gnome_checked=0
+      IFS=',' read -r -a gnome_profile_ids <<< "${gnome_profiles}"
+      for gnome_profile_id in "${gnome_profile_ids[@]}"; do
+        [[ -n "${gnome_profile_id}" ]] || continue
+        gnome_configured="$(dconf read "/org/gnome/terminal/legacy/profiles:/:${gnome_profile_id}/font" 2>/dev/null | tr -d "'" || true)"
+        gnome_system_font="$(dconf read "/org/gnome/terminal/legacy/profiles:/:${gnome_profile_id}/use-system-font" 2>/dev/null || true)"
+        gnome_checked=$((gnome_checked + 1))
+        # use-system-font has to be checked too, not just the font string: a
+        # profile inheriting the system font ignores its own font key, so the
+        # right value there still renders the wrong font.
+        if [[ "${gnome_configured}" != "${TERMINAL_FONT} ${TERMINAL_FONT_SIZE}" ||
+          "${gnome_system_font}" == "true" ]]; then
+          gnome_drift=$((gnome_drift + 1))
+        fi
+      done
+      if ((gnome_drift == 0)); then
+        ok "all ${gnome_checked} GNOME Terminal profile(s) use ${TERMINAL_FONT} ${TERMINAL_FONT_SIZE}"
+      else
+        warn_check "${gnome_drift} of ${gnome_checked} GNOME Terminal profile(s) are not using ${TERMINAL_FONT} ${TERMINAL_FONT_SIZE}; run 'chezmoi apply'"
+      fi
+    fi
+  fi
+{{- end }}
 else
   skip "terminal emulator and fonts not expected on a server"
 fi

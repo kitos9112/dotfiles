@@ -34,6 +34,20 @@ gnome:
     - path: /org/gnome/terminal/legacy/
       file: terminal-legacy.ini
 
+  # Font keys owned by .chezmoidata/fonts.yaml. dconf dumps them as literal
+  # strings, so exporting them would fork the terminal font away from fonts.yaml
+  # inside a file that looks like inert exported state -- the same drift the
+  # macOS terminals had. They are stripped on export by gnome-settings-export and
+  # written back from fonts.yaml by run_onchange_after_30-gnome-settings.
+  #
+  # use-system-font belongs here too: a profile that inherits the system font
+  # ignores its own font key, so leaving it exported would silently override the
+  # font this repo sets.
+  fontKeys:
+    - font
+    - monospace-font-name
+    - use-system-font
+
   # Transient state that dconf dumps but which must never be committed or
   # replayed onto another machine.
   excludedKeys:

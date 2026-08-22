@@ -12,4 +12,5 @@
 {{- end }}
 
 [font]
-  normal = { family = "FiraMono Nerd Font" }
+  normal = { family = "{{ .terminalFont.name }}" }
+  size = {{ .terminalFont.size }}

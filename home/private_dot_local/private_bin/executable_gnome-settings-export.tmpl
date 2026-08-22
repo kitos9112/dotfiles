@@ -36,9 +36,14 @@ fi
 GNOME_DIR="${SOURCE_DIR}/private_dot_config/dotfiles/gnome"
 mkdir -p "${GNOME_DIR}"
 
-# Transient keys dconf reports but that must not travel between machines.
+# Transient keys dconf reports but that must not travel between machines, plus
+# the font keys .chezmoidata/fonts.yaml owns. Exporting a font would fork it away
+# from fonts.yaml; run_onchange_after_30-gnome-settings writes it back instead.
 excluded_keys=(
 {{- range .gnome.excludedKeys }}
+  {{ . | quote }}
+{{- end }}
+{{- range .gnome.fontKeys }}
   {{ . | quote }}
 {{- end }}
 )

@@ -1,0 +1,30 @@
+{{/*
+iTerm2 dynamic profile -- managed by chezmoi.
+
+iTerm2 watches ~/Library/Application Support/iTerm2/DynamicProfiles/ and picks
+up any profile it finds there immediately: no restart, and nothing has to write
+to com.googlecode.iterm2.plist. That matters because iTerm2 holds its
+preferences in memory and rewrites the plist when it quits, so a `defaults
+write` against a running iTerm2 is silently discarded. A file it watches is not.
+
+run_onchange_after_36-darwin-terminal-fonts.sh copies the rendered file into
+that directory.
+
+The profile inherits from "Default", so hand-tuned colours and keybindings there
+still apply and only the font is owned by these dotfiles.
+
+Comments live in this template header rather than the body because JSON has no
+comment syntax and iTerm2 rejects a profile it cannot parse.
+*/ -}}
+{
+  "Profiles": [
+    {
+      "Name": "dotfiles",
+      "Guid": "8E4F2B10-6C3D-4A57-9E1B-D07F11E5F0A7",
+      "Dynamic Profile Parent Name": "Default",
+      "Normal Font": "{{ .terminalFont.postScriptName }} {{ .terminalFont.size }}",
+      "Non Ascii Font": "{{ .terminalFont.postScriptName }} {{ .terminalFont.size }}",
+      "Use Non-ASCII Font": false
+    }
+  ]
+}

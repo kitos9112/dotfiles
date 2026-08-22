@@ -1,5 +1,4 @@
-{{- $machineClass := includeTemplate "machine-class" . | trim -}}
-{{- if and (eq .chezmoi.os "linux") (eq $machineClass "desktop") -}}
+{{- if and (eq .chezmoi.os "linux") (eq (includeTemplate "machine-class" . | trim) "desktop") -}}
 {{- $gnomeSource := joinPath .chezmoi.sourceDir "private_dot_config" "dotfiles" "gnome" -}}
 #! /usr/bin/env bash
 {{ includeTemplate "scripts-library" . }}
@@ -38,5 +37,42 @@ if ((loaded == 0)); then
   log_info "No exported GNOME settings found; run 'gnome-settings-export' to create them"
 else
   log_green "Loaded ${loaded} GNOME settings group(s)"
+fi
+
+# GNOME Terminal keeps its font in dconf, so no templated config file covers it.
+# The font keys are stripped on export (see gnome.fontKeys) and written here
+# instead, which keeps .chezmoidata/fonts.yaml the only place the font is named.
+# This runs after the dconf load above, which would otherwise overwrite it.
+#
+# Part of the run_onchange fingerprint, so editing fonts.yaml re-applies this:
+# font: {{ .terminalFont.name }} {{ .terminalFont.size }}
+GNOME_TERMINAL_FONT="{{ .terminalFont.name }} {{ .terminalFont.size }}"
+PROFILE_ROOT="/org/gnome/terminal/legacy/profiles:"
+
+profiles="$(dconf read "${PROFILE_ROOT}/list" 2>/dev/null || true)"
+if [[ -z "${profiles}" ]]; then
+  # A machine that has never opened GNOME Terminal has no profile list yet, but
+  # it may still have a default profile recorded.
+  profiles="$(dconf read "${PROFILE_ROOT}/default" 2>/dev/null || true)"
+fi
+
+# dconf reports a GVariant list -- ['uuid-one', 'uuid-two'] -- and bash cannot
+# parse GVariant, so reduce it to bare comma-separated UUIDs.
+profiles="$(printf '%s' "${profiles}" | tr -d "[]' ")"
+
+if [[ -z "${profiles}" ]]; then
+  log_info "GNOME Terminal has no profiles yet; skipping its font"
+else
+  applied=0
+  IFS=',' read -r -a profile_ids <<< "${profiles}"
+  for profile_id in "${profile_ids[@]}"; do
+    [[ -n "${profile_id}" ]] || continue
+    # A profile inheriting the system font ignores its own font key, so this has
+    # to be turned off or the write below has no visible effect.
+    dconf write "${PROFILE_ROOT}/:${profile_id}/use-system-font" "false"
+    dconf write "${PROFILE_ROOT}/:${profile_id}/font" "'${GNOME_TERMINAL_FONT}'"
+    applied=$((applied + 1))
+  done
+  log_green "Set ${GNOME_TERMINAL_FONT} on ${applied} GNOME Terminal profile(s)"
 fi
 {{- end -}}

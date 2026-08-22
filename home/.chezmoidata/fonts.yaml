@@ -9,7 +9,16 @@
 fontsDir: .local/share/fonts
 
 terminalFont:
-  # Family name as fontconfig reports it, used by the terminal configs.
+  # Family name as fontconfig reports it, used by the file-configured terminals
+  # (Ghostty, WezTerm, Alacritty, Hyper, Zellij).
   name: FiraMono Nerd Font
+  # PostScript name, used by the macOS terminals that keep their font in
+  # preferences rather than a config file (iTerm2, Terminal.app). This is a
+  # separate fact about the font file, not a transformation of the family:
+  # "FiraMono Nerd Font" is "FiraMonoNF-Regular". Read it off an installed face:
+  #   mdls -name com_apple_ats_name_postscript ~/Library/Fonts/<face>.otf
+  postScriptName: FiraMonoNF-Regular
+  # Point size, shared by every terminal so they all match.
+  size: 12
   # Release asset in ryanoasis/nerd-fonts fetched by .chezmoiexternal.yaml.
   archive: FiraMono.tar.xz
