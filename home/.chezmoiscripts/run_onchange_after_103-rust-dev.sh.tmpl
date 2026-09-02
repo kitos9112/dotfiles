@@ -1,0 +1,31 @@
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+{{ includeTemplate "scripts-library" . }}
+
+# rust manifest sha256: {{ .packages.rust | toJson | sha256sum }}
+
+toolchain={{ .packages.rust.toolchain | shellQuote }}
+
+if [[ ! -x "${HOME}/.cargo/bin/rustup" ]]; then
+  log_task "Installing Rust ${toolchain}"
+  if ! curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
+    sh -s -- -y --default-toolchain "${toolchain}" --no-modify-path; then
+    log_manual_action "Rust installation failed; continuing without optional cargo tools"
+    exit 0
+  fi
+fi
+
+export PATH="${HOME}/.cargo/bin:${PATH}"
+log_task "Ensuring Rust ${toolchain} is current"
+if ! rustup toolchain install "${toolchain}" || ! rustup default "${toolchain}"; then
+  log_manual_action "Rust toolchain setup failed; continuing without optional cargo tools"
+  exit 0
+fi
+
+{{ range .packages.rust.cargo_tools -}}
+if ! cargo install {{ .name | shellQuote }} --version {{ .version | shellQuote }} --locked; then
+  log_manual_action "Could not install {{ .name }} {{ .version }}; continuing"
+fi
+{{ end -}}
+{{- end -}}

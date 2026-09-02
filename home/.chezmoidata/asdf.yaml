@@ -1,0 +1,13 @@
+---
+asdf_plugins:
+  - name: terragrunt
+  - name: kubectl
+  - name: packer
+  - name: terraform
+    url: https://github.com/asdf-community/asdf-hashicorp.git
+  - name: helm
+    url: https://github.com/Antiarchitect/asdf-helm.git
+  - name: nodejs
+    url: https://github.com/asdf-vm/asdf-nodejs.git
+  - name: golang
+    url: https://github.com/asdf-community/asdf-golang.git

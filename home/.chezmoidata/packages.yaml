@@ -117,3 +117,10 @@ packages:
     codex:
       npm_package: "@openai/codex"
       version: latest
+
+  rust:
+    toolchain: stable
+    cargo_tools:
+      - name: license-generator
+        # renovate: datasource=crate packageName=license-generator
+        version: "1.3.0"

@@ -1,0 +1,17 @@
+{{- $osReleaseID := get .chezmoi.osRelease "id" | default "" -}}
+{{- if and (eq .chezmoi.os "linux") (or (eq $osReleaseID "fedora") (eq $osReleaseID "almalinux")) -}}
+#!/usr/bin/env bash
+
+{{ includeTemplate "scripts-library" . }}
+
+download_dir="$(mktemp -d "${TMPDIR:-/tmp}/session-manager-plugin.XXXXXX")"
+trap 'rm -rf "${download_dir}"' EXIT HUP INT TERM
+package="${download_dir}/session-manager-plugin.rpm"
+
+log_task "Downloading AWS Session Manager plugin"
+curl --fail --location \
+  "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/linux_64bit/session-manager-plugin.rpm" \
+  --output "${package}"
+sudo yum install -y "${package}"
+log_green "AWS Session Manager plugin is installed"
+{{- end -}}

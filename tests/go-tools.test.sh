@@ -11,7 +11,7 @@ REPO_ROOT="$(
 	pwd -P
 )"
 GO_TOOLS_TEMPLATE="${REPO_ROOT}/home/.chezmoiscripts/run_onchange_after_104-install-go-tools.zsh.tmpl"
-ASDF_UPDATE_TEMPLATE="${REPO_ROOT}/home/.chezmoiscripts/run_after_099-update-asdf.sh.tmpl"
+ASDF_UPDATE_TEMPLATE="${REPO_ROOT}/home/.chezmoiscripts/run_onchange_after_080-asdf-tools.sh.tmpl"
 GO_TOOLS_SOURCE="${REPO_ROOT}/home/private_dot_config/dotfiles/go-tools"
 ACCEPTANCE_WORKFLOW="${REPO_ROOT}/.github/workflows/acceptance-tests.yaml"
 TRIVY_IGNORE="${REPO_ROOT}/.trivyignore"

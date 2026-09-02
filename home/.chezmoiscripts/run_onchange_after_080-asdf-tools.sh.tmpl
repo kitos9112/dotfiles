@@ -1,0 +1,45 @@
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
+#!/usr/bin/env bash
+
+{{ includeTemplate "scripts-library" . }}
+
+# asdf manifest sha256: {{ .asdf_plugins | toJson | sha256sum }}
+# dot_tool-versions.tmpl sha256: {{ include (joinPath .chezmoi.sourceDir "dot_tool-versions.tmpl") | sha256sum }}
+
+ASDF="${HOME}/.local/bin/asdf"
+if [[ ! -x "${ASDF}" ]]; then
+  log_info "asdf is not installed yet; skipping tool convergence"
+  exit 0
+fi
+
+installed_plugins="$("${ASDF}" plugin list 2>/dev/null || true)"
+
+{{ range .asdf_plugins -}}
+plugin_name={{ .name | shellQuote }}
+plugin_url={{ get . "url" | default "" | shellQuote }}
+if ! grep -Fx -- "${plugin_name}" <<<"${installed_plugins}" >/dev/null; then
+  log_task "Adding ASDF plugin ${plugin_name}"
+  if [[ -n "${plugin_url}" ]]; then
+    "${ASDF}" plugin add "${plugin_name}" "${plugin_url}" || \
+      log_manual_action "Could not add ASDF plugin ${plugin_name}; continuing"
+  else
+    "${ASDF}" plugin add "${plugin_name}" || \
+      log_manual_action "Could not add ASDF plugin ${plugin_name}; continuing"
+  fi
+fi
+
+{{ end -}}
+log_task "Installing declared ASDF tool versions"
+{{ if get . "is_wsl" | default false -}}
+if CC=/home/linuxbrew/.linuxbrew/bin/gcc-14 \
+  CPPFLAGS="-I/home/linuxbrew/.linuxbrew/include" \
+  LDFLAGS="-L/home/linuxbrew/.linuxbrew/lib" \
+  "${ASDF}" install; then
+{{ else -}}
+if "${ASDF}" install; then
+{{ end -}}
+  log_green "Declared ASDF tool versions are installed"
+else
+  log_manual_action "Some ASDF tool versions failed to install; re-run 'asdf install' after checking build dependencies"
+fi
+{{- end -}}

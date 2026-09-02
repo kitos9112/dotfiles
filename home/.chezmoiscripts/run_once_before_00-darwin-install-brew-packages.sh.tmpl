@@ -98,9 +98,6 @@ $brew bundle --file=/dev/stdin <<EOF
     cask "maccy"
 EOF
 
-# 4. Upgrade already-installed brew packages
-$brew update && $brew upgrade
-
-# 5. Download fzf binary and update configuration files non interactively
-/opt/homebrew/opt/fzf/install --all
+# fzf shell integration is configured by run_after_015-fzf-shell-integration,
+# after the external and package installation stages have completed.
 {{- end -}}

@@ -198,8 +198,6 @@ fi
 # Every Homebrew consumer must key off the new flag, or the axes silently recouple.
 for brew_consumer in \
 	".chezmoiscripts/run_onchange_before_04-linux-brew-packages.zsh.tmpl" \
-	".chezmoiscripts/run_after_099-update-asdf.sh.tmpl" \
-	".chezmoiscripts/run_after_900-finalizers.zsh.tmpl" \
 	"dot_oh-my-zsh-custom/env.zsh.tmpl" \
 	".chezmoiexternal.yaml"; do
 
@@ -595,18 +593,13 @@ assert_not_contains "$(cat "${SCRIPTS_DIR}/run_onchange_before_04-linux-brew-pac
 assert_contains "$(cat "${SCRIPTS_DIR}/run_after_800-create-symblinks.sh.tmpl")" \
 	'if [[ ! -e "$HOME/$path" ]]' "the symlink script skips absent paths"
 
-# A toolchain build failure must not abort the whole apply.
-for guarded in run_after_099-update-asdf.sh.tmpl run_after_900-finalizers.zsh.tmpl; do
-	if grep -qE 'plugin update --all(\)|;| \|\|)' "${SCRIPTS_DIR}/${guarded}" &&
-		grep -qE '\|\| echo|^if \$\{ASDF\}|if \$\{ASDF\}' "${SCRIPTS_DIR}/${guarded}"; then
-		pass "${guarded} tolerates asdf failures"
-	else
-		fail "${guarded} still aborts the apply when asdf fails"
-	fi
-done
-
-assert_contains "$(cat "${SCRIPTS_DIR}/run_after_900-finalizers.zsh.tmpl")" \
-	"command -v brew" "the finalizer guards brew being absent from PATH"
+# Tool convergence is onchange-driven and tolerant; detailed runtime behavior
+# lives in script-contracts.test.sh.
+asdf_script="${SCRIPTS_DIR}/run_onchange_after_080-asdf-tools.sh.tmpl"
+assert_contains "$(cat "${asdf_script}")" \
+	"failed to install" "the ASDF convergence script warns on install failure"
+assert_not_contains "$(cat "${asdf_script}")" \
+	"plugin update --all" "normal apply does not update ASDF plugins"
 
 echo "== Homebrew trust-store permissions =="
 # Homebrew 6 refuses to write trust.json if either of the stores the script
