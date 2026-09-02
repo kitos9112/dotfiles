@@ -50,6 +50,15 @@ assert_file_exists() {
 	fi
 }
 
+assert_file_absent() {
+	local path=$1 label=$2
+	if [[ ! -e "${path}" ]]; then
+		pass "${label}"
+	else
+		fail "${label} (still present: ${path})"
+	fi
+}
+
 assert_file_content() {
 	local path=$1 expected=$2 label=$3
 	if [[ -f "${path}" && "$(<"${path}")" == "${expected}" ]]; then
