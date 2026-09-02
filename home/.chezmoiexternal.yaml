@@ -1,10 +1,6 @@
-{{- /* "chezmoi" is present as work around for https://github.com/twpayne/chezmoi/discussions/1724 */ -}}
-{{- $cache := dict "chezmoi" .chezmoi -}}
+{{- $root := . -}}
 {{- $arch := includeTemplate "map-architectures" . -}}
 {{- $platform := includeTemplate "map-platforms" . -}}
-{{- $vscodeVersion := "1.135.0" -}}
-
-{{- template "read-versions-and-revisions-cache" $cache -}}
 
 {{- if ne (env "DOTFILES_TEST") "true" }}
 ##########################
@@ -42,15 +38,13 @@
 
 ".local/bin/asdf":
   type: archive-file
-  {{ $asdfVersion := includeTemplate "get-github-latest-version" (list "asdf-vm/asdf" $cache) }}
-  url: "https://github.com/asdf-vm/asdf/releases/download/v{{ $asdfVersion }}/asdf-v{{ $asdfVersion }}-{{ .chezmoi.os }}-{{ .chezmoi.arch }}.tar.gz"
+  url: "https://github.com/asdf-vm/asdf/releases/download/v{{ .versions.asdf }}/asdf-v{{ .versions.asdf }}-{{ .chezmoi.os }}-{{ .chezmoi.arch }}.tar.gz"
   path: asdf
 
-{{ $uvVersion := includeTemplate "get-github-latest-version" (list "astral-sh/uv" $cache) }}
 {{- range list "uv" "uvx" }}
 ".local/bin/{{ . }}":
   type: archive-file
-  url: "https://github.com/astral-sh/uv/releases/download/{{ $uvVersion }}/uv-{{ $arch }}-{{ $platform }}-{{ $cache.chezmoi.os }}{{ if eq $cache.chezmoi.os "linux" }}-gnu{{ end }}.tar.gz"
+  url: "https://github.com/astral-sh/uv/releases/download/{{ $root.versions.uv }}/uv-{{ $arch }}-{{ $platform }}-{{ $root.chezmoi.os }}{{ if eq $root.chezmoi.os "linux" }}-gnu{{ end }}.tar.gz"
   stripComponents: 1
   path: "{{ . }}"
 {{ end }}
@@ -63,8 +57,7 @@
 
 ".local/bin/fzf":
   type: archive-file
-  {{ $fzfVersion := includeTemplate "get-github-latest-version" (list "junegunn/fzf" $cache) }}
-  url: "https://github.com/junegunn/fzf/releases/download/v{{ $fzfVersion }}/fzf-{{ $fzfVersion }}-{{ .chezmoi.os}}_{{ .chezmoi.arch }}.tar.gz"
+  url: "https://github.com/junegunn/fzf/releases/download/v{{ .versions.fzf }}/fzf-{{ .versions.fzf }}-{{ .chezmoi.os}}_{{ .chezmoi.arch }}.tar.gz"
   path: fzf
 
 ".config/wireshark_profiles":
@@ -76,10 +69,9 @@
 {{- if eq (includeTemplate "machine-class" .) "desktop" }}
 {{ $fontsDir := .fontsDir }}
 {{- if eq .chezmoi.os "darwin" }}{{ $fontsDir = "Library/Fonts" }}{{ end }}
-{{- $nerdFontsVersion := includeTemplate "get-github-latest-version" (list "ryanoasis/nerd-fonts" $cache) }}
 "{{ $fontsDir }}":
   type: "archive"
-  url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ $nerdFontsVersion }}/{{ .terminalFont.archive }}"
+  url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ .versions.nerd_fonts }}/{{ .terminalFont.archive }}"
   include:
     - "*.otf"
     - "*.ttf"
@@ -95,8 +87,7 @@
 
 ".local/bin/retry":
   type: file
-  {{ $retryVersion := includeTemplate "get-github-latest-version" (list "kadwanev/retry" $cache) }}
-  url: "https://github.com/kadwanev/retry/raw/{{ $retryVersion }}/retry"
+  url: "https://github.com/kadwanev/retry/raw/{{ .versions.retry }}/retry"
   executable: true
 
 {{/* Portable VS Code, Go and direnv stand in for Homebrew-installed tooling, so
@@ -105,25 +96,22 @@
 {{ if ne (includeTemplate "use-homebrew" . | trim) "true" -}}
 ".apps/vscode":
   type: "archive"
-  url: "https://update.code.visualstudio.com/{{ $vscodeVersion }}/{{ if eq .chezmoi.os "darwin" }}{{ if eq .chezmoi.arch "amd64" }}darwin{{ else }}darwin-arm64{{ end }}{{ else if eq .chezmoi.os "linux" }}linux-{{ if eq .chezmoi.arch "amd64" }}x64{{ else }}arm64{{ end }}{{ end }}/stable"
+  url: "https://update.code.visualstudio.com/{{ .versions.vscode }}/{{ if eq .chezmoi.os "darwin" }}{{ if eq .chezmoi.arch "amd64" }}darwin{{ else }}darwin-arm64{{ end }}{{ else if eq .chezmoi.os "linux" }}linux-{{ if eq .chezmoi.arch "amd64" }}x64{{ else }}arm64{{ end }}{{ end }}/stable"
   exact: true
   stripComponents: 1
   refreshPeriod: "168h"
 
 ".go":
   type: "archive"
-  url: "https://go.dev/dl/go1.27.0.{{ .chezmoi.os }}-{{ .chezmoi.arch }}.tar.gz"
+  url: "https://go.dev/dl/go{{ .versions.go }}.{{ .chezmoi.os }}-{{ .chezmoi.arch }}.tar.gz"
   exact: true
   stripComponents: 1
   refreshPeriod: "168h"
 
 ".local/bin/direnv":
   type: "file"
-  {{ $direnvVersion := includeTemplate "get-github-latest-version" (list "direnv/direnv" $cache) }}
-  url: "https://github.com/direnv/direnv/releases/download/v{{ $direnvVersion }}/direnv.{{ .chezmoi.os }}-{{ .chezmoi.arch }}"
+  url: "https://github.com/direnv/direnv/releases/download/v{{ .versions.direnv }}/direnv.{{ .chezmoi.os }}-{{ .chezmoi.arch }}"
   executable: true
 {{ end -}}
 
 {{- end }}
-
-{{- template "save-versions-and-revisions-cache" $cache -}}
