@@ -104,4 +104,53 @@ else
 	fail "chezmoi apply still performs package-manager upgrades: ${upgrade_matches}"
 fi
 
+echo "== rendered script syntax =="
+while IFS='|' read -r os os_id profile script; do
+	[[ -n "${script}" ]] || continue
+	path="${SCRIPTS_DIR}/${script}"
+	assert_file_exists "${path}" "${script} exists"
+	if [[ -f "${path}" ]]; then
+		rendered="$(render_for "${os}" "${os_id}" "${profile}" "${path}")"
+		assert_valid_bash "${rendered}" "${script} renders valid Bash"
+	fi
+done <<'EOF'
+linux|ubuntu|desktop|run_onchange_before_03-linux-apt-packages.sh.tmpl
+linux|ubuntu|desktop|run_once_after_20-1password-signin.sh.tmpl
+linux|ubuntu|desktop|run_onchange_after_25-install-ghostty.sh.tmpl
+linux|ubuntu|desktop|run_onchange_after_30-gnome-settings.sh.tmpl
+linux|ubuntu|desktop|run_onchange_after_35-refresh-font-cache.sh.tmpl
+darwin|darwin|desktop|run_onchange_after_36-darwin-terminal-fonts.sh.tmpl
+darwin|darwin|desktop|run_onchange_after_40-install-ai-clis.sh.tmpl
+linux|ubuntu|server|run_after_800-create-symblinks.sh.tmpl
+EOF
+
+echo "== bootstrap resilience =="
+assert_file_exists "${SCRIPTS_DIR}/run_after_015-fzf-shell-integration.sh.tmpl" \
+	"fzf integration runs after externals"
+assert_contains "$(<"${SCRIPTS_DIR}/run_after_800-create-symblinks.sh.tmpl")" \
+	'if [[ ! -e "$HOME/$path" ]]' "symlink replication skips missing sources"
+
+omz_source="$(<"${SCRIPTS_DIR}/run_once_before_02-install-omz.sh.tmpl")"
+assert_contains "${omz_source}" 'grep -q "^${username}:" /etc/passwd' \
+	"login-shell changes are limited to local accounts"
+assert_contains "${omz_source}" 'if sudo chsh' "a failed chsh does not abort bootstrap"
+assert_contains "$(<"${SOURCE_DIR}/dot_bashrc.tmpl")" \
+	'"$(basename -- "${SHELL:-}")" != "zsh"' "interactive Bash hands over to Zsh"
+
+trust_source="$(<"${SCRIPTS_DIR}/run_onchange_after_01-brew-trust-taps.sh.tmpl")"
+assert_contains "${trust_source}" 'chmod 700' "Homebrew trust stores are private"
+assert_file_exists "${SOURCE_DIR}/private_dot_config/private_homebrew/brew.env" \
+	"managed Homebrew config uses the private_ attribute"
+
+echo "== pipeline safety =="
+sigpipe_hits=0
+while IFS= read -r candidate; do
+	grep -qE 'pipefail|scripts-library' "${candidate}" || continue
+	while IFS= read -r hit; do
+		fail "grep --quiet in a pipefail pipeline: ${hit}"
+		sigpipe_hits=$((sigpipe_hits + 1))
+	done < <(grep -n -- '| *grep [^|]*--quiet\|| *grep -[a-zA-Z]*q' "${candidate}" || true)
+done < <(find "${SCRIPTS_DIR}" "${SOURCE_DIR}/private_dot_local/private_bin" -type f)
+((sigpipe_hits > 0)) || pass "no SIGPIPE-prone grep pipelines remain"
+
 finish_tests

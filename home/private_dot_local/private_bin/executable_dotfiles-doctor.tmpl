@@ -1,4 +1,5 @@
 {{- $machineClass := includeTemplate "machine-class" . | trim -}}
+{{- $signingSSHProgram := get . "signing_ssh_program" | default "" -}}
 #! /usr/bin/env bash
 {{ includeTemplate "scripts-library" . }}
 
@@ -9,11 +10,11 @@
 # tool that was never meant to be here) are reported as skipped, not failed:
 # only genuine breakage should turn the exit code red.
 
-MACHINE_CLASS={{ $machineClass | quote }}
-TERMINAL_FONT={{ .terminalFont.name | quote }}
-TERMINAL_FONT_POSTSCRIPT={{ .terminalFont.postScriptName | quote }}
-TERMINAL_FONT_SIZE={{ .terminalFont.size | quote }}
-SIGNING_SSH_PROGRAM={{ .signing_ssh_program | default "" | quote }}
+MACHINE_CLASS={{ shellQuote $machineClass }}
+TERMINAL_FONT={{ shellQuote .terminalFont.name }}
+TERMINAL_FONT_POSTSCRIPT={{ shellQuote .terminalFont.postScriptName }}
+TERMINAL_FONT_SIZE={{ shellQuote (printf "%v" .terminalFont.size) }}
+SIGNING_SSH_PROGRAM={{ shellQuote $signingSSHProgram }}
 
 failures=0
 warnings=0

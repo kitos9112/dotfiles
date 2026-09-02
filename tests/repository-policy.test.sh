@@ -31,4 +31,24 @@ for obsolete in \
 	assert_file_absent "${obsolete}" "$(basename "${obsolete}") is removed"
 done
 
+for superseded in \
+	"${SCRIPTS_DIR}/run_after_080-install-asdf-plugins.sh.tmpl" \
+	"${SCRIPTS_DIR}/run_after_099-update-asdf.sh.tmpl" \
+	"${SCRIPTS_DIR}/run_after_103-rust-dev.zsh.tmpl" \
+	"${SCRIPTS_DIR}/run_after_900-finalizers.zsh.tmpl" \
+	"${SCRIPTS_DIR}/run_once_after_10-linux-install-iac-tools.sh.tmpl" \
+	"${SOURCE_DIR}/scripts/.helpers"; do
+	assert_file_absent "${superseded}" "$(basename "${superseded}") is superseded"
+done
+
+echo "== source attributes and modern functions =="
+assert_file_exists "${SOURCE_DIR}/private_dot_config/private_homebrew/brew.env" \
+	"Homebrew state is private in the target path"
+assert_file_exists "${SOURCE_DIR}/private_dot_config/private_opencode/create_opencode.json" \
+	"OpenCode defaults use create_ semantics"
+assert_file_exists "${SOURCE_DIR}/private_dot_codex/create_private_config.toml" \
+	"Codex defaults use create_ semantics"
+assert_contains "$(<"${SCRIPTS_DIR}/run_onchange_after_080-asdf-tools.sh.tmpl")" \
+	'shellQuote' "shell arguments use chezmoi 2.72 quoting"
+
 finish_tests

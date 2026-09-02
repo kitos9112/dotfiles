@@ -77,6 +77,27 @@ render_template() {
 		--file "${file}"
 }
 
+render_for() {
+	local os=$1 os_id=$2 profile=$3 file=$4 override
+	override="$(jq -cn \
+		--arg os "${os}" \
+		--arg id "${os_id}" \
+		--arg profile "${profile}" \
+		'{chezmoi:{os:$os,osRelease:{id:$id}},machine_class:$profile,is_root:false,is_work:false,is_wsl:false,use_homebrew:false,github_username:"kitos9112"}')"
+	DOTFILES_PROFILE="${profile}" DOTFILES_HOMEBREW=false \
+		render_template "${file}" "${override}"
+}
+
+assert_valid_bash() {
+	local content=$1 label=$2 script="${TMP_ROOT}/syntax-$RANDOM.sh"
+	printf '%s\n' "${content}" >"${script}"
+	if bash -n "${script}" 2>/dev/null; then
+		pass "${label}"
+	else
+		fail "${label}"
+	fi
+}
+
 finish_tests() {
 	if ((failures > 0)); then
 		printf '\n%d contract test(s) failed\n' "${failures}" >&2

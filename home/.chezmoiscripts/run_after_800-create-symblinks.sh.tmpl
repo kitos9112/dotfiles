@@ -1,9 +1,11 @@
-{{- if and (eq .chezmoi.os "linux") ( .extra_home_dir ) -}}
+{{- $extraHomeDir := get . "extra_home_dir" | default "" -}}
+{{- if and (eq .chezmoi.os "linux") $extraHomeDir -}}
 #!/usr/bin/env bash
 
 set -ev -o pipefail
 
 paths=".bashrc .fzf .fzf.bash .fzf.zsh .gitconfig .oh-my-zsh-custom .p10k.zsh .tmux.conf.local .tmux.conf .vimrc .zshrc"
+EXTRA_HOME_DIR={{ shellQuote $extraHomeDir }}
 
 # Create an array with paths (files or directories)
 IFS=' ' read -ra path_array <<< "$paths"
@@ -20,6 +22,6 @@ for path in "${path_array[@]}"; do
   fi
 
   resolved="$(realpath "$HOME/$path")"
-  rsync -uL --exclude "*.git*" --exclude "${resolved}/.git" "${resolved}" "{{ .extra_home_dir }}/$(basename "$path")"
+  rsync -uL --exclude "*.git*" --exclude "${resolved}/.git" "${resolved}" "${EXTRA_HOME_DIR}/$(basename "$path")"
 done
 {{ end -}}

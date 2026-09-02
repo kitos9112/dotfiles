@@ -9,6 +9,16 @@ source "${SCRIPT_DIR}/lib/contract-test.sh"
 VERSIONS_FILE="${SOURCE_DIR}/.chezmoidata/versions.yaml"
 EXTERNALS_FILE="${SOURCE_DIR}/.chezmoiexternal.yaml"
 
+echo "== package profile selection =="
+package_probe="${TMP_ROOT}/packages.tmpl"
+printf '{{ concat .packages.apt.common (index .packages.apt .machine_class) | uniq | sortAlpha | toJson }}\n' \
+	>"${package_probe}"
+desktop_packages="$(render_template "${package_probe}" '{"machine_class":"desktop"}')"
+server_packages="$(render_template "${package_probe}" '{"machine_class":"server"}')"
+assert_contains "${desktop_packages}" '"1password"' "desktop installs the 1Password app"
+assert_not_contains "${server_packages}" '"1password"' "server omits the 1Password app"
+assert_contains "${server_packages}" '"1password-cli"' "server keeps the 1Password CLI"
+
 echo "== pinned external versions =="
 assert_file_exists "${VERSIONS_FILE}" "release versions are checked in"
 
