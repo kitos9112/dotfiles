@@ -83,11 +83,13 @@ render_script() {
   local destination=$1
   local data_json=${2:-'{"shell_history_backup_document":"","shell_history_backup_vault":"","shell_history_backup_archive_name":""}'}
 
-  chezmoi execute-template \
+  if ! chezmoi execute-template \
     --config "${TEST_CHEZMOI_CONFIG}" \
     --source "${REPO_ROOT}" \
     --file "${TEMPLATE_PATH}" \
-    --override-data "${data_json}" >"${destination}"
+    --override-data "${data_json}" >"${destination}"; then
+    return 1
+  fi
   chmod 700 "${destination}"
 }
 
@@ -350,6 +352,18 @@ test_env_overrides_baked_default() {
   assert_contains $'cmd\tdocument\tedit\tdoc-123\t' "$(cat "${LOG_FILE}")" "expected OP_ITEM_ID to override baked default"
 }
 
+test_optional_chezmoi_defaults_can_be_absent() {
+  local rendered="${TMP_ROOT}/fresh-data-defaults.sh"
+
+  if ! render_script "${rendered}" '{}'; then
+    fail "fresh chezmoi data should render without shell-history defaults"
+  fi
+
+  assert_contains 'DEFAULT_OP_ITEM=""' "$(cat "${rendered}")" "expected an empty document default"
+  assert_contains 'DEFAULT_OP_VAULT=""' "$(cat "${rendered}")" "expected an empty vault default"
+  assert_contains 'DEFAULT_ARCHIVE_NAME="shell-history.zip"' "$(cat "${rendered}")" "expected the archive fallback"
+}
+
 tests=(
   test_happy_path_both_histories
   test_happy_path_only_bash
@@ -364,6 +378,7 @@ tests=(
   test_rerun_uses_same_archive_target
   test_baked_default_document_name
   test_env_overrides_baked_default
+  test_optional_chezmoi_defaults_can_be_absent
 )
 
 for test_name in "${tests[@]}"; do

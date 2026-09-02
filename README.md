@@ -13,6 +13,9 @@ The current smoke-test matrix covers the following Linux flavours:
 
 macOS is verified separately on a GitHub-hosted macOS runner by rendering and applying the repo into a temporary home directory.
 
+The minimum supported chezmoi version is **2.72.0**. CI runs the same contract
+suite against both that floor and the latest release.
+
 ## Installation instructions
 
 I'd not care of using GitHub for backing up my `dotfiles` if my perspectives of using them remained in a single machine.
@@ -160,6 +163,23 @@ Data files must be literal `.chezmoidata/*.yaml`. chezmoi does not template data
 files, so a `.chezmoidata.yaml.tmpl` is loaded by nothing and its values silently
 disappear from the template data.
 
+Archive and standalone-binary versions live in
+[`home/.chezmoidata/versions.yaml`](./home/.chezmoidata/versions.yaml). Renovate
+proposes updates to that reviewed manifest; chezmoi rendering never calls GitHub
+release APIs or writes a cache into the source tree. This keeps `chezmoi diff`,
+`apply`, and the template contracts deterministic when offline.
+
+ASDF plugin registration is declared separately in
+[`home/.chezmoidata/asdf.yaml`](./home/.chezmoidata/asdf.yaml). A single
+`run_onchange_` script adds missing plugins and runs `asdf install` once when the
+plugin manifest or `.tool-versions` changes. Rust's toolchain and pinned cargo
+tools are declared under `packages.rust`.
+
+`chezmoi apply` installs declared state but does not perform general maintenance
+such as `brew upgrade` or `asdf plugin update --all`. Run those commands
+explicitly when you intend to upgrade the machine; reviewed version changes
+belong in the manifests above.
+
 ## GNOME settings
 
 A curated set of dconf paths is version controlled, listed in
@@ -192,7 +212,7 @@ removing those would take unmanaged dotfiles with them. Add `--keep-source` to
 reset state while keeping the checkout you are working in.
 
 A first init is not expected to be all-or-nothing: steps that are conveniences
-rather than prerequisites (asdf toolchain builds, Homebrew updates, fzf shell
+rather than prerequisites (asdf toolchain builds, package installation, fzf shell
 integration, GNOME imports) warn and continue instead of aborting the apply, so
 one missing build dependency cannot leave the rest of the dotfiles unapplied.
 Run `task doctor` afterwards to see what actually landed.
@@ -242,17 +262,24 @@ values in `.env` or any other tracked file.
 
 ## Verification
 
-CI currently does four different checks:
+CI currently does four complementary checks:
 
 - Linux container smoke tests build the Dockerfiles under [`tests/`](./tests) and run the standalone installer in `DOTFILES_TEST=true` mode. The Ubuntu image pins `DOTFILES_PROFILE=server`, which is the headless path.
 - macOS smoke tests run `chezmoi init --apply` and `chezmoi verify` against a temporary home directory while excluding scripts.
-- The Go-tool job runs the installer contract test, verifies the module graph,
-  and compiles every declared Go tool with the manifest's pinned Go version.
-- The bootstrap-profile job runs [`tests/bootstrap-profiles.test.sh`](./tests/bootstrap-profiles.test.sh),
-  which renders every profile-aware template under both profiles and asserts the
-  desktop/server split, the `create_` seeding of AI CLI configs, and that no
-  `grep --quiet` sits inside a `pipefail` pipeline. Run it locally with
-  `task test-bootstrap`.
+- The Go-tool job verifies the module graph and compiles every declared Go tool
+  with the manifest's pinned Go version.
+- The contracts job runs `task test` with chezmoi 2.72.0 and with the latest
+  release. The focused suites cover profiles, packages/externals, desktop
+  integrations, scripts, managed config, repository policy, FreeIPA, Go tools,
+  Wireshark profiles, and shell-history backup behavior.
+
+Run the complete fast suite locally with:
+
+```bash
+task test
+```
+
+`task test-bootstrap` remains as a compatibility alias for the same suite.
 
 To reproduce the macOS-style verification locally:
 
@@ -263,7 +290,7 @@ XDG_CONFIG_HOME="${tmp_home}/.config" \
 XDG_DATA_HOME="${tmp_home}/.local/share" \
 XDG_STATE_HOME="${tmp_home}/.local/state" \
 XDG_CACHE_HOME="${tmp_home}/.cache" \
-DOTFILES_TEST=true chezmoi init --apply --source "$(pwd)" --exclude scripts --no-tty
+DOTFILES_TEST=true chezmoi init --apply --source "$(pwd)" --exclude scripts --no-tty --error-on-conflict
 ```
 
 To validate hooks locally through `uv`, run:
@@ -319,6 +346,9 @@ Bootstrap order on Linux, after the 1Password repository and keys are in place:
 | --- | --- |
 | `run_onchange_before_03-linux-apt-packages` | apt packages for the resolved profile, then `locale-gen` |
 | `run_onchange_before_04-linux-brew-packages` | Homebrew and its formulae |
+| `run_onchange_after_080-asdf-tools` | missing ASDF plugins and the versions in `.tool-versions` |
+| `run_onchange_after_103-rust-dev` | the Rust toolchain and pinned cargo tools |
+| `run_once_after_10-linux-install-session-manager` | AWS Session Manager on AlmaLinux/Fedora |
 | `run_once_after_20-1password-signin` | 1Password sign-in (app QR, or `op account add`) |
 | `run_onchange_after_25-install-ghostty` | Ghostty deb, desktop only |
 | `run_onchange_after_30-gnome-settings` | `dconf load` of the committed settings |
@@ -358,8 +388,7 @@ Scripts are found in its own [directory](./home/.chezmoiscripts) to avoid being 
 
 ## Security considerations
 
-Having a local `.git` (A.K.A. submodule) folder inside your dotfiles could become dangerous as you're naturally exposing (or unconsciously prompted to) your git history and very specific local configuration. Not even to mention the burden it sometimes signifies.
-
-As I just feed myself from the great works other `peers` conduct in the wild Internet (e.g. Oh-my-zsh), I'm a mere consumer of their work who clones their source code and thereby uses it.
-
-My `scsripts/00_run_once/run_once_100-extras.zsh.tmpl` takes care of cloning/pulling(`--rebase`) their public GitHub repos.
+Having a nested `.git` directory in managed dotfiles can expose history or
+machine-specific configuration. Third-party public repositories are therefore
+declared as chezmoi `git-repo` externals in `home/.chezmoiexternal.yaml` instead
+of being copied into this repository.

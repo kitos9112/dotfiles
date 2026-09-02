@@ -8,8 +8,9 @@ alias get-public-ipv6="curl -s ipv6.icanhazip.com | xargs echo -n"
 
 # AWS
 alias aws-get-instanceid="export AWS_EC2_INSTANCE_ID=\`aws ec2 describe-instances --filters \"Name=tag:Name,Values=${AWS_EC2_INSTANCE_NAME}\" --output text --query \"Reservations[*].Instances[*].InstanceId\"\` && echo ${AWS_EC2_INSTANCE_ID}"
-{{- if .op_vfad }}
-alias saml2aws-vf="saml2aws login --username \`op item get {{ .op_vfad }} --fields label=username\` --password \`op item get {{ .op_vfad }} --fields label=password\` --skip-prompt --mfa-token=\`op item get {{ .op_vfad }} --otp\`"
+{{- $opVfad := get . "op_vfad" | default "" }}
+{{- if $opVfad }}
+alias saml2aws-vf="saml2aws login --username \`op item get {{ shellQuote $opVfad }} --fields label=username\` --password \`op item get {{ shellQuote $opVfad }} --fields label=password\` --skip-prompt --mfa-token=\`op item get {{ shellQuote $opVfad }} --otp\`"
 {{- end }}
 
 # GIT

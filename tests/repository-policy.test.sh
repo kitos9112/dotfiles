@@ -50,6 +50,12 @@ assert_file_exists "${SOURCE_DIR}/private_dot_codex/create_private_config.toml" 
 	"Codex defaults use create_ semantics"
 assert_contains "$(<"${SCRIPTS_DIR}/run_onchange_after_080-asdf-tools.sh.tmpl")" \
 	'shellQuote' "shell arguments use chezmoi 2.72 quoting"
+if aliases="$(render_template "${SOURCE_DIR}/dot_oh-my-zsh-custom/aliases.zsh.tmpl")"; then
+	pass "optional 1Password aliases render with fresh data"
+	assert_not_contains "${aliases}" 'saml2aws-vf' "unset private item aliases are omitted"
+else
+	fail "optional 1Password aliases render with fresh data"
+fi
 
 echo "== unified local and CI tests =="
 taskfile="$(<"${REPO_ROOT}/Taskfile.yaml")"
