@@ -18,7 +18,7 @@ fi
 
 export PATH="${HOME}/.cargo/bin:${PATH}"
 log_task "Ensuring Rust ${toolchain} is current"
-if ! rustup toolchain install "${toolchain}" || ! rustup default "${toolchain}"; then
+if ! rustup toolchain install "${toolchain}" --no-self-update || ! rustup default "${toolchain}"; then
   log_manual_action "Rust toolchain setup failed; continuing without optional cargo tools"
   exit 0
 fi

@@ -81,9 +81,6 @@ plugins=(
   {{- if (lookPath "docker-compose") }}
   docker-compose
   {{- end }}
-  {{- if (lookPath "fzf") }}
-  fzf
-  {{- end }}
   {{- if (lookPath "gh") }}
   gh
   {{- end }}
@@ -136,8 +133,15 @@ fi
 # --- Prompt + interactive tooling ---
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ -r "$HOME/.p10k.zsh" ]] && source "$HOME/.p10k.zsh"
-# FZF integration (if installed).
-[[ -r "$HOME/.fzf.zsh" ]] && source "$HOME/.fzf.zsh"
+# Load completion and key bindings directly from modern fzf releases.
+# Prefer the pinned portable binary even when another package manager's fzf is
+# earlier on the inherited PATH. The generated widgets invoke `fzf` by name.
+if [[ -x "$HOME/.local/bin/fzf" ]]; then
+  path=("$HOME/.local/bin" "${(@)path:#$HOME/.local/bin}")
+fi
+if (( ${+commands[fzf]} )); then
+  eval "$(fzf --zsh)"
+fi
 
 # --- User environment overrides ---
 # Source user-level Zsh environment overrides.

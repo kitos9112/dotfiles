@@ -83,7 +83,7 @@ render_for() {
 		--arg os "${os}" \
 		--arg id "${os_id}" \
 		--arg profile "${profile}" \
-		'{chezmoi:{os:$os,osRelease:{id:$id}},machine_class:$profile,is_root:false,is_work:false,is_wsl:false,use_homebrew:false,github_username:"kitos9112"}')"
+		'{chezmoi:{os:$os,osRelease:{id:$id}},osid:(if $os == "linux" then "linux-" + $id else $id end),machine_class:$profile,is_root:false,is_work:false,is_wsl:false,use_homebrew:false,github_username:"kitos9112"}')"
 	DOTFILES_PROFILE="${profile}" DOTFILES_HOMEBREW=false \
 		render_template "${file}" "${override}"
 }

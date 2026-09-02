@@ -36,7 +36,5 @@ done
 echo "▶️  Installing ${#formulae[@]} Homebrew formulae"
 "${BREW}" install "${formulae[@]}" || echo "⚠️  Some formulae failed to install; continuing"
 
-# fzf shell integration is set up by run_after_015-fzf-shell-integration, which
-# runs late enough for the ~/.fzf external to exist and also covers machines that
-# never get Homebrew.
+# The managed shell rc files load fzf's native shell integration at runtime.
 {{- end -}}

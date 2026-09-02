@@ -98,6 +98,5 @@ $brew bundle --file=/dev/stdin <<EOF
     cask "maccy"
 EOF
 
-# fzf shell integration is configured by run_after_015-fzf-shell-integration,
-# after the external and package installation stages have completed.
+# The managed shell rc files load fzf's native shell integration at runtime.
 {{- end -}}

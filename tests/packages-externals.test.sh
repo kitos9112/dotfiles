@@ -53,6 +53,8 @@ mac_override='{"chezmoi":{"os":"darwin","arch":"arm64"},"machine_class":"desktop
 
 if linux_render="$(PATH=/usr/bin:/bin DOTFILES_PROFILE=server DOTFILES_HOMEBREW=false render_template "${EXTERNALS_FILE}" "${linux_override}")"; then
 	pass "non-Homebrew externals render without network tools"
+	assert_contains "${linux_render}" '".local/bin/fzf":' "portable fzf is a managed external"
+	assert_not_contains "${linux_render}" '".fzf":' "legacy fzf checkout is not managed"
 	assert_contains "${linux_render}" "asdf-v0.20.0-linux-amd64.tar.gz" "asdf URL uses its pin"
 	assert_contains "${linux_render}" "go1.27.1.linux-amd64.tar.gz" "Go URL uses its pin"
 	assert_contains "${linux_render}" "direnv.linux-amd64" "portable direnv is rendered"

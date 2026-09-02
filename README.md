@@ -212,8 +212,8 @@ removing those would take unmanaged dotfiles with them. Add `--keep-source` to
 reset state while keeping the checkout you are working in.
 
 A first init is not expected to be all-or-nothing: steps that are conveniences
-rather than prerequisites (asdf toolchain builds, package installation, fzf shell
-integration, GNOME imports) warn and continue instead of aborting the apply, so
+rather than prerequisites (asdf toolchain builds, package installation, GNOME
+imports) warn and continue instead of aborting the apply, so
 one missing build dependency cannot leave the rest of the dotfiles unapplied.
 Run `task doctor` afterwards to see what actually landed.
 

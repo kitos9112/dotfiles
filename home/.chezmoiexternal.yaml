@@ -49,12 +49,6 @@
   path: "{{ . }}"
 {{ end }}
 
-".fzf":
-  type: "git-repo"
-  url: "https://github.com/junegunn/fzf.git"
-  exact: true
-  refreshPeriod: "24h"
-
 ".local/bin/fzf":
   type: archive-file
   url: "https://github.com/junegunn/fzf/releases/download/v{{ .versions.fzf }}/fzf-{{ .versions.fzf }}-{{ .chezmoi.os}}_{{ .chezmoi.arch }}.tar.gz"

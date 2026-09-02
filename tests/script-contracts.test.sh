@@ -87,6 +87,45 @@ if [[ -f "${RUST_TEMPLATE}" ]]; then
 	assert_contains "${rust_source}" 'rust manifest sha256:' "Rust script fingerprints its manifest"
 	assert_contains "${rust_source}" 'cargo install' "Rust script installs declared cargo tools"
 	assert_contains "${rust_source}" '--locked' "cargo installs use the lockfile"
+
+	case_home="${TMP_ROOT}/rust-home"
+	mkdir -p "${case_home}/.cargo/bin"
+	rustup_log="${TMP_ROOT}/rustup.log"
+	cargo_log="${TMP_ROOT}/cargo.log"
+	rendered_rust="${TMP_ROOT}/rust-dev.sh"
+	cat >"${case_home}/.cargo/bin/rustup" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+printf '%s\n' "$*" >>"${RUSTUP_MOCK_LOG:?}"
+if [[ "${1-} ${2-}" != "toolchain install" || "$*" == *"--no-self-update"* ]]; then
+  exit 0
+fi
+exit 42
+EOF
+	cat >"${case_home}/.cargo/bin/cargo" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+printf '%s\n' "$*" >>"${CARGO_MOCK_LOG:?}"
+EOF
+	chmod 700 "${case_home}/.cargo/bin/rustup" "${case_home}/.cargo/bin/cargo"
+	render_template "${RUST_TEMPLATE}" >"${rendered_rust}"
+	chmod 700 "${rendered_rust}"
+	: >"${rustup_log}"
+	: >"${cargo_log}"
+	HOME="${case_home}" RUSTUP_MOCK_LOG="${rustup_log}" CARGO_MOCK_LOG="${cargo_log}" \
+		PATH=/usr/bin:/bin bash "${rendered_rust}" >"${TMP_ROOT}/rust.out" 2>&1
+	rustup_calls="$(<"${rustup_log}")"
+	if grep -Fxq 'toolchain install stable --no-self-update' "${rustup_log}"; then
+		pass "Rust toolchain install disables rustup self-update explicitly"
+	else
+		fail "Rust toolchain install disables rustup self-update explicitly"
+	fi
+	assert_not_contains "${rustup_calls}" 'self update' "Rust setup never invokes an explicit self-update"
+	if [[ -s "${cargo_log}" ]]; then
+		pass "Rust tool convergence does not depend on a rustup self-update"
+	else
+		fail "Rust tool convergence does not depend on a rustup self-update"
+	fi
 fi
 
 if [[ -f "${SESSION_MANAGER_TEMPLATE}" ]]; then
@@ -125,8 +164,8 @@ linux|ubuntu|server|run_after_800-create-symblinks.sh.tmpl
 EOF
 
 echo "== bootstrap resilience =="
-assert_file_exists "${SCRIPTS_DIR}/run_after_015-fzf-shell-integration.sh.tmpl" \
-	"fzf integration runs after externals"
+assert_file_absent "${SCRIPTS_DIR}/run_after_015-fzf-shell-integration.sh.tmpl" \
+	"fzf does not need an installer hook"
 assert_contains "$(<"${SCRIPTS_DIR}/run_after_800-create-symblinks.sh.tmpl")" \
 	'if [[ ! -e "$HOME/$path" ]]' "symlink replication skips missing sources"
 
