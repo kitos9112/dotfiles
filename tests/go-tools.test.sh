@@ -14,6 +14,7 @@ GO_TOOLS_TEMPLATE="${REPO_ROOT}/home/.chezmoiscripts/run_onchange_after_104-inst
 ASDF_UPDATE_TEMPLATE="${REPO_ROOT}/home/.chezmoiscripts/run_onchange_after_080-asdf-tools.sh.tmpl"
 GO_TOOLS_SOURCE="${REPO_ROOT}/home/private_dot_config/dotfiles/go-tools"
 ACCEPTANCE_WORKFLOW="${REPO_ROOT}/.github/workflows/acceptance-tests.yaml"
+TASKFILE="${REPO_ROOT}/Taskfile.yaml"
 TRIVY_IGNORE="${REPO_ROOT}/.trivyignore"
 
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/go-tools-tests.XXXXXX")"
@@ -203,10 +204,14 @@ test_go_tools_checks_are_wired_into_ci() {
 
 	assert_contains \
 		"bash tests/go-tools.test.sh" \
-		"${ACCEPTANCE_WORKFLOW}" \
-		"acceptance workflow does not run the Go tools regression suite"
+		"${TASKFILE}" \
+		"unified test task does not run the Go tools regression suite"
 	assert_contains \
-		"sudo apt-get install --yes zsh" \
+		"task test" \
+		"${ACCEPTANCE_WORKFLOW}" \
+		"acceptance workflow does not run the unified test task"
+	assert_contains \
+		"sudo apt-get install --yes jq zsh" \
 		"${ACCEPTANCE_WORKFLOW}" \
 		"acceptance workflow does not install the regression suite's Zsh dependency"
 	assert_contains \

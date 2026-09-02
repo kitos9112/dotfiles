@@ -29,18 +29,6 @@ jobs:
           go-version-file: home/private_dot_config/dotfiles/go-tools/go.mod
           cache-dependency-path: home/private_dot_config/dotfiles/go-tools/go.sum
 
-      - name: Install test dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes zsh
-          mkdir -p "${RUNNER_TEMP}/bin"
-          sh -c "$(curl -fsLS https://get.chezmoi.io/lb)" -- -b "${RUNNER_TEMP}/bin"
-
-      - name: Test Go tool installer contract
-        run: |
-          export PATH="${RUNNER_TEMP}/bin:${PATH}"
-          bash tests/go-tools.test.sh
-
       - name: Verify and compile Go tools
         env:
           GOBIN: ${{ runner.temp }}/go-tools-bin
@@ -61,43 +49,37 @@ jobs:
           go version -m "${GOBIN}/gmailctl" |
             grep -F $'mod\tgithub.com/mbrt/gmailctl\t'"${expected_version}"$'\t'
 
-  bootstrap-profiles:
-    name: Bootstrap Profile Contract
+  contracts:
+    name: Contracts (chezmoi ${{ matrix.chezmoi }})
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - chezmoi: "2.72.0"
+          - chezmoi: latest
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
-      - name: Install chezmoi
+      - name: Install test dependencies
         run: |
+          sudo apt-get update
+          sudo apt-get install --yes jq zsh
           mkdir -p "${RUNNER_TEMP}/bin"
-          sh -c "$(curl -fsLS https://get.chezmoi.io/lb)" -- -b "${RUNNER_TEMP}/bin"
+          GOBIN="${RUNNER_TEMP}/bin" go install github.com/go-task/task/v3/cmd/task@v3.45.4
+          if [[ "${{ matrix.chezmoi }}" == latest ]]; then
+            sh -c "$(curl -fsLS https://get.chezmoi.io/lb)" -- -b "${RUNNER_TEMP}/bin"
+          else
+            sh -c "$(curl -fsLS https://get.chezmoi.io/lb)" -- \
+              -b "${RUNNER_TEMP}/bin" -t "v${{ matrix.chezmoi }}"
+          fi
+          echo "${RUNNER_TEMP}/bin" >>"${GITHUB_PATH}"
 
-      - name: Test desktop and server profile contracts
-        run: |
-          export PATH="${RUNNER_TEMP}/bin:${PATH}"
-          bash tests/bootstrap-profiles.test.sh
-
-  freeipa-tools:
-    name: Kerberos and FreeIPA Tool Contract
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          persist-credentials: false
-
-      - name: Install chezmoi
-        run: |
-          mkdir -p "${RUNNER_TEMP}/bin"
-          sh -c "$(curl -fsLS https://get.chezmoi.io/lb)" -- -b "${RUNNER_TEMP}/bin"
-
-      - name: Test Kerberos and FreeIPA tool contracts
-        run: |
-          export PATH="${RUNNER_TEMP}/bin:${PATH}"
-          bash tests/freeipa-tools.test.sh
+      - name: Run repository contracts
+        run: task test
 
   linux:
     name: Linux Smoke (${{ matrix.os }})
@@ -173,5 +155,5 @@ jobs:
           export XDG_STATE_HOME="${target_dir}/.local/state"
           export XDG_CACHE_HOME="${target_dir}/.cache"
           mkdir -p "${HOME}" "${XDG_CONFIG_HOME}" "${XDG_DATA_HOME}" "${XDG_STATE_HOME}" "${XDG_CACHE_HOME}"
-          chezmoi init --apply --source "${GITHUB_WORKSPACE}" --exclude scripts --no-tty
-          chezmoi verify --source "${GITHUB_WORKSPACE}" --exclude scripts --no-tty
+          chezmoi init --apply --source "${GITHUB_WORKSPACE}" --exclude scripts --no-tty --error-on-conflict
+          chezmoi verify --source "${GITHUB_WORKSPACE}" --exclude scripts --no-tty --error-on-conflict

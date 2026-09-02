@@ -27,10 +27,24 @@ tasks:
     cmds:
       - "{{.HOME}}/.local/bin/gnome-settings-export --source {{.TASKFILE_DIR}}/home"
 
-  test-bootstrap:
-    desc: Run the bootstrap profile contract tests.
+  test:
+    desc: Run all fast repository contract tests.
     cmds:
-      - bash tests/bootstrap-profiles.test.sh
+      - bash tests/profile-config.test.sh
+      - bash tests/packages-externals.test.sh
+      - bash tests/desktop-integrations.test.sh
+      - bash tests/script-contracts.test.sh
+      - bash tests/managed-config.test.sh
+      - bash tests/repository-policy.test.sh
+      - bash tests/freeipa-tools.test.sh
+      - bash tests/go-tools.test.sh
+      - bash tests/wireshark-profiles.test.sh
+      - bash tests/backup-shell-history-to-1password.sh
+
+  test-bootstrap:
+    desc: Compatibility alias for the unified test task.
+    cmds:
+      - task: test
 
   run-renovate:
     desc: Run Renovate in dry-run mode against this repository.

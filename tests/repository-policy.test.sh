@@ -51,4 +51,25 @@ assert_file_exists "${SOURCE_DIR}/private_dot_codex/create_private_config.toml" 
 assert_contains "$(<"${SCRIPTS_DIR}/run_onchange_after_080-asdf-tools.sh.tmpl")" \
 	'shellQuote' "shell arguments use chezmoi 2.72 quoting"
 
+echo "== unified local and CI tests =="
+taskfile="$(<"${REPO_ROOT}/Taskfile.yaml")"
+workflow="$(<"${REPO_ROOT}/.github/workflows/acceptance-tests.yaml")"
+assert_contains "${taskfile}" '  test:' "Taskfile defines the unified test target"
+for command in \
+	'bash tests/profile-config.test.sh' \
+	'bash tests/packages-externals.test.sh' \
+	'bash tests/desktop-integrations.test.sh' \
+	'bash tests/script-contracts.test.sh' \
+	'bash tests/managed-config.test.sh' \
+	'bash tests/repository-policy.test.sh' \
+	'bash tests/freeipa-tools.test.sh' \
+	'bash tests/go-tools.test.sh' \
+	'bash tests/wireshark-profiles.test.sh' \
+	'bash tests/backup-shell-history-to-1password.sh'; do
+	assert_contains "${taskfile}" "${command}" "task test runs ${command#bash tests/}"
+done
+assert_contains "${workflow}" 'chezmoi: "2.72.0"' "CI tests the minimum chezmoi version"
+assert_contains "${workflow}" 'chezmoi: latest' "CI tests the latest chezmoi version"
+assert_contains "${workflow}" 'task test' "CI uses the same test entry point as developers"
+
 finish_tests
