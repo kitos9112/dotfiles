@@ -8,6 +8,7 @@ source "${SCRIPT_DIR}/lib/contract-test.sh"
 
 VERSIONS_FILE="${SOURCE_DIR}/.chezmoidata/versions.yaml"
 EXTERNALS_FILE="${SOURCE_DIR}/.chezmoiexternal.yaml"
+ASDF_PLUGINS_FILE="${SOURCE_DIR}/.chezmoidata/asdf.yaml"
 
 echo "== package profile selection =="
 apt_probe="${TMP_ROOT}/apt-packages.tmpl"
@@ -27,6 +28,23 @@ for package in direnv fzf go kubernetes-cli; do
 done
 
 echo "== asdf tool ownership =="
+assert_file_exists "${ASDF_PLUGINS_FILE}" "asdf plugin manifest is checked in"
+asdf_plugins_probe="${TMP_ROOT}/asdf-plugins.tmpl"
+printf '{{ .asdf_plugins | toJson }}\n' >"${asdf_plugins_probe}"
+asdf_plugins="$(render_template "${asdf_plugins_probe}")"
+for plugin in \
+	'fzf|https://github.com/kompiro/asdf-fzf.git' \
+	'direnv|https://github.com/asdf-community/asdf-direnv.git'; do
+	plugin_name="${plugin%%|*}"
+	plugin_url="${plugin#*|}"
+	if jq -e --arg name "${plugin_name}" --arg url "${plugin_url}" \
+		'.[] | select(.name == $name and .url == $url)' >/dev/null <<<"${asdf_plugins}"; then
+		pass "asdf registers ${plugin_name} with its required plugin URL"
+	else
+		fail "asdf registers ${plugin_name} with its required plugin URL"
+	fi
+done
+
 tool_versions="$(render_template "${SOURCE_DIR}/dot_tool-versions.tmpl")"
 for pin in \
 	'kubectl 1.37.0' \
