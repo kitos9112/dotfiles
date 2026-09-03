@@ -18,16 +18,17 @@ done
 
 echo "== native fzf shell integration =="
 shell_home="${TMP_ROOT}/shell-home"
+asdf_shims="${TMP_ROOT}/asdf-shims"
 competing_bin="${TMP_ROOT}/competing-bin"
 mkdir -p "${shell_home}/go" "${shell_home}/.oh-my-zsh" \
 	"${shell_home}/.oh-my-zsh-custom/plugins/zsh-completions/src" \
-	"${shell_home}/.local/bin" "${competing_bin}"
+	"${shell_home}/.local/bin" "${asdf_shims}" "${competing_bin}"
 : >"${shell_home}/.oh-my-zsh/oh-my-zsh.sh"
-cat >"${shell_home}/.local/bin/fzf" <<'EOF'
+cat >"${asdf_shims}/fzf" <<'EOF'
 #!/usr/bin/env bash
 case "${1-}" in
-  --bash) printf '%s\n' 'fzf_file_widget() { :; }; export FZF_BASH_INTEGRATION=pinned' ;;
-  --zsh) printf '%s\n' 'fzf-file-widget() { :; }; export FZF_ZSH_INTEGRATION=pinned' ;;
+  --bash) printf '%s\n' 'asdf_fzf_bash_marker() { :; }' ;;
+  --zsh) printf '%s\n' 'asdf-fzf-zsh-marker() { :; }' ;;
   --version) printf '%s\n' '0.74.1' ;;
   *) exit 64 ;;
 esac
@@ -41,33 +42,35 @@ case "${1-}" in
   *) exit 64 ;;
 esac
 EOF
-chmod 700 "${shell_home}/.local/bin/fzf" "${competing_bin}/fzf"
+chmod 700 "${asdf_shims}/fzf" "${competing_bin}/fzf"
 
 rendered_bashrc="${TMP_ROOT}/bashrc"
 rendered_zshrc="${TMP_ROOT}/zshrc"
-PATH="${competing_bin}:/usr/bin:/bin" render_for linux ubuntu desktop "${SOURCE_DIR}/dot_bashrc.tmpl" \
+PATH="${asdf_shims}:${competing_bin}:/usr/bin:/bin" render_for linux ubuntu desktop "${SOURCE_DIR}/dot_bashrc.tmpl" \
 	>"${rendered_bashrc}"
-PATH="${competing_bin}:/usr/bin:/bin" render_for linux ubuntu desktop "${SOURCE_DIR}/dot_zshrc.tmpl" \
+PATH="${asdf_shims}:${competing_bin}:/usr/bin:/bin" render_for linux ubuntu desktop "${SOURCE_DIR}/dot_zshrc.tmpl" \
 	>"${rendered_zshrc}"
+assert_not_contains "$(<"${rendered_zshrc}")" '$HOME/.local/bin/fzf' \
+	"Zsh does not force a private fzf path"
 
-if HOME="${shell_home}" SHELL=/bin/zsh PATH="${competing_bin}:/usr/bin:/bin" \
+if HOME="${shell_home}" SHELL=/bin/zsh PATH="${asdf_shims}:${competing_bin}:/usr/bin:/bin" \
 	bash --noprofile --norc -ic \
-	'source "$1"; [[ "${FZF_BASH_INTEGRATION:-}" == pinned ]] && declare -F fzf_file_widget >/dev/null' \
+	'source "$1"; declare -F asdf_fzf_bash_marker >/dev/null' \
 	_ "${rendered_bashrc}" \
 	>"${TMP_ROOT}/bashrc.out" 2>&1; then
-	pass "Bash loads integration from the pinned fzf binary"
+	pass "Bash loads fzf integration through the asdf shim"
 else
-	fail "Bash loads integration from the pinned fzf binary"
+	fail "Bash loads fzf integration through the asdf shim"
 fi
 
-if HOME="${shell_home}" PATH="${competing_bin}:/usr/bin:/bin" \
+if HOME="${shell_home}" PATH="${asdf_shims}:${competing_bin}:/usr/bin:/bin" \
 	zsh -dfic \
-	'source "$1"; [[ "${FZF_ZSH_INTEGRATION:-}" == pinned ]] && (( $+functions[fzf-file-widget] ))' \
-	_ "${rendered_zshrc}" \
+	'source "$1"; [[ "${path[1]}" == "$2" ]] && (( $+functions[asdf-fzf-zsh-marker] ))' \
+	_ "${rendered_zshrc}" "${asdf_shims}" \
 	>"${TMP_ROOT}/zshrc.out" 2>&1; then
-	pass "Zsh loads integration from the pinned fzf binary"
+	pass "Zsh keeps asdf shims first and loads fzf integration"
 else
-	fail "Zsh loads integration from the pinned fzf binary"
+	fail "Zsh keeps asdf shims first and loads fzf integration"
 fi
 
 echo "== non-clobbering seeds =="

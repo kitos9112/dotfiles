@@ -11,3 +11,7 @@ asdf_plugins:
     url: https://github.com/asdf-vm/asdf-nodejs.git
   - name: golang
     url: https://github.com/asdf-community/asdf-golang.git
+  - name: fzf
+    url: https://github.com/kompiro/asdf-fzf.git
+  - name: direnv
+    url: https://github.com/asdf-community/asdf-direnv.git

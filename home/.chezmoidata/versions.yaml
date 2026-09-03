@@ -7,15 +7,9 @@ versions:
   asdf: "0.20.0"
   # renovate: datasource=github-releases packageName=astral-sh/uv
   uv: "0.12.9"
-  # renovate: datasource=github-releases packageName=junegunn/fzf
-  fzf: 0.74.3
   # renovate: datasource=github-releases packageName=ryanoasis/nerd-fonts
   nerd_fonts: "3.5.1"
   # renovate: datasource=github-releases packageName=kadwanev/retry
   retry: "1.0.2"
-  # renovate: datasource=github-releases packageName=direnv/direnv
-  direnv: "2.37.1"
   # renovate: datasource=github-releases packageName=microsoft/vscode
   vscode: "1.135.0"
-  # renovate: datasource=github-tags packageName=golang/go extractVersion=^go(?<version>.*)$
-  go: "1.27.1"

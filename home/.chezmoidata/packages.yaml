@@ -15,7 +15,6 @@ packages:
     common:
       - build-essential
       - curl
-      - direnv
       - file
       - findutils
       - git
@@ -72,21 +71,17 @@ packages:
       - awscli
       - borgbackup
       - chezmoi
-      - direnv
       - docker-credential-helper-ecr
       - figlet
       - fluxcd/tap/flux
-      - fzf
       - gcc
       - gh
       - git-crypt
-      - go
       - go-task/tap/go-task
       - gomplate
       - granted
       - iperf3
       - k9s
-      - kubernetes-cli
       - kubeseal
       - kustomize
       - pre-commit

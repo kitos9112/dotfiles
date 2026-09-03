@@ -114,9 +114,8 @@ The formulae in `packages.brew` are simply skipped on machines without Homebrew;
 they are not reinstalled from another source. Tools that matter everywhere come
 from apt, asdf or the Go tool manifest instead.
 
-Portable VS Code, Go and direnv follow **`use_homebrew` being false**, not sudo,
-because they stand in for Homebrew-installed tooling. A sudo-capable machine that
-opted out of brew still gets them.
+Portable VS Code follows **`use_homebrew` being false**, not sudo, because a
+sudo-capable machine that opted out of brew still needs it.
 - `DOTFILES_PROFILE=desktop|server` overrides GUI auto-detection (see below). An
   unrecognised value fails the render rather than guessing.
 
@@ -174,6 +173,24 @@ ASDF plugin registration is declared separately in
 `run_onchange_` script adds missing plugins and runs `asdf install` once when the
 plugin manifest or `.tool-versions` changes. Rust's toolchain and pinned cargo
 tools are declared under `packages.rust`.
+
+### Developer tool ownership
+
+| Tool | Owner | Declared in |
+| --- | --- | --- |
+| Go | asdf (`golang`) | `.tool-versions` |
+| kubectl | asdf | `.tool-versions` |
+| fzf | asdf | `.tool-versions` |
+| direnv | asdf | `.tool-versions` |
+
+Applying this change does not uninstall a previously installed package. The asdf
+shims retain precedence, so the declared versions are used after `chezmoi apply`.
+To remove the old optional package-manager copies, run:
+
+```sh
+brew uninstall go kubernetes-cli fzf direnv
+sudo apt-get remove direnv
+```
 
 `chezmoi apply` installs declared state but does not perform general maintenance
 such as `brew upgrade` or `asdf plugin update --all`. Run those commands

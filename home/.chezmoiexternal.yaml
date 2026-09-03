@@ -49,11 +49,6 @@
   path: "{{ . }}"
 {{ end }}
 
-".local/bin/fzf":
-  type: archive-file
-  url: "https://github.com/junegunn/fzf/releases/download/v{{ .versions.fzf }}/fzf-{{ .versions.fzf }}-{{ .chezmoi.os}}_{{ .chezmoi.arch }}.tar.gz"
-  path: fzf
-
 ".config/wireshark_profiles":
   type: "git-repo"
   url: "https://github.com/amwalding/wireshark_profiles.git"
@@ -84,9 +79,8 @@
   url: "https://github.com/kadwanev/retry/raw/{{ .versions.retry }}/retry"
   executable: true
 
-{{/* Portable VS Code, Go and direnv stand in for Homebrew-installed tooling, so
-     they follow "no Homebrew" rather than "no sudo": a sudo-capable machine that
-     opted out of brew still needs them. */}}
+{{/* Portable VS Code follows "no Homebrew" rather than "no sudo": a
+     sudo-capable machine that opted out of brew still needs it. */}}
 {{ if ne (includeTemplate "use-homebrew" . | trim) "true" -}}
 ".apps/vscode":
   type: "archive"
@@ -95,17 +89,6 @@
   stripComponents: 1
   refreshPeriod: "168h"
 
-".go":
-  type: "archive"
-  url: "https://go.dev/dl/go{{ .versions.go }}.{{ .chezmoi.os }}-{{ .chezmoi.arch }}.tar.gz"
-  exact: true
-  stripComponents: 1
-  refreshPeriod: "168h"
-
-".local/bin/direnv":
-  type: "file"
-  url: "https://github.com/direnv/direnv/releases/download/v{{ .versions.direnv }}/direnv.{{ .chezmoi.os }}-{{ .chezmoi.arch }}"
-  executable: true
 {{ end -}}
 
 {{- end }}
