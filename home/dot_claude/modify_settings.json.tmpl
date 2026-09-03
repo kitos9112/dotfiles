@@ -20,9 +20,14 @@
 # That is deliberate for permissions.deny -- it stays exactly this list. Do not
 # add --sort-keys: jq preserves input key order, which keeps diffs minimal.
 #
-# jq is guaranteed present: home/.chezmoidata/packages.yaml installs it from a
-# run_once_before_ script, and chezmoi runs those before applying file targets.
+# jq is a runtime dependency. Normal bootstrap scripts install it before file
+# targets are applied; smoke images that exclude those scripts provide it.
 set -euo pipefail
+
+if ! command -v jq >/dev/null 2>&1; then
+  printf '%s\n' "modify_settings.json: jq is required to merge ~/.claude/settings.json; install jq and re-run chezmoi apply." >&2
+  exit 127
+fi
 
 current="$(cat)"
 if [ -z "${current//[[:space:]]/}" ]; then
@@ -141,7 +146,7 @@ managed='{
 }'
 
 jq -n \
-  --argjson def "$defaults" \
+  --argjson defaults "$defaults" \
   --argjson cur "$current" \
   --argjson mgd "$managed" \
-  '$def * $cur * $mgd'
+  '$defaults * $cur * $mgd'

@@ -22,20 +22,22 @@ assert_contains "${server_packages}" '"1password-cli"' "server keeps the 1Passwo
 echo "== pinned external versions =="
 assert_file_exists "${VERSIONS_FILE}" "release versions are checked in"
 
-if [[ -f "${VERSIONS_FILE}" ]]; then
-	versions="$(<"${VERSIONS_FILE}")"
-	for pin in \
-		'asdf: "0.20.0"' \
-		'uv: "0.12.9"' \
-		'fzf: "0.74.1"' \
-		'nerd_fonts: "3.5.1"' \
-		'retry: "1.0.2"' \
-		'direnv: "2.37.1"' \
-		'vscode: "1.135.0"' \
-		'go: "1.27.1"'; do
-		assert_contains "${versions}" "${pin}" "versions manifest contains ${pin}"
-	done
-fi
+versions_probe="${TMP_ROOT}/versions.tmpl"
+printf '{{ .versions | toJson }}\n' >"${versions_probe}"
+versions_json="$(render_template "${versions_probe}")"
+for dependency in asdf uv fzf nerd_fonts retry direnv vscode go; do
+	if version="$(jq -er --arg dependency "${dependency}" \
+		'.[$dependency] | strings | select(test("^[0-9]+\\.[0-9]+\\.[0-9]+([+.~-][0-9A-Za-z.-]+)?$"))' \
+		<<<"${versions_json}")"; then
+		pass "${dependency} has a checked-in release version (${version})"
+	else
+		fail "${dependency} has a checked-in semantic version"
+	fi
+done
+
+asdf_version="$(jq -r '.asdf' <<<"${versions_json}")"
+fzf_version="$(jq -r '.fzf' <<<"${versions_json}")"
+go_version="$(jq -r '.go' <<<"${versions_json}")"
 
 echo "== offline external rendering =="
 external_source="$(<"${EXTERNALS_FILE}")"
@@ -55,8 +57,9 @@ if linux_render="$(PATH=/usr/bin:/bin DOTFILES_PROFILE=server DOTFILES_HOMEBREW=
 	pass "non-Homebrew externals render without network tools"
 	assert_contains "${linux_render}" '".local/bin/fzf":' "portable fzf is a managed external"
 	assert_not_contains "${linux_render}" '".fzf":' "legacy fzf checkout is not managed"
-	assert_contains "${linux_render}" "asdf-v0.20.0-linux-amd64.tar.gz" "asdf URL uses its pin"
-	assert_contains "${linux_render}" "go1.27.1.linux-amd64.tar.gz" "Go URL uses its pin"
+	assert_contains "${linux_render}" "asdf-v${asdf_version}-linux-amd64.tar.gz" "asdf URL uses its pin"
+	assert_contains "${linux_render}" "fzf-${fzf_version}-linux_amd64.tar.gz" "fzf URL uses its pin"
+	assert_contains "${linux_render}" "go${go_version}.linux-amd64.tar.gz" "Go URL uses its pin"
 	assert_contains "${linux_render}" "direnv.linux-amd64" "portable direnv is rendered"
 else
 	fail "non-Homebrew externals render without network tools"

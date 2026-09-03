@@ -4,9 +4,12 @@
 ARG BASE_IMAGE=almalinux:9
 FROM ${BASE_IMAGE}
 
+# This smoke run excludes package-install scripts, so declare the jq dependency
+# used by the managed Claude settings modifier in the image itself.
 RUN dnf install -y \
     curl-minimal \
     findutils \
+    jq \
     sed \
     sudo \
     util-linux \

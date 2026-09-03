@@ -8,6 +8,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # ca-certificates is listed explicitly because --no-install-recommends drops it,
 # and without a CA bundle curl cannot fetch the chezmoi installer over HTTPS.
+# jq is explicit because this smoke run excludes the package-install scripts,
+# while the managed Claude settings modifier still needs it.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     ca-certificates \
@@ -15,6 +17,7 @@ RUN apt-get update && \
     file \
     git \
     iproute2 \
+    jq \
     sudo && \
     rm -rf /var/lib/apt/lists/*
 

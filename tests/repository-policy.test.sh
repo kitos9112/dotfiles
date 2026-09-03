@@ -78,4 +78,11 @@ assert_contains "${workflow}" 'chezmoi: "2.72.0"' "CI tests the minimum chezmoi 
 assert_contains "${workflow}" 'chezmoi: latest' "CI tests the latest chezmoi version"
 assert_contains "${workflow}" 'task test' "CI uses the same test entry point as developers"
 
+echo "== Linux smoke dependencies =="
+for family in ubuntu almalinux; do
+	dockerfile="${REPO_ROOT}/tests/Dockerfile.${family}"
+	assert_contains "$(<"${dockerfile}")" $'\n    jq' \
+		"${family} smoke image supplies jq when scripts are excluded"
+done
+
 finish_tests

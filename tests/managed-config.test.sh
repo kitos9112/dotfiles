@@ -118,6 +118,24 @@ if [[ -f "${claude_template}" ]]; then
 	else
 		pass "malformed Claude settings are rejected"
 	fi
+
+	no_jq_bin="${TMP_ROOT}/no-jq-bin"
+	mkdir -p "${no_jq_bin}"
+	ln -s "$(command -v cat)" "${no_jq_bin}/cat"
+	if missing_jq_output="$(PATH="${no_jq_bin}" "${BASH}" "${merge_script}" 2>&1)"; then
+		fail "Claude settings report a missing jq dependency"
+	else
+		missing_jq_status=$?
+		if [[ "${missing_jq_status}" == 127 ]]; then
+			pass "missing jq uses the command-not-found exit status"
+		else
+			fail "missing jq uses the command-not-found exit status (got ${missing_jq_status})"
+		fi
+		assert_contains "${missing_jq_output}" 'jq is required' \
+			"Claude settings report a missing jq dependency"
+		assert_not_contains "${missing_jq_output}" 'not valid JSON' \
+			"missing jq is not reported as corrupt settings"
+	fi
 fi
 
 finish_tests
