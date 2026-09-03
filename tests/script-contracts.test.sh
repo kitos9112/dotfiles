@@ -144,23 +144,30 @@ else
 fi
 
 echo "== rendered script syntax =="
-while IFS='|' read -r os os_id profile script; do
+while IFS='|' read -r os os_id profile root_enabled script; do
 	[[ -n "${script}" ]] || continue
 	path="${SCRIPTS_DIR}/${script}"
 	assert_file_exists "${path}" "${script} exists"
 	if [[ -f "${path}" ]]; then
-		rendered="$(render_for "${os}" "${os_id}" "${profile}" "${path}")"
+		if [[ "${root_enabled}" == true ]]; then
+			rendered="$(DOTFILES_IS_ROOT=true render_for "${os}" "${os_id}" "${profile}" "${path}")"
+		else
+			rendered="$(render_for "${os}" "${os_id}" "${profile}" "${path}")"
+		fi
 		assert_valid_bash "${rendered}" "${script} renders valid Bash"
 	fi
 done <<'EOF'
-linux|ubuntu|desktop|run_onchange_before_03-linux-apt-packages.sh.tmpl
-linux|ubuntu|desktop|run_once_after_20-1password-signin.sh.tmpl
-linux|ubuntu|desktop|run_onchange_after_25-install-ghostty.sh.tmpl
-linux|ubuntu|desktop|run_onchange_after_30-gnome-settings.sh.tmpl
-linux|ubuntu|desktop|run_onchange_after_35-refresh-font-cache.sh.tmpl
-darwin|darwin|desktop|run_onchange_after_36-darwin-terminal-fonts.sh.tmpl
-darwin|darwin|desktop|run_onchange_after_40-install-ai-clis.sh.tmpl
-linux|ubuntu|server|run_after_800-create-symblinks.sh.tmpl
+linux|ubuntu|desktop|false|run_onchange_before_03-linux-apt-packages.sh.tmpl
+linux|almalinux|desktop|true|run_onchange_before_03-linux-dnf-packages.sh.tmpl
+linux|almalinux|server|true|run_onchange_before_03-linux-dnf-packages.sh.tmpl
+linux|fedora|desktop|true|run_onchange_before_03-linux-dnf-packages.sh.tmpl
+linux|ubuntu|desktop|false|run_once_after_20-1password-signin.sh.tmpl
+linux|ubuntu|desktop|false|run_onchange_after_25-install-ghostty.sh.tmpl
+linux|ubuntu|desktop|false|run_onchange_after_30-gnome-settings.sh.tmpl
+linux|ubuntu|desktop|false|run_onchange_after_35-refresh-font-cache.sh.tmpl
+darwin|darwin|desktop|false|run_onchange_after_36-darwin-terminal-fonts.sh.tmpl
+darwin|darwin|desktop|false|run_onchange_after_40-install-ai-clis.sh.tmpl
+linux|ubuntu|server|false|run_after_800-create-symblinks.sh.tmpl
 EOF
 
 echo "== Linux locale support =="
@@ -171,15 +178,15 @@ assert_contains "${ubuntu_locale_script}" 'locale-gen "en_GB.UTF-8"' \
 assert_contains "${ubuntu_locale_script}" 'locale-gen "es_ES.UTF-8"' \
 	"Ubuntu generates the Spanish additional locale"
 
-almalinux_prereq_script="$(DOTFILES_IS_ROOT=true render_for linux almalinux desktop \
-	"${SCRIPTS_DIR}/run_once_before_01-linux-install-prereq.sh.tmpl")"
-assert_contains "${almalinux_prereq_script}" 'glibc-langpack-en' \
+almalinux_dnf_script="$(DOTFILES_IS_ROOT=true render_for linux almalinux desktop \
+	"${SCRIPTS_DIR}/run_onchange_before_03-linux-dnf-packages.sh.tmpl")"
+assert_contains "${almalinux_dnf_script}" 'glibc-langpack-en' \
 	"AlmaLinux installs the English language pack"
-assert_contains "${almalinux_prereq_script}" 'glibc-langpack-es' \
+assert_contains "${almalinux_dnf_script}" 'glibc-langpack-es' \
 	"AlmaLinux installs the Spanish language pack"
-assert_contains "${almalinux_prereq_script}" 'localectl set-locale LANG=en_GB.UTF-8' \
+assert_contains "${almalinux_dnf_script}" 'localectl set-locale LANG=en_GB.UTF-8' \
 	"AlmaLinux sets only the English primary locale"
-assert_not_contains "${almalinux_prereq_script}" 'localectl set-locale LANG=es_ES.UTF-8' \
+assert_not_contains "${almalinux_dnf_script}" 'localectl set-locale LANG=es_ES.UTF-8' \
 	"AlmaLinux does not make the additional locale primary"
 
 echo "== bootstrap resilience =="

@@ -138,7 +138,7 @@ What the profile changes:
 | Ghostty | installed and configured | skipped |
 | Nerd Font and `fc-cache` | installed | skipped |
 | GNOME dconf settings | imported | skipped |
-| AI CLIs, apt/brew packages | installed | installed |
+| AI CLIs, apt/dnf/brew packages | installed | installed |
 
 Bootstrap a headless box with no prompts:
 
@@ -152,11 +152,13 @@ the bootstrap blocks waiting for input.
 
 ## Packages
 
-apt and Homebrew manifests live in
+apt, dnf and Homebrew manifests live in
 [`home/.chezmoidata/packages.yaml`](./home/.chezmoidata/packages.yaml), split into
 `common`, `desktop` and `server` lists. The installers are `run_onchange_`
 scripts fingerprinted against those lists, so adding a package reaches existing
 machines on the next `chezmoi apply` — not just freshly bootstrapped ones.
+The DNF manifest also has distribution overlays: Fedora desktops install native
+Alacritty, while AlmaLinux desktops omit it and use no third-party repository.
 
 Data files must be literal `.chezmoidata/*.yaml`. chezmoi does not template data
 files, so a `.chezmoidata.yaml.tmpl` is loaded by nothing and its values silently

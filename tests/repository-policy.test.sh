@@ -85,4 +85,11 @@ for family in ubuntu almalinux; do
 		"${family} smoke image supplies jq when scripts are excluded"
 done
 
+echo "== DNF package ownership =="
+prereq_source="$(<"${SCRIPTS_DIR}/run_once_before_01-linux-install-prereq.sh.tmpl")"
+assert_not_contains "${prereq_source}" 'dnf update' \
+	"one-time prerequisites do not update DNF"
+assert_not_contains "${prereq_source}" 'glibc-langpack-en' \
+	"one-time prerequisites do not embed the Fedora or AlmaLinux package list"
+
 finish_tests

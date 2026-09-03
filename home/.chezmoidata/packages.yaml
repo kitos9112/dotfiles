@@ -59,9 +59,58 @@ packages:
     desktop:
       - 1password
       - 1password-cli
+      - alacritty
       - fontconfig
+      - wireshark
     server:
       - 1password-cli
+
+  dnf:
+    common:
+      - 1password-cli
+      - bison
+      - bzip2
+      - bzip2-devel
+      - cronie
+      - cronie-anacron
+      - curl
+      - dnf-automatic
+      - file
+      - gcc
+      - g++
+      - glibc-langpack-en
+      - glibc-langpack-es
+      - git
+      - jq
+      - libffi-devel
+      - libxcrypt-compat
+      - make
+      - openssl-devel
+      - patch
+      - python
+      - readline-devel
+      - sqlite
+      - sqlite-devel
+      - tk-devel
+      - tmux
+      - unzip
+      - util-linux-user
+      - vim
+      - xz
+      - zlib-devel
+      - zsh
+    desktop:
+      - 1password
+      - wireshark
+    server: []
+    distributions:
+      fedora:
+        desktop:
+          - alacritty
+        server: []
+      almalinux:
+        desktop: []
+        server: []
 
   brew:
     taps:

@@ -13,16 +13,44 @@ ASDF_PLUGINS_FILE="${SOURCE_DIR}/.chezmoidata/asdf.yaml"
 echo "== package profile selection =="
 apt_probe="${TMP_ROOT}/apt-packages.tmpl"
 brew_probe="${TMP_ROOT}/brew-packages.tmpl"
+dnf_probe="${TMP_ROOT}/dnf-packages.tmpl"
 printf '{{ concat .packages.apt.common (index .packages.apt .machine_class) | uniq | sortAlpha | toJson }}\n' \
 	>"${apt_probe}"
 printf '{{ .packages.brew.common | uniq | sortAlpha | toJson }}\n' >"${brew_probe}"
+printf '{{- if hasKey .packages "dnf" -}}{{- $packages := .packages.dnf.common -}}{{- $packages = concat $packages (index .packages.dnf .machine_class) -}}{{- $distribution := index .packages.dnf.distributions .chezmoi.osRelease.id -}}{{- $packages = concat $packages (index $distribution .machine_class) -}}{{ $packages | uniq | sortAlpha | toJson }}{{- else -}}[]{{- end -}}\n' \
+	>"${dnf_probe}"
 desktop_packages="$(render_template "${apt_probe}" '{"machine_class":"desktop"}')"
 server_packages="$(render_template "${apt_probe}" '{"machine_class":"server"}')"
 brew_packages="$(render_template "${brew_probe}")"
+render_dnf_packages() {
+	local distribution=$1 profile=$2 override
+	override="$(jq -cn --arg distribution "${distribution}" --arg profile "${profile}" \
+		'{chezmoi:{os:"linux",osRelease:{id:$distribution}},machine_class:$profile}')"
+	render_template "${dnf_probe}" "${override}"
+}
+
+ubuntu_desktop_packages="${desktop_packages}"
+ubuntu_server_packages="${server_packages}"
+fedora_desktop_packages="$(render_dnf_packages fedora desktop)"
+fedora_server_packages="$(render_dnf_packages fedora server)"
+almalinux_desktop_packages="$(render_dnf_packages almalinux desktop)"
+almalinux_server_packages="$(render_dnf_packages almalinux server)"
 assert_contains "${desktop_packages}" '"1password"' "desktop installs the 1Password app"
 assert_not_contains "${server_packages}" '"1password"' "server omits the 1Password app"
 assert_contains "${server_packages}" '"1password-cli"' "server keeps the 1Password CLI"
 assert_not_contains "${desktop_packages}" '"direnv"' "apt does not own direnv"
+assert_contains "${ubuntu_desktop_packages}" '"alacritty"' "Ubuntu desktop installs Alacritty"
+assert_contains "${ubuntu_desktop_packages}" '"wireshark"' "Ubuntu desktop installs Wireshark"
+assert_not_contains "${ubuntu_server_packages}" '"alacritty"' "Ubuntu server omits Alacritty"
+assert_not_contains "${ubuntu_server_packages}" '"wireshark"' "Ubuntu server omits Wireshark"
+assert_contains "${fedora_desktop_packages}" '"alacritty"' "Fedora desktop installs Alacritty"
+assert_contains "${fedora_desktop_packages}" '"wireshark"' "Fedora desktop installs Wireshark"
+assert_not_contains "${fedora_server_packages}" '"alacritty"' "Fedora server omits Alacritty"
+assert_not_contains "${fedora_server_packages}" '"wireshark"' "Fedora server omits Wireshark"
+assert_not_contains "${almalinux_desktop_packages}" '"alacritty"' "AlmaLinux desktop omits Alacritty"
+assert_contains "${almalinux_desktop_packages}" '"wireshark"' "AlmaLinux desktop installs Wireshark"
+assert_not_contains "${almalinux_server_packages}" '"alacritty"' "AlmaLinux server omits Alacritty"
+assert_not_contains "${almalinux_server_packages}" '"wireshark"' "AlmaLinux server omits Wireshark"
 for package in direnv fzf go kubernetes-cli; do
 	assert_not_contains "${brew_packages}" "\"${package}\"" "Homebrew does not own ${package}"
 done

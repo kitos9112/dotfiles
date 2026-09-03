@@ -1,0 +1,34 @@
+{{- if and (eq .chezmoi.os "linux") (eq (includeTemplate "is-root" . | trim) "true") (or (eq .chezmoi.osRelease.id "fedora") (eq .chezmoi.osRelease.id "almalinux")) -}}
+{{- $machineClass := includeTemplate "machine-class" . | trim -}}
+{{- $dnfPackages := .packages.dnf.common -}}
+{{- if eq $machineClass "desktop" -}}
+{{-   $dnfPackages = concat $dnfPackages .packages.dnf.desktop -}}
+{{- else -}}
+{{-   $dnfPackages = concat $dnfPackages .packages.dnf.server -}}
+{{- end -}}
+{{- $distributionPackages := index .packages.dnf.distributions .chezmoi.osRelease.id -}}
+{{- if eq $machineClass "desktop" -}}
+{{-   $dnfPackages = concat $dnfPackages $distributionPackages.desktop -}}
+{{- else -}}
+{{-   $dnfPackages = concat $dnfPackages $distributionPackages.server -}}
+{{- end -}}
+{{- $dnfPackages = $dnfPackages | uniq | sortAlpha -}}
+#! /usr/bin/env bash
+{{ includeTemplate "scripts-library" . }}
+
+# Re-run whenever the manifest or the resolved profile changes.
+# dnf manifest sha256: {{ .packages.dnf | toJson | sha256sum }}
+# machine_class: {{ $machineClass }}
+# os_release_id: {{ .chezmoi.osRelease.id }}
+
+packages=(
+{{- range $dnfPackages }}
+  {{ . | quote }}
+{{- end }}
+)
+
+log_task "Installing {{ len $dnfPackages }} dnf packages for the '{{ $machineClass }}' profile on {{ .chezmoi.osRelease.id }}"
+sudo dnf install --yes "${packages[@]}"
+sudo localectl set-locale LANG={{ .locale.primary | shellQuote }} || \
+  log_manual_action "Could not set primary locale {{ .locale.primary }}"
+{{- end -}}
