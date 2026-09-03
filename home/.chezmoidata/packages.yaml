@@ -116,11 +116,9 @@ packages:
     taps:
       - common-fate/granted
     common:
-      - aws-rotate-key
       - awscli
       - borgbackup
       - chezmoi
-      - docker-credential-helper-ecr
       - figlet
       - fluxcd/tap/flux
       - gcc
@@ -131,12 +129,9 @@ packages:
       - granted
       - iperf3
       - k9s
-      - kubeseal
-      - kustomize
       - pre-commit
       - shellcheck
       - sops
-      - vale
       - yq
 
   # Ghostty ships no official apt repository; the community ghostty-ubuntu
