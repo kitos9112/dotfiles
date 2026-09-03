@@ -40,6 +40,8 @@ sudo -E dnf install -y \
               python \
               gcc \
               tmux \
+              glibc-langpack-en \
+              glibc-langpack-es \
               make \
               zlib-devel \
               bzip2 \
@@ -58,8 +60,9 @@ sudo -E dnf install -y \
               cronie \
               cronie-anacron
 
-# Setting the System Locale
-localectl set-locale LANG={{ .locale }} || echo -e "Could not set locale - Ignore if happens within Container"
+# Set only the primary locale; additional locales remain available for users.
+localectl set-locale LANG={{ .locale.primary }} || \
+  echo "WARNING: Could not set primary locale {{ .locale.primary }}; configure it manually with localectl when the system bus is available." >&2
 
 # TODO - Modify `apply_updates = yes` in /etc/dnf/automatic.conf
 ## And `systemctl enable --now dnf-automatic.timer`

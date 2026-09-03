@@ -361,7 +361,7 @@ Bootstrap order on Linux, after the 1Password repository and keys are in place:
 
 | Script | Purpose |
 | --- | --- |
-| `run_onchange_before_03-linux-apt-packages` | apt packages for the resolved profile, then `locale-gen` |
+| `run_onchange_before_03-linux-apt-packages` | apt packages for the resolved profile, then generates the primary English and additional Spanish locales |
 | `run_onchange_before_04-linux-brew-packages` | Homebrew and its formulae |
 | `run_onchange_after_080-asdf-tools` | missing ASDF plugins and the versions in `.tool-versions` |
 | `run_onchange_after_103-rust-dev` | the Rust toolchain and pinned cargo tools |

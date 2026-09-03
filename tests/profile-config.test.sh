@@ -58,6 +58,12 @@ for data_file in asdf.yaml fonts.yaml gnome.yaml locale.yaml packages.yaml versi
 	assert_file_exists "${SOURCE_DIR}/.chezmoidata/${data_file}" ".chezmoidata/${data_file} exists"
 done
 
+locale_probe="${TMP_ROOT}/locale.tmpl"
+printf '{{ .locale | toJson }}\n' >"${locale_probe}"
+assert_contains "$(render_template "${locale_probe}")" \
+	'{"additional":["es_ES.UTF-8"],"primary":"en_GB.UTF-8"}' \
+	"locale data declares English primary and Spanish additional locales"
+
 if compgen -G "${SOURCE_DIR}/.chezmoidata*.tmpl" >/dev/null; then
 	fail "templated .chezmoidata files are unsupported"
 else

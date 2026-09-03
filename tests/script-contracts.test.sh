@@ -163,6 +163,25 @@ darwin|darwin|desktop|run_onchange_after_40-install-ai-clis.sh.tmpl
 linux|ubuntu|server|run_after_800-create-symblinks.sh.tmpl
 EOF
 
+echo "== Linux locale support =="
+ubuntu_locale_script="$(DOTFILES_IS_ROOT=true render_for linux ubuntu desktop \
+	"${SCRIPTS_DIR}/run_onchange_before_03-linux-apt-packages.sh.tmpl")"
+assert_contains "${ubuntu_locale_script}" 'locale-gen "en_GB.UTF-8"' \
+	"Ubuntu generates the English primary locale"
+assert_contains "${ubuntu_locale_script}" 'locale-gen "es_ES.UTF-8"' \
+	"Ubuntu generates the Spanish additional locale"
+
+almalinux_prereq_script="$(DOTFILES_IS_ROOT=true render_for linux almalinux desktop \
+	"${SCRIPTS_DIR}/run_once_before_01-linux-install-prereq.sh.tmpl")"
+assert_contains "${almalinux_prereq_script}" 'glibc-langpack-en' \
+	"AlmaLinux installs the English language pack"
+assert_contains "${almalinux_prereq_script}" 'glibc-langpack-es' \
+	"AlmaLinux installs the Spanish language pack"
+assert_contains "${almalinux_prereq_script}" 'localectl set-locale LANG=en_GB.UTF-8' \
+	"AlmaLinux sets only the English primary locale"
+assert_not_contains "${almalinux_prereq_script}" 'localectl set-locale LANG=es_ES.UTF-8' \
+	"AlmaLinux does not make the additional locale primary"
+
 echo "== bootstrap resilience =="
 assert_file_absent "${SCRIPTS_DIR}/run_after_015-fzf-shell-integration.sh.tmpl" \
 	"fzf does not need an installer hook"

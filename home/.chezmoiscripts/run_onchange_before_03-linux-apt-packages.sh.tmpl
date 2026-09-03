@@ -27,6 +27,10 @@ sudo apt-get update
 sudo apt-get install --yes "${packages[@]}"
 
 # locale-gen needs the `locales` package, which the list above provides.
-log_task "Generating locale {{ .locale }}"
-sudo locale-gen {{ .locale | quote }}
+log_task "Generating primary locale {{ .locale.primary }}"
+sudo locale-gen {{ .locale.primary | quote }}
+{{- range .locale.additional }}
+log_task "Generating additional locale {{ . }}"
+sudo locale-gen {{ . | quote }}
+{{- end }}
 {{- end -}}
