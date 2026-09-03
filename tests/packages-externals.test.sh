@@ -9,6 +9,7 @@ source "${SCRIPT_DIR}/lib/contract-test.sh"
 VERSIONS_FILE="${SOURCE_DIR}/.chezmoidata/versions.yaml"
 EXTERNALS_FILE="${SOURCE_DIR}/.chezmoiexternal.yaml"
 ASDF_PLUGINS_FILE="${SOURCE_DIR}/.chezmoidata/asdf.yaml"
+DARWIN_BREW_TEMPLATE="${SCRIPTS_DIR}/run_once_before_00-darwin-install-brew-packages.sh.tmpl"
 
 echo "== package profile selection =="
 apt_probe="${TMP_ROOT}/apt-packages.tmpl"
@@ -22,6 +23,9 @@ printf '{{- if hasKey .packages "dnf" -}}{{- $packages := .packages.dnf.common -
 desktop_packages="$(render_template "${apt_probe}" '{"machine_class":"desktop"}')"
 server_packages="$(render_template "${apt_probe}" '{"machine_class":"server"}')"
 brew_packages="$(render_template "${brew_probe}")"
+darwin_brew_script="$(render_for darwin darwin desktop "${DARWIN_BREW_TEMPLATE}")"
+embedded_brew_packages="$(sed -nE 's/^[[:space:]]*brew "([^"]+)".*/\1/p' \
+	<<<"${darwin_brew_script}")"
 render_dnf_packages() {
 	local distribution=$1 profile=$2 override
 	override="$(jq -cn --arg distribution "${distribution}" --arg profile "${profile}" \
@@ -51,8 +55,34 @@ assert_not_contains "${almalinux_desktop_packages}" '"alacritty"' "AlmaLinux des
 assert_contains "${almalinux_desktop_packages}" '"wireshark"' "AlmaLinux desktop installs Wireshark"
 assert_not_contains "${almalinux_server_packages}" '"alacritty"' "AlmaLinux server omits Alacritty"
 assert_not_contains "${almalinux_server_packages}" '"wireshark"' "AlmaLinux server omits Wireshark"
-for package in direnv fzf go kubernetes-cli; do
-	assert_not_contains "${brew_packages}" "\"${package}\"" "Homebrew does not own ${package}"
+active_package_sources="$({
+	jq -r '.[]' <<<"${desktop_packages}"
+	jq -r '.[]' <<<"${server_packages}"
+	jq -r '.[]' <<<"${brew_packages}"
+	jq -r '.[]' <<<"${fedora_desktop_packages}"
+	jq -r '.[]' <<<"${fedora_server_packages}"
+	jq -r '.[]' <<<"${almalinux_desktop_packages}"
+	jq -r '.[]' <<<"${almalinux_server_packages}"
+	printf '%s\n' "${embedded_brew_packages}"
+} | sort -u)"
+for ownership in \
+	'Go|go golang golang-go' \
+	'kubectl|kubectl kubernetes-cli' \
+	'fzf|fzf' \
+	'direnv|direnv'; do
+	tool="${ownership%%|*}"
+	provider_names="${ownership#*|}"
+	duplicate=false
+	for package in ${provider_names}; do
+		if grep -Fxq -- "${package}" <<<"${active_package_sources}"; then
+			duplicate=true
+		fi
+	done
+	if [[ "${duplicate}" == false ]]; then
+		pass "active package sources do not own ${tool}"
+	else
+		fail "active package sources do not own ${tool}"
+	fi
 done
 
 echo "== asdf tool ownership =="

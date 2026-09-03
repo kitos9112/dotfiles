@@ -33,4 +33,6 @@ sudo locale-gen {{ .locale.primary | quote }}
 log_task "Generating additional locale {{ . }}"
 sudo locale-gen {{ . | quote }}
 {{- end }}
+log_task "Selecting primary locale {{ .locale.primary }}"
+sudo update-locale LANG={{ .locale.primary | shellQuote }}
 {{- end -}}

@@ -20,6 +20,106 @@ assert_count() {
 	fi
 }
 
+assert_command_call() {
+	local log=$1 command=$2 label=$3 expected
+	shift 3
+	expected="${command}"
+	for argument in "$@"; do
+		expected+=$'\t'"${argument}"
+	done
+	if grep -Fxq -- "${expected}" "${log}"; then
+		pass "${label}"
+	else
+		fail "${label} (expected exact call: ${expected})"
+	fi
+}
+
+assert_command_call_absent() {
+	local log=$1 command=$2 label=$3 expected
+	shift 3
+	expected="${command}"
+	for argument in "$@"; do
+		expected+=$'\t'"${argument}"
+	done
+	if ! grep -Fxq -- "${expected}" "${log}"; then
+		pass "${label}"
+	else
+		fail "${label} (unexpected exact call: ${expected})"
+	fi
+}
+
+assert_command_prefix() {
+	local log=$1 command=$2 label=$3 expected line
+	shift 3
+	expected="${command}"
+	for argument in "$@"; do
+		expected+=$'\t'"${argument}"
+	done
+	while IFS= read -r line; do
+		if [[ "${line}" == "${expected}"$'\t'* ]]; then
+			pass "${label}"
+			return
+		fi
+	done <"${log}"
+	fail "${label} (expected call prefix: ${expected})"
+}
+
+assert_command_argument() {
+	local log=$1 command=$2 argument=$3 label=$4 line field
+	local -a fields
+	while IFS= read -r line; do
+		IFS=$'\t' read -r -a fields <<<"${line}"
+		[[ "${fields[0]}" == "${command}" ]] || continue
+		for field in "${fields[@]:1}"; do
+			if [[ "${field}" == "${argument}" ]]; then
+				pass "${label}"
+				return
+			fi
+		done
+	done <"${log}"
+	fail "${label} (expected ${command} argument: ${argument})"
+}
+
+assert_command_count() {
+	local log=$1 command=$2 expected=$3 label=$4 line count=0
+	while IFS= read -r line; do
+		[[ "${line%%$'\t'*}" == "${command}" ]] || continue
+		count=$((count + 1))
+	done <"${log}"
+	if [[ "${count}" == "${expected}" ]]; then
+		pass "${label}"
+	else
+		fail "${label} (expected ${expected}, got ${count})"
+	fi
+}
+
+make_recording_command_doubles() {
+	local bin_dir=$1 command
+	mkdir -p "${bin_dir}"
+	cat >"${bin_dir}/record-command" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+command=${0##*/}
+{
+  printf '%s' "${command}"
+  for argument in "$@"; do
+    printf '\t%s' "${argument}"
+  done
+  printf '\n'
+} >>"${COMMAND_MOCK_LOG:?}"
+EOF
+	cat >"${bin_dir}/id" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+[[ "${1-}" == "-u" ]] || exit 64
+printf '0\n'
+EOF
+	chmod 700 "${bin_dir}/record-command" "${bin_dir}/id"
+	for command in apt-get dnf locale-gen localectl update-locale; do
+		ln -s record-command "${bin_dir}/${command}"
+	done
+}
+
 echo "== manifest-driven ASDF convergence =="
 assert_file_exists "${SOURCE_DIR}/.chezmoidata/asdf.yaml" "ASDF plugin manifest exists"
 assert_file_exists "${ASDF_TEMPLATE}" "single ASDF convergence template exists"
@@ -171,23 +271,54 @@ linux|ubuntu|server|false|run_after_800-create-symblinks.sh.tmpl
 EOF
 
 echo "== Linux locale support =="
-ubuntu_locale_script="$(DOTFILES_IS_ROOT=true render_for linux ubuntu desktop \
-	"${SCRIPTS_DIR}/run_onchange_before_03-linux-apt-packages.sh.tmpl")"
-assert_contains "${ubuntu_locale_script}" 'locale-gen "en_GB.UTF-8"' \
-	"Ubuntu generates the English primary locale"
-assert_contains "${ubuntu_locale_script}" 'locale-gen "es_ES.UTF-8"' \
-	"Ubuntu generates the Spanish additional locale"
+package_bin="${TMP_ROOT}/package-bin"
+package_log="${TMP_ROOT}/package-commands.log"
+make_recording_command_doubles "${package_bin}"
 
-almalinux_dnf_script="$(DOTFILES_IS_ROOT=true render_for linux almalinux desktop \
-	"${SCRIPTS_DIR}/run_onchange_before_03-linux-dnf-packages.sh.tmpl")"
-assert_contains "${almalinux_dnf_script}" 'glibc-langpack-en' \
-	"AlmaLinux installs the English language pack"
-assert_contains "${almalinux_dnf_script}" 'glibc-langpack-es' \
-	"AlmaLinux installs the Spanish language pack"
-assert_contains "${almalinux_dnf_script}" 'localectl set-locale LANG=en_GB.UTF-8' \
-	"AlmaLinux sets only the English primary locale"
-assert_not_contains "${almalinux_dnf_script}" 'localectl set-locale LANG=es_ES.UTF-8' \
-	"AlmaLinux does not make the additional locale primary"
+ubuntu_locale_script="${TMP_ROOT}/ubuntu-apt-packages.sh"
+DOTFILES_IS_ROOT=true render_for linux ubuntu desktop \
+	"${SCRIPTS_DIR}/run_onchange_before_03-linux-apt-packages.sh.tmpl" \
+	>"${ubuntu_locale_script}"
+chmod 700 "${ubuntu_locale_script}"
+: >"${package_log}"
+COMMAND_MOCK_LOG="${package_log}" PATH="${package_bin}:/usr/bin:/bin" \
+	bash "${ubuntu_locale_script}"
+assert_command_call "${package_log}" apt-get "Ubuntu refreshes apt metadata with one bounded argument" update
+assert_command_prefix "${package_log}" apt-get \
+	"Ubuntu installs the rendered package array as separate arguments" install --yes
+assert_command_argument "${package_log}" apt-get alacritty \
+	"Ubuntu passes Alacritty as its own apt install argument"
+assert_command_call "${package_log}" locale-gen \
+	"Ubuntu generates the English primary locale as one argument" en_GB.UTF-8
+assert_command_call "${package_log}" locale-gen \
+	"Ubuntu generates the Spanish additional locale as one argument" es_ES.UTF-8
+assert_command_call "${package_log}" update-locale \
+	"Ubuntu selects only the English primary locale" LANG=en_GB.UTF-8
+assert_command_count "${package_log}" update-locale 1 \
+	"Ubuntu selects exactly one system locale"
+assert_command_call_absent "${package_log}" update-locale \
+	"Ubuntu does not select the Spanish additional locale" LANG=es_ES.UTF-8
+
+almalinux_dnf_script="${TMP_ROOT}/almalinux-dnf-packages.sh"
+DOTFILES_IS_ROOT=true render_for linux almalinux desktop \
+	"${SCRIPTS_DIR}/run_onchange_before_03-linux-dnf-packages.sh.tmpl" \
+	>"${almalinux_dnf_script}"
+chmod 700 "${almalinux_dnf_script}"
+: >"${package_log}"
+COMMAND_MOCK_LOG="${package_log}" PATH="${package_bin}:/usr/bin:/bin" \
+	bash "${almalinux_dnf_script}"
+assert_command_prefix "${package_log}" dnf \
+	"AlmaLinux installs the rendered package array as separate arguments" install --yes
+assert_command_argument "${package_log}" dnf glibc-langpack-en \
+	"AlmaLinux passes the English language pack as its own dnf argument"
+assert_command_argument "${package_log}" dnf glibc-langpack-es \
+	"AlmaLinux passes the Spanish language pack as its own dnf argument"
+assert_command_call "${package_log}" localectl \
+	"AlmaLinux selects only the English primary locale" set-locale LANG=en_GB.UTF-8
+assert_command_count "${package_log}" localectl 1 \
+	"AlmaLinux selects exactly one system locale"
+assert_command_call_absent "${package_log}" localectl \
+	"AlmaLinux does not select the Spanish additional locale" set-locale LANG=es_ES.UTF-8
 
 echo "== bootstrap resilience =="
 assert_file_absent "${SCRIPTS_DIR}/run_after_015-fzf-shell-integration.sh.tmpl" \

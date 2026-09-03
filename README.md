@@ -160,6 +160,11 @@ machines on the next `chezmoi apply` — not just freshly bootstrapped ones.
 The DNF manifest also has distribution overlays: Fedora desktops install native
 Alacritty, while AlmaLinux desktops omit it and use no third-party repository.
 
+Primary and additional locale intent lives in
+[`home/.chezmoidata/locale.yaml`](./home/.chezmoidata/locale.yaml). English
+(`en_GB.UTF-8`) remains the primary system locale, while Spanish
+(`es_ES.UTF-8`) is generated or installed as an additional locale.
+
 Data files must be literal `.chezmoidata/*.yaml`. chezmoi does not template data
 files, so a `.chezmoidata.yaml.tmpl` is loaded by nothing and its values silently
 disappear from the template data.
@@ -363,7 +368,8 @@ Bootstrap order on Linux, after the 1Password repository and keys are in place:
 
 | Script | Purpose |
 | --- | --- |
-| `run_onchange_before_03-linux-apt-packages` | apt packages for the resolved profile, then generates the primary English and additional Spanish locales |
+| `run_onchange_before_03-linux-apt-packages` | apt packages for the resolved profile, generates both locales, then selects primary English |
+| `run_onchange_before_03-linux-dnf-packages` | dnf packages and language packs for the resolved profile and distribution, then selects primary English |
 | `run_onchange_before_04-linux-brew-packages` | Homebrew and its formulae |
 | `run_onchange_after_080-asdf-tools` | missing ASDF plugins and the versions in `.tool-versions` |
 | `run_onchange_after_103-rust-dev` | the Rust toolchain and pinned cargo tools |
