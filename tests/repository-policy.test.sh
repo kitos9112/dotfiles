@@ -78,6 +78,15 @@ assert_contains "${workflow}" 'chezmoi: "2.72.0"' "CI tests the minimum chezmoi 
 assert_contains "${workflow}" 'chezmoi: latest' "CI tests the latest chezmoi version"
 assert_contains "${workflow}" 'task test' "CI uses the same test entry point as developers"
 
+echo "== dependency update ownership =="
+renovate_config="$(<"${REPO_ROOT}/.github/renovate.json5")"
+assert_contains "${renovate_config}" ':enableVulnerabilityAlerts' \
+	"Renovate owns vulnerability update pull requests"
+assert_file_absent "${REPO_ROOT}/.github/workflows/renovate.yaml" \
+	"Renovate SaaS is the only Renovate runner"
+assert_file_absent "${REPO_ROOT}/.github/dependabot.yml" \
+	"Dependabot version updates are not configured"
+
 echo "== Linux smoke dependencies =="
 for family in ubuntu almalinux; do
 	dockerfile="${REPO_ROOT}/tests/Dockerfile.${family}"

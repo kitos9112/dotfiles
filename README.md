@@ -175,6 +175,12 @@ proposes updates to that reviewed manifest; chezmoi rendering never calls GitHub
 release APIs or writes a cache into the source tree. This keeps `chezmoi diff`,
 `apply`, and the template contracts deterministic when offline.
 
+Renovate SaaS is the sole owner of dependency-update pull requests, including
+updates derived from GitHub vulnerability alerts. Dependabot alerts remain
+enabled for visibility, while Dependabot automated security updates are
+disabled to avoid competing pull requests. Use `task run-renovate` for a local
+dry run when changing `.github/renovate.json5`.
+
 ASDF plugin registration is declared separately in
 [`home/.chezmoidata/asdf.yaml`](./home/.chezmoidata/asdf.yaml). A single
 `run_onchange_` script adds missing plugins and runs `asdf install` once when the

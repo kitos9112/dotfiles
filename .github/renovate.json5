@@ -7,6 +7,7 @@
     ":dependencyDashboard",
     ":semanticCommits",
     ":separatePatchReleases",
+    ":enableVulnerabilityAlerts",
     "docker:enableMajor",
     ":enablePreCommit",
     // Auto-pin any newly added GitHub Action to a commit SHA, so the hardening
