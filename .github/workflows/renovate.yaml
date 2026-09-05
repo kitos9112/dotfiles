@@ -52,7 +52,7 @@ jobs:
           permission-workflows: write
 
       - name: Renovate
-        uses: renovatebot/github-action@5402b206248e5a8c8427a15102702eb9c1793efc # v46.2.4
+        uses: renovatebot/github-action@39b914146caeff8cd512e61c8992f1d5913af85c # v46.2.5
         # Passed as step env rather than interpolated into a run block, so a
         # dispatch input can never be expanded as shell code. Scheduled and push
         # runs get the fallbacks; a manual dispatch supplies its own defaults
