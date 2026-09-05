@@ -1,97 +1,90 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    ":enableRenovate",
-    "config:recommended",
-    ":disableRateLimiting",
-    ":dependencyDashboard",
-    ":semanticCommits",
-    ":separatePatchReleases",
-    ":enableVulnerabilityAlerts",
-    "docker:enableMajor",
-    ":enablePreCommit",
-    // Auto-pin any newly added GitHub Action to a commit SHA, so the hardening
-    // done in 79f4bc0 cannot silently regress as workflows gain steps.
-    "helpers:pinGitHubActionDigests",
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: [
+    ':enableRenovate',
+    'config:recommended',
+    ':disableRateLimiting',
+    ':dependencyDashboard',
+    ':semanticCommits',
+    ':separatePatchReleases',
+    ':enableVulnerabilityAlerts',
+    'docker:enableMajor',
+    ':enablePreCommit',
+    'helpers:pinGitHubActionDigests',
   ],
-  "timezone": "Europe/London",
-  "dependencyDashboard": true,
-  "dependencyDashboardTitle": "Renovate Dashboard",
-  "labels": [
-    "renovatebot",
+  timezone: 'Europe/London',
+  dependencyDashboard: true,
+  dependencyDashboardTitle: 'Renovate Dashboard',
+  labels: [
+    'renovatebot',
   ],
-  "commitMessageSuffix": "[ci-skip]",
-  "gitAuthor": "henry-pa-bot <166536+henry-bot[bot]@users.noreply.github.com>",
-  "suppressNotifications": [
-    "prIgnoreNotification",
+  commitMessageSuffix: '[ci-skip]',
+  gitAuthor: 'henry-pa-bot <166536+henry-bot[bot]@users.noreply.github.com>',
+  suppressNotifications: [
+    'prIgnoreNotification',
   ],
-  "ignoreTests": true,
-  "rebaseWhen": "conflicted",
-  "assignees": [
-    "@kitos9112",
+  ignoreTests: true,
+  rebaseWhen: 'conflicted',
+  assignees: [
+    '@kitos9112',
   ],
-  "customManagers": [
+  customManagers: [
     {
-      "customType": "regex",
-      "datasourceTemplate": "git-refs",
-      "depNameTemplate": "Homebrew/install",
-      "packageNameTemplate": "https://github.com/Homebrew/install",
-      "description": "Track the pinned Homebrew installer commit against its default branch",
-      // The installer is fetched by commit SHA rather than a branch name, so
-      // Renovate follows main's HEAD and bumps the digest.
-      "currentValueTemplate": "main",
-      "fileMatch": [
-        "^home/\\.chezmoiscripts/.*install-brew-packages\\.(sh|zsh)\\.tmpl$",
+      customType: 'regex',
+      datasourceTemplate: 'git-refs',
+      depNameTemplate: 'Homebrew/install',
+      packageNameTemplate: 'https://github.com/Homebrew/install',
+      description: 'Track the pinned Homebrew installer commit against its default branch',
+      currentValueTemplate: 'main',
+      managerFilePatterns: [
+        '/^home/\\.chezmoiscripts/.*install-brew-packages\\.(sh|zsh)\\.tmpl$/',
       ],
-      "matchStrings": [
-        "raw\\.githubusercontent\\.com/Homebrew/install/(?<currentDigest>[0-9a-f]{40})/install\\.sh",
+      matchStrings: [
+        'raw\\.githubusercontent\\.com/Homebrew/install/(?<currentDigest>[0-9a-f]{40})/install\\.sh',
       ],
     },
     {
-      "customType": "regex",
-      "description": "Process renovate comments in home templates",
-      "fileMatch": [
-        "^home\\/.*",
+      customType: 'regex',
+      description: 'Process renovate comments in home templates',
+      managerFilePatterns: [
+        '/^home\\/.*/',
       ],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>.+?) packageName=(?<packageName>.+?)( extractVersion=(?<extractVersion>.+?))?( registryUrl=(?<registryUrl>.+?))?\\s+(?<depName>.+?) (?<currentValue>.+)",
+      matchStrings: [
+        '# renovate: datasource=(?<datasource>.+?) packageName=(?<packageName>.+?)( extractVersion=(?<extractVersion>.+?))?( registryUrl=(?<registryUrl>.+?))?\\s+(?<depName>.+?) (?<currentValue>.+)',
       ],
-      "extractVersionTemplate": "{{#if extractVersion}}{{extractVersion}}{{else}}^v?(?<version>.+)${{/if}}",
+      extractVersionTemplate: '{{#if extractVersion}}{{extractVersion}}{{else}}^v?(?<version>.+)${{/if}}',
     },
   ],
-  "packageRules": [
+  packageRules: [
     {
-      "matchPackageNames": [
-        "node",
-        "python",
+      matchPackageNames: [
+        'node',
+        'python',
       ],
-      "minimumReleaseAge": "20 days",
+      minimumReleaseAge: '20 days',
     },
     {
-      "matchUpdateTypes": [
-        "minor",
-        "patch",
-        "pin",
-        "digest",
+      matchUpdateTypes: [
+        'minor',
+        'patch',
+        'pin',
+        'digest',
       ],
-      "automerge": true,
+      automerge: true,
     },
     {
-      // Pinning to a SHA only helps if a compromised upstream release is not
-      // automerged the moment it lands. With ignoreTests enabled, nothing else
-      // gates these, so give third-party code a cooling-off window.
-      "description": "Let third-party action and installer updates age before automerge",
-      "matchManagers": [
-        "github-actions",
-        "custom.regex",
+      description: 'Let third-party action and installer updates age before automerge',
+      matchManagers: [
+        'github-actions',
+        'custom.regex',
       ],
-      "minimumReleaseAge": "5 days",
+      minimumReleaseAge: '5 days',
     },
   ],
-  "asdf": {
-    "fileMatch": [
-      "(^|/)\\.tool-versions$",
-      "(^|/)dot_tool-versions.tmpl$",
+  asdf: {
+    managerFilePatterns: [
+      '/(^|/)\\.tool-versions$/',
+      '/(^|/)dot_tool-versions.tmpl$/',
     ],
   },
 }
