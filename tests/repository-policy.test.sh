@@ -82,6 +82,8 @@ echo "== dependency update ownership =="
 renovate_config="$(<"${REPO_ROOT}/.github/renovate.json5")"
 assert_contains "${renovate_config}" ':enableVulnerabilityAlerts' \
 	"Renovate owns vulnerability update pull requests"
+assert_not_contains "${renovate_config}" '"onboarding"' \
+	"repository config omits Renovate's global-only onboarding option"
 assert_file_absent "${REPO_ROOT}/.github/workflows/renovate.yaml" \
 	"Renovate SaaS is the only Renovate runner"
 assert_file_absent "${REPO_ROOT}/.github/dependabot.yml" \
