@@ -80,6 +80,26 @@ for seed in \
 	assert_file_exists "${SOURCE_DIR}/${seed}" "${seed} uses create_ semantics"
 done
 
+claude_seed_home="${TMP_ROOT}/claude-seed-home"
+claude_seed_config="${TMP_ROOT}/claude-seed-config.toml"
+mkdir -p "${claude_seed_home}"
+: >"${claude_seed_config}"
+printf '%s\n' 'private-machine-rule' >"${claude_seed_home}/CLAUDE.md"
+if chezmoi \
+	--cache "${TMP_ROOT}/claude-seed-cache" \
+	--config "${claude_seed_config}" \
+	--destination "${claude_seed_home}" \
+	--persistent-state "${TMP_ROOT}/claude-seed-state.boltdb" \
+	--refresh-externals=never \
+	--source "${SOURCE_DIR}/dot_claude" \
+	--no-tty \
+	apply "${claude_seed_home}/CLAUDE.md" >/dev/null 2>&1 && \
+	[[ "$(<"${claude_seed_home}/CLAUDE.md")" == 'private-machine-rule' ]]; then
+	pass "Claude instructions preserve machine-local additions"
+else
+	fail "Claude instructions preserve machine-local additions"
+fi
+
 echo "== Claude settings merge =="
 claude_template="${SOURCE_DIR}/dot_claude/modify_settings.json.tmpl"
 assert_file_exists "${claude_template}" "Claude settings use a modify_ template"
