@@ -157,6 +157,10 @@ apt, dnf and Homebrew manifests live in
 `common`, `desktop` and `server` lists. The installers are `run_onchange_`
 scripts fingerprinted against those lists, so adding a package reaches existing
 machines on the next `chezmoi apply` — not just freshly bootstrapped ones.
+Both macOS and Linux consume `packages.brew.common` and `packages.brew.taps`.
+The macOS installer also retains its platform-specific formulae and casks;
+it uses `brew bundle --no-upgrade` to install missing packages without upgrading
+already installed packages on each manifest change.
 The DNF manifest also has distribution overlays: Fedora desktops install native
 Alacritty, while AlmaLinux desktops omit it and use no third-party repository.
 

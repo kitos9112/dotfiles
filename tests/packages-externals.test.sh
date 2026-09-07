@@ -9,7 +9,7 @@ source "${SCRIPT_DIR}/lib/contract-test.sh"
 VERSIONS_FILE="${SOURCE_DIR}/.chezmoidata/versions.yaml"
 EXTERNALS_FILE="${SOURCE_DIR}/.chezmoiexternal.yaml"
 ASDF_PLUGINS_FILE="${SOURCE_DIR}/.chezmoidata/asdf.yaml"
-DARWIN_BREW_TEMPLATE="${SCRIPTS_DIR}/run_once_before_00-darwin-install-brew-packages.sh.tmpl"
+DARWIN_BREW_TEMPLATE="${SCRIPTS_DIR}/run_onchange_before_00-darwin-install-brew-packages.sh.tmpl"
 
 echo "== package profile selection =="
 apt_probe="${TMP_ROOT}/apt-packages.tmpl"
@@ -26,6 +26,22 @@ brew_packages="$(render_template "${brew_probe}")"
 darwin_brew_script="$(render_for darwin darwin desktop "${DARWIN_BREW_TEMPLATE}")"
 embedded_brew_packages="$(sed -nE 's/^[[:space:]]*brew "([^"]+)".*/\1/p' \
 	<<<"${darwin_brew_script}")"
+while IFS= read -r formula; do
+	assert_contains "${darwin_brew_script}" "brew \"${formula}\"" "macOS installs shared formula ${formula}"
+done < <(jq -r '.[]' <<<"${brew_packages}")
+changed_darwin_brew_script="$(render_template "${DARWIN_BREW_TEMPLATE}" \
+	'{"chezmoi":{"os":"darwin"},"packages":{"brew":{"common":["test-added-formula"],"taps":["test-added/tap"]}}}')"
+assert_contains "${changed_darwin_brew_script}" 'brew "test-added-formula"' "a manifest addition changes the macOS install command"
+assert_contains "${changed_darwin_brew_script}" 'tap "test-added/tap"' "macOS consumes shared taps"
+assert_contains "${darwin_brew_script}" 'cask "1password"' "macOS retains its casks"
+assert_contains "${darwin_brew_script}" 'brew "dnsmasq", restart_service: :changed' "macOS retains formula service options"
+assert_contains "${darwin_brew_script}" 'bundle --no-upgrade' "manifest changes do not upgrade installed packages"
+assert_valid_bash "${darwin_brew_script}" "macOS Homebrew installer has valid shell syntax"
+if [[ "$(sort <<<"${embedded_brew_packages}" | uniq -d)" == "" ]]; then
+	pass "macOS formulae are unique"
+else
+	fail "macOS formulae are unique"
+fi
 render_dnf_packages() {
 	local distribution=$1 profile=$2 override
 	override="$(jq -cn --arg distribution "${distribution}" --arg profile "${profile}" \

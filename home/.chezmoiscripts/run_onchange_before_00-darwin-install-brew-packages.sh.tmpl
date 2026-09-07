@@ -3,6 +3,8 @@
 #! /usr/bin/env bash
 set -ev -o pipefail
 
+# brew manifest sha256: {{ .packages.brew | toJson | sha256sum }}
+
 # 1. Install Homebrew
 which -a brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/7a133dcc74051ee4efc79467ed215dfedf45aea2/install.sh)"
 brew="/opt/homebrew/bin/brew"
@@ -10,10 +12,15 @@ $brew --version
 
 # 2. Install Homebrew packages
 ## `brew bundle dump` to generate Brewfile
-$brew bundle --file=/dev/stdin <<EOF
+$brew bundle --no-upgrade --file=/dev/stdin <<EOF
+{{ range .packages.brew.taps | uniq | sortAlpha -}}
+    tap {{ . | quote }}
+{{ end -}}
+{{ range .packages.brew.common | uniq | sortAlpha -}}
+    brew {{ . | quote }}
+{{ end -}}
     tap "1password/tap"
     tap "aquasecurity/trivy"
-    tap "common-fate/granted"
     tap "dty1er/tap"
     tap "gabrie30/utils"
     tap "go-task/tap"
@@ -24,11 +31,9 @@ $brew bundle --file=/dev/stdin <<EOF
     brew "asdf"
     brew "openssl@3"
     brew "readline"
-    brew "awscli"
     brew "bash"
     brew "bzip2"
     brew "cargo-instruments"
-    brew "chezmoi"
     brew "cloc"
     brew "coreutils"
     brew "curl"
@@ -36,21 +41,17 @@ $brew bundle --file=/dev/stdin <<EOF
     brew "dnsmasq", restart_service: :changed
     brew "docker-compose"
     brew "expect"
-    brew "figlet"
     brew "findutils"
     brew "fio"
     brew "flock"
     brew "freerdp"
-    brew "gh"
     brew "git"
-    brew "git-crypt"
     brew "glab"
     brew "gnu-sed"
     brew "gnu-tar"
     brew "pinentry"
     brew "gnupg"
     brew "gnuplot"
-    brew "gomplate"
     brew "goreleaser"
     brew "librsvg"
     brew "graphviz"
@@ -59,11 +60,9 @@ $brew bundle --file=/dev/stdin <<EOF
     brew "hub"
     brew "hyperfine"
     brew "influxdb"
-    brew "iperf3"
     brew "iproute2mac"
     brew "jfrog-cli"
     brew "jq"
-    brew "k9s"
     brew "krb5"
     brew "libedit"
     brew "libvirt"

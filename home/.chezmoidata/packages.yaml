@@ -119,12 +119,12 @@ packages:
       - awscli
       - borgbackup
       - chezmoi
+      - croc
       - figlet
-      - fluxcd/tap/flux
       - gcc
       - gh
       - git-crypt
-      - go-task/tap/go-task
+      - go-task
       - gomplate
       - granted
       - iperf3
