@@ -57,6 +57,15 @@
   ],
   packageRules: [
     {
+      description: 'Keep Go tool dependency checksums complete after updates',
+      matchManagers: [
+        'gomod',
+      ],
+      postUpdateOptions: [
+        'gomodTidy',
+      ],
+    },
+    {
       matchPackageNames: [
         'node',
         'python',
