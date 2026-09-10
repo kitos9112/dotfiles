@@ -6,7 +6,7 @@ set -ev -o pipefail
 # brew manifest sha256: {{ .packages.brew | toJson | sha256sum }}
 
 # 1. Install Homebrew
-which -a brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/7a133dcc74051ee4efc79467ed215dfedf45aea2/install.sh)"
+which -a brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/641127e1d6a9b5fd01dd4582abe174b7a4069bba/install.sh)"
 brew="/opt/homebrew/bin/brew"
 $brew --version
 
