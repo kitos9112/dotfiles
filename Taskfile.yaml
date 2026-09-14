@@ -5,6 +5,7 @@ version: "3"
 
 vars:
   RENOVATE_LOCAL_CONFIG: "tests/renovate-bot/local-config.js"
+  RENOVATE_IMAGE: "renovate/renovate:44.83.0@sha256:91ace55cdb4df3c7c5928ac3d2f9c3e338a2bc2569563756fc98f678e1ec933f"
 
 dotenv: ["~/.env"]
 
@@ -59,7 +60,7 @@ tasks:
         docker run --rm
         --env RENOVATE_TOKEN
         --volume "$(pwd)/{{.RENOVATE_LOCAL_CONFIG}}:/usr/src/app/config.js:ro"
-        renovate/renovate:slim
+        {{.RENOVATE_IMAGE}}
         --platform=github
         --print-config=true
         --force-cli=true

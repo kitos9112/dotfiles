@@ -15,20 +15,37 @@
   timezone: 'Europe/London',
   dependencyDashboard: true,
   dependencyDashboardTitle: 'Renovate Dashboard',
+  // Hold routine updates long enough for compromised releases to be detected
+  // or withdrawn. Security alerts still open immediately for manual review.
+  minimumReleaseAge: '14 days',
+  internalChecksFilter: 'strict',
   labels: [
     'renovatebot',
   ],
-  commitMessageSuffix: '[ci-skip]',
   gitAuthor: 'henry-pa-bot <166536+henry-bot[bot]@users.noreply.github.com>',
   suppressNotifications: [
     'prIgnoreNotification',
   ],
-  ignoreTests: true,
-  rebaseWhen: 'conflicted',
+  // The default branch currently has no protection rules, so Renovate itself
+  // must wait for every status check before merging.
+  ignoreTests: false,
+  platformAutomerge: false,
+  rebaseWhen: 'auto',
   assignees: [
     '@kitos9112',
   ],
   customManagers: [
+    {
+      customType: 'regex',
+      datasourceTemplate: 'docker',
+      description: 'Track the pinned local Renovate image',
+      managerFilePatterns: [
+        '/^Taskfile\.yaml$/',
+      ],
+      matchStrings: [
+        'RENOVATE_IMAGE:\\s*"(?<depName>renovate/renovate):(?<currentValue>[^"@]+)@(?<currentDigest>sha256:[a-f0-9]{64})"',
+      ],
+    },
     {
       customType: 'regex',
       datasourceTemplate: 'git-refs',
@@ -55,6 +72,15 @@
       extractVersionTemplate: '{{#if extractVersion}}{{extractVersion}}{{else}}^v?(?<version>.+)${{/if}}',
     },
   ],
+  vulnerabilityAlerts: {
+    // Do not delay known vulnerability fixes, but keep a human in the loop.
+    minimumReleaseAge: null,
+    automerge: false,
+    labels: [
+      'renovatebot',
+      'security',
+    ],
+  },
   packageRules: [
     {
       description: 'Keep Go tool dependency checksums complete after updates',
@@ -73,21 +99,31 @@
       minimumReleaseAge: '20 days',
     },
     {
+      description: 'Automerge aged routine updates after required CI passes',
       matchUpdateTypes: [
         'minor',
         'patch',
-        'pin',
         'digest',
       ],
       automerge: true,
     },
     {
-      description: 'Let third-party action and installer updates age before automerge',
+      description: 'Never automerge workflow, hook, toolchain, or installer updates',
       matchManagers: [
         'github-actions',
         'custom.regex',
+        'pre-commit',
+        'asdf',
       ],
-      minimumReleaseAge: '5 days',
+      automerge: false,
+    },
+    {
+      description: 'Never automerge majors or pin operations',
+      matchUpdateTypes: [
+        'major',
+        'pin',
+      ],
+      automerge: false,
     },
   ],
   asdf: {

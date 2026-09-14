@@ -80,14 +80,43 @@ assert_contains "${workflow}" 'task test' "CI uses the same test entry point as 
 
 echo "== dependency update ownership =="
 renovate_config="$(<"${REPO_ROOT}/.github/renovate.json5")"
+taskfile="$(<"${REPO_ROOT}/Taskfile.yaml")"
 assert_contains "${renovate_config}" ':enableVulnerabilityAlerts' \
 	"Renovate owns vulnerability update pull requests"
+assert_contains "${renovate_config}" "minimumReleaseAge: '14 days'" \
+	"Renovate waits two weeks before proposing routine dependency updates"
+assert_contains "${renovate_config}" "internalChecksFilter: 'strict'" \
+	"Renovate suppresses updates that have not passed the release-age check"
+assert_contains "${renovate_config}" 'ignoreTests: false' \
+	"Renovate automerge waits for CI"
+assert_contains "${renovate_config}" "rebaseWhen: 'auto'" \
+	"Renovate retests automerge candidates against the current base"
+assert_contains "${renovate_config}" 'platformAutomerge: false' \
+	"Renovate waits for CI while the default branch has no protection rules"
+assert_contains "${renovate_config}" 'Never automerge workflow, hook, toolchain, or installer updates' \
+	"workflow, hook, toolchain, and installer updates require manual review"
+assert_contains "${renovate_config}" 'Never automerge majors or pin operations' \
+	"high-risk update types require manual review"
+assert_not_contains "${renovate_config}" "minimumReleaseAge: '5 days'" \
+	"no dependency class uses the short five-day cooldown"
+assert_not_contains "${renovate_config}" 'ignoreTests: true' \
+	"Renovate cannot bypass CI globally"
+assert_not_contains "${renovate_config}" 'commitMessageSuffix' \
+	"Renovate commits cannot request that CI be skipped"
 assert_not_contains "${renovate_config}" '"onboarding"' \
 	"repository config omits Renovate's global-only onboarding option"
 assert_file_absent "${REPO_ROOT}/.github/workflows/renovate.yaml" \
 	"Renovate SaaS is the only Renovate runner"
 assert_file_absent "${REPO_ROOT}/.github/dependabot.yml" \
 	"Dependabot version updates are not configured"
+assert_contains "${renovate_config}" 'Track the pinned local Renovate image' \
+	"Renovate tracks its own local runner image"
+assert_contains "${taskfile}" 'RENOVATE_IMAGE: "renovate/renovate:' \
+	"the local Renovate runner uses an explicit version"
+assert_contains "${taskfile}" '@sha256:' \
+	"the local Renovate runner is pinned to an immutable digest"
+assert_not_contains "${taskfile}" 'renovate/renovate:slim' \
+	"the local Renovate runner does not use the stale floating slim tag"
 
 echo "== Linux smoke dependencies =="
 for family in ubuntu almalinux; do
