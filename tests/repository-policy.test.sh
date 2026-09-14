@@ -77,6 +77,14 @@ done
 assert_contains "${workflow}" 'chezmoi: "2.72.0"' "CI tests the minimum chezmoi version"
 assert_contains "${workflow}" 'chezmoi: latest' "CI tests the latest chezmoi version"
 assert_contains "${workflow}" 'task test' "CI uses the same test entry point as developers"
+assert_contains "${workflow}" 'name: Acceptance Gate' \
+	"CI exposes one stable required-check name"
+for required_job in go-tools contracts linux macos; do
+	assert_contains "${workflow}" "      - ${required_job}" \
+		"the acceptance gate depends on ${required_job}"
+done
+assert_contains "${workflow}" 'if: always()' \
+	"the acceptance gate reports failures and cancellations"
 
 echo "== dependency update ownership =="
 renovate_config="$(<"${REPO_ROOT}/.github/renovate.json5")"
@@ -91,8 +99,10 @@ assert_contains "${renovate_config}" 'ignoreTests: false' \
 	"Renovate automerge waits for CI"
 assert_contains "${renovate_config}" "rebaseWhen: 'auto'" \
 	"Renovate retests automerge candidates against the current base"
-assert_contains "${renovate_config}" 'platformAutomerge: false' \
-	"Renovate waits for CI while the default branch has no protection rules"
+assert_contains "${renovate_config}" 'platformAutomerge: true' \
+	"GitHub merges Renovate PRs after the required acceptance gate"
+assert_not_contains "${renovate_config}" ':disableRateLimiting' \
+	"Renovate uses its default PR rate limits"
 assert_contains "${renovate_config}" 'Never automerge workflow, hook, toolchain, or installer updates' \
 	"workflow, hook, toolchain, and installer updates require manual review"
 assert_contains "${renovate_config}" 'Never automerge majors or pin operations' \

@@ -157,3 +157,31 @@ jobs:
           mkdir -p "${HOME}" "${XDG_CONFIG_HOME}" "${XDG_DATA_HOME}" "${XDG_STATE_HOME}" "${XDG_CACHE_HOME}"
           chezmoi init --apply --source "${GITHUB_WORKSPACE}" --exclude scripts --no-tty --error-on-conflict
           chezmoi verify --source "${GITHUB_WORKSPACE}" --exclude scripts --no-tty --error-on-conflict
+
+  gate:
+    name: Acceptance Gate
+    if: always()
+    needs:
+      - go-tools
+      - contracts
+      - linux
+      - macos
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require every substantive acceptance job
+        env:
+          GO_TOOLS_RESULT: "${{ needs.go-tools.result }}"
+          CONTRACTS_RESULT: "${{ needs.contracts.result }}"
+          LINUX_RESULT: "${{ needs.linux.result }}"
+          MACOS_RESULT: "${{ needs.macos.result }}"
+        run: |
+          for result in \
+            "${GO_TOOLS_RESULT}" \
+            "${CONTRACTS_RESULT}" \
+            "${LINUX_RESULT}" \
+            "${MACOS_RESULT}"; do
+            if [[ "${result}" != success ]]; then
+              echo "A required acceptance job finished with: ${result}" >&2
+              exit 1
+            fi
+          done

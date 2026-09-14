@@ -3,7 +3,6 @@
   extends: [
     ':enableRenovate',
     'config:recommended',
-    ':disableRateLimiting',
     ':dependencyDashboard',
     ':semanticCommits',
     ':separatePatchReleases',
@@ -26,10 +25,10 @@
   suppressNotifications: [
     'prIgnoreNotification',
   ],
-  // The default branch currently has no protection rules, so Renovate itself
-  // must wait for every status check before merging.
+  // GitHub requires the stable Acceptance Gate check. Other informational or
+  // cosmetic checks do not prevent an otherwise safe dependency update.
   ignoreTests: false,
-  platformAutomerge: false,
+  platformAutomerge: true,
   rebaseWhen: 'auto',
   assignees: [
     '@kitos9112',
