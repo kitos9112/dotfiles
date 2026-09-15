@@ -1,5 +1,5 @@
 ---
-name: lint YAML and Shell
+name: Lint and security
 
 on: # yamllint disable-line rule:truthy
   pull_request:
@@ -9,12 +9,42 @@ on: # yamllint disable-line rule:truthy
 env:
   DEFAULT_BRANCH: master
 
+# The workflow token only checks out source. Super-linter reports statuses with
+# the narrowly scoped GitHub App tokens generated below.
 permissions:
   contents: read
-  statuses: write
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.event.pull_request.number }}"
+  cancel-in-progress: true
 
 jobs:
-  build:
+  security:
+    name: Security Gate
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Generate Token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        id: generate-token
+        with:
+          app-id: "${{ secrets.BOT_APP_ID }}"
+          private-key: "${{ secrets.BOT_APP_PRIVATE_KEY }}"
+          permission-statuses: write
+      - name: Scan repository
+        uses: super-linter/super-linter@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
+        env:
+          VALIDATE_TRIVY: true
+          GITHUB_TOKEN: "${{ steps.generate-token.outputs.token }}"
+          ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: false
+          SAVE_SUPER_LINTER_SUMMARY: true
+          SUPPRESS_OUTPUT_ON_SUCCESS: true
+
+  lint:
     name: Lint
     runs-on: ubuntu-24.04
     steps:
@@ -31,10 +61,8 @@ jobs:
         with:
           app-id: "${{ secrets.BOT_APP_ID }}"
           private-key: "${{ secrets.BOT_APP_PRIVATE_KEY }}"
-          # Without these the token inherits every permission the app
-          # installation holds. super-linter only reads the repo and reports
-          # results as commit statuses.
-          permission-contents: read
+          # Without this the token inherits every permission the app
+          # installation holds. Super-linter only reports commit statuses.
           permission-statuses: write
       - name: Lint
         uses: super-linter/super-linter@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
@@ -45,3 +73,8 @@ jobs:
           MARKDOWN_CONFIG_FILE: .markdownlint.yaml
           YAML_CONFIG_FILE: .yamllint.yaml
           VALIDATE_NATURAL_LANGUAGE: false
+          VALIDATE_GIT_COMMITLINT: false
+          VALIDATE_TRIVY: false
+          ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: false
+          SAVE_SUPER_LINTER_SUMMARY: true
+          SUPPRESS_OUTPUT_ON_SUCCESS: true

@@ -60,6 +60,7 @@ fi
 echo "== unified local and CI tests =="
 taskfile="$(<"${REPO_ROOT}/Taskfile.yaml")"
 workflow="$(<"${REPO_ROOT}/.github/workflows/acceptance-tests.yaml")"
+lint_workflow="$(<"${REPO_ROOT}/.github/workflows/linters.yaml")"
 assert_contains "${taskfile}" '  test:' "Taskfile defines the unified test target"
 for command in \
 	'bash tests/profile-config.test.sh' \
@@ -85,6 +86,18 @@ for required_job in go-tools contracts linux macos; do
 done
 assert_contains "${workflow}" 'if: always()' \
 	"the acceptance gate reports failures and cancellations"
+assert_contains "${lint_workflow}" 'name: Security Gate' \
+	"CI exposes a stable required security-check name"
+assert_contains "${lint_workflow}" 'VALIDATE_TRIVY: true' \
+	"the security gate runs the repository-wide Trivy scan"
+assert_contains "${lint_workflow}" 'VALIDATE_TRIVY: false' \
+	"cosmetic linting does not duplicate the Trivy scan"
+assert_contains "${lint_workflow}" 'ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: false' \
+	"Super-linter does not attempt noisy pull request comments"
+assert_not_contains "${lint_workflow}" 'permission-contents: read' \
+	"status-only app tokens cannot read repository contents"
+assert_not_contains "${lint_workflow}" $'permissions:\n  contents: read\n  statuses: write' \
+	"the workflow token cannot write commit statuses"
 
 echo "== dependency update ownership =="
 renovate_config="$(<"${REPO_ROOT}/.github/renovate.json5")"
