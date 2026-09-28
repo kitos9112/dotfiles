@@ -73,9 +73,10 @@ defaults='{
   "enabledPlugins": {
     "superpowers@claude-plugins-official": true,
     "context-mode@context-mode": true,
-    "ecc@ecc": true,
+    "ecc@ecc": false,
     "mattpocock-skills@mattpocock": true,
-    "cloudflare@cloudflare": true
+    "cloudflare@cloudflare": false,
+    "hookify@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "context-mode": {
@@ -117,7 +118,10 @@ managed='{
   },
   "permissions": {
     "deny": [
-      "EnterWorktree"
+      "EnterWorktree",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/sso/cache/**)",
+      "Read(~/.aws/cli/cache/**)"
     ]
   },
   "hooks": {
@@ -132,12 +136,38 @@ managed='{
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"{{ .chezmoi.homeDir }}/.claude/hooks/post-commit-filelist.sh\""
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"{{ .chezmoi.homeDir }}/.claude/hooks/post-commit-filelist.sh\""
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "hooks": [
           {
             "type": "command",
             "command": "\"{{ .chezmoi.homeDir }}/.claude/hooks/context-mode-cache-heal.mjs\""
+          },
+          {
+            "type": "command",
+            "command": "\"{{ .chezmoi.homeDir }}/.claude/hooks/stray-worktree-warn.sh\""
           }
         ]
       }

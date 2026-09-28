@@ -118,6 +118,14 @@ if [[ -f "${claude_template}" ]]; then
 	assert_contains "${seeded}" 'EnterWorktree' "fresh settings contain the managed deny-list"
 	assert_contains "${seeded}" '.claude/hooks/context-mode-cache-heal.mjs' \
 		"fresh settings contain the managed hook"
+	seeded_deny="$(jq -c '.permissions.deny' <<<"${seeded}")"
+	for denied in 'Read(~/.ssh/**)' 'Read(~/.aws/sso/cache/**)' 'Read(~/.aws/cli/cache/**)'; do
+		assert_contains "${seeded_deny}" "${denied}" "fresh settings deny ${denied}"
+	done
+	assert_contains "$(jq -c '.hooks.SessionStart' <<<"${seeded}")" '.claude/hooks/stray-worktree-warn.sh' \
+		"fresh settings register the stray-worktree warning"
+	assert_contains "$(jq -c '.hooks.PostToolUse' <<<"${seeded}")" '.claude/hooks/post-commit-filelist.sh' \
+		"fresh settings register the post-commit file list"
 
 	existing='{"theme":"light","model":"local-model","permissions":{"allow":["Bash(local:*)"],"deny":["StaleEntry"]},"localOnly":true}'
 	merged="$("${merge_script}" <<<"${existing}")"
@@ -159,6 +167,64 @@ if [[ -f "${claude_template}" ]]; then
 		assert_not_contains "${missing_jq_output}" 'not valid JSON' \
 			"missing jq is not reported as corrupt settings"
 	fi
+fi
+
+echo "== Claude hooks =="
+stray_hook="${SOURCE_DIR}/dot_claude/hooks/executable_stray-worktree-warn.sh"
+commit_hook="${SOURCE_DIR}/dot_claude/hooks/executable_post-commit-filelist.sh"
+assert_file_exists "${stray_hook}" "stray-worktree hook source exists"
+assert_file_exists "${commit_hook}" "post-commit hook source exists"
+
+if [[ -f "${stray_hook}" ]]; then
+	stray_out="$(jq -n '{cwd: "/work/repo/.claude/worktrees/pensive-abc/sub"}' | bash "${stray_hook}")"
+	stray_context="$(jq -r '.hookSpecificOutput.additionalContext' <<<"${stray_out}")"
+	assert_contains "${stray_context}" '/work/repo-worktrees/pensive-abc' \
+		"stray worktree sessions are told the convention path"
+	assert_contains "${stray_context}" 'first reply' "stray worktree sessions must say so first"
+	normal_out="$(jq -n '{cwd: "/work/repo"}' | bash "${stray_hook}")"
+	if [[ -z "${normal_out}" ]]; then
+		pass "sessions outside .claude/worktrees get no warning"
+	else
+		fail "sessions outside .claude/worktrees get no warning"
+	fi
+fi
+
+if [[ -f "${commit_hook}" ]]; then
+	commit_input() {
+		jq -n --arg c "$1" --arg d "$2" '{tool_name: "Bash", tool_input: {command: $c}, cwd: $d}'
+	}
+	commit_context() {
+		commit_input "$1" "$2" | bash "${commit_hook}" | jq -r '.hookSpecificOutput.additionalContext // empty'
+	}
+	git_quiet=(-c user.name=contract -c user.email=contract@example.invalid -c commit.gpgsign=false)
+
+	fresh_repo="${TMP_ROOT}/commit-fresh"
+	git init -q "${fresh_repo}"
+	printf 'a\n' >"${fresh_repo}/landed.txt"
+	git -C "${fresh_repo}" add landed.txt
+	git -C "${fresh_repo}" "${git_quiet[@]}" commit -qm 'add landed'
+
+	assert_contains "$(commit_context 'git commit -m "add landed"' "${fresh_repo}")" 'landed.txt' \
+		"a fresh commit lists its files"
+	assert_contains "$(commit_context "rtk git -C ${fresh_repo} commit -F /tmp/msg" /)" 'landed.txt' \
+		"rtk-prefixed git -C commits resolve the repository"
+	assert_contains "$(commit_context "cd ${fresh_repo} && git commit -am x" /)" 'landed.txt' \
+		"cd-prefixed commits resolve the repository"
+	for ignored in 'git status' 'git commit --dry-run -m x' 'git log --grep=commit'; do
+		if [[ -z "$(commit_input "${ignored}" "${fresh_repo}" | bash "${commit_hook}")" ]]; then
+			pass "post-commit hook ignores: ${ignored}"
+		else
+			fail "post-commit hook ignores: ${ignored}"
+		fi
+	done
+
+	stale_repo="${TMP_ROOT}/commit-stale"
+	git init -q "${stale_repo}"
+	printf 'b\n' >"${stale_repo}/old.txt"
+	git -C "${stale_repo}" add old.txt
+	GIT_COMMITTER_DATE='2020-01-01T00:00:00Z' git -C "${stale_repo}" "${git_quiet[@]}" commit -qm 'old'
+	assert_contains "$(commit_context 'git commit -m new' "${stale_repo}")" 'No new commit' \
+		"a commit that did not move HEAD is reported as such"
 fi
 
 finish_tests
