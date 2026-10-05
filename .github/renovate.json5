@@ -107,20 +107,34 @@
       automerge: true,
     },
     {
-      description: 'Never automerge workflow, hook, toolchain, or installer updates',
-      matchManagers: [
-        'github-actions',
-        'custom.regex',
-        'pre-commit',
-        'asdf',
-      ],
-      automerge: false,
-    },
-    {
       description: 'Never automerge majors or pin operations',
       matchUpdateTypes: [
         'major',
         'pin',
+      ],
+      automerge: false,
+    },
+    {
+      description: 'Batch Renovate self-updates into one weekly pull request',
+      matchDepNames: [
+        'renovate/renovate',
+        'renovatebot/pre-commit-hooks',
+      ],
+      groupName: 'renovate',
+      separateMinorPatch: false,
+      schedule: [
+        '* * * * 1',
+      ],
+    },
+    {
+      description: 'Review the curl-piped Homebrew installer by hand once a month',
+      matchDepNames: [
+        'Homebrew/install',
+      ],
+      // git-refs digests have no release timestamp to age against.
+      minimumReleaseAge: null,
+      schedule: [
+        '* * 1 * *',
       ],
       automerge: false,
     },

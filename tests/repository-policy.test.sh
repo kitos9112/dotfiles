@@ -102,6 +102,15 @@ assert_not_contains "${lint_workflow}" $'permissions:\n  contents: read\n  statu
 echo "== dependency update ownership =="
 renovate_config="$(<"${REPO_ROOT}/.github/renovate.json5")"
 taskfile="$(<"${REPO_ROOT}/Taskfile.yaml")"
+renovate_package_rules() {
+	awk -v needle="$1" -v skip="${2-}" '
+		/^  packageRules: \[$/ { inside = 1; next }
+		inside && /^  \],$/ { exit }
+		inside && /^    \{$/ { rule = "" }
+		inside { rule = rule $0 "\n" }
+		inside && /^    \},$/ && index(rule, needle) && (skip == "" || rule !~ skip) { printf "%s", rule }
+	' <<<"${renovate_config}"
+}
 assert_contains "${renovate_config}" ':enableVulnerabilityAlerts' \
 	"Renovate owns vulnerability update pull requests"
 assert_contains "${renovate_config}" "minimumReleaseAge: '14 days'" \
@@ -116,10 +125,26 @@ assert_contains "${renovate_config}" 'platformAutomerge: true' \
 	"GitHub merges Renovate PRs after the required acceptance gate"
 assert_not_contains "${renovate_config}" ':disableRateLimiting' \
 	"Renovate uses its default PR rate limits"
-assert_contains "${renovate_config}" 'Never automerge workflow, hook, toolchain, or installer updates' \
-	"workflow, hook, toolchain, and installer updates require manual review"
 assert_contains "${renovate_config}" 'Never automerge majors or pin operations' \
 	"high-risk update types require manual review"
+broad_holds="$(renovate_package_rules 'automerge: false' 'match(UpdateTypes|DepNames|PackageNames):')"
+if [[ -z "${broad_holds}" ]]; then
+	pass "automerge holds name the update types or dependencies they cover"
+else
+	fail "automerge holds name the update types or dependencies they cover (found: ${broad_holds})"
+fi
+homebrew_rules="$(renovate_package_rules "'Homebrew/install'")"
+assert_contains "${homebrew_rules}" 'automerge: false' \
+	"the curl-piped Homebrew installer always waits for manual review"
+assert_contains "${homebrew_rules}" 'minimumReleaseAge: null' \
+	"the Homebrew installer skips the release-age hold its git-refs digest cannot pass"
+renovate_group="$(renovate_package_rules "'renovatebot/pre-commit-hooks'")"
+assert_contains "${renovate_group}" "groupName: 'renovate'" \
+	"Renovate's pre-commit hook updates in the renovate group"
+assert_contains "${renovate_group}" "'renovate/renovate'" \
+	"Renovate's local runner image updates in the same group"
+assert_contains "${renovate_group}" 'separateMinorPatch: false' \
+	"Renovate self-updates do not split into patch and minor pull requests"
 assert_not_contains "${renovate_config}" "minimumReleaseAge: '5 days'" \
 	"no dependency class uses the short five-day cooldown"
 assert_not_contains "${renovate_config}" 'ignoreTests: true' \
