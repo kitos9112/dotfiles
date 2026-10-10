@@ -32,6 +32,15 @@
 {{- else }}
   helper = cache --timeout=7200
 {{- end }}
+{{- with lookPath "gh" }}
+{{-   $gh := . }}
+{{-   range list "https://github.com" "https://gist.github.com" }}
+
+[credential "{{ . }}"]
+  helper =
+  helper = !{{ $gh }} auth git-credential
+{{-   end }}
+{{- end }}
 
 [alias]
   plog = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
