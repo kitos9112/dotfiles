@@ -1,5 +1,8 @@
 {{- $machineClass := includeTemplate "machine-class" . | trim -}}
-{{- $signingSSHProgram := get . "signing_ssh_program" | default "" -}}
+{{- $signingSSHProgram := "" -}}
+{{- if eq $machineClass "desktop" -}}
+{{-   $signingSSHProgram = get . "signing_ssh_program" | default "" -}}
+{{- end -}}
 #! /usr/bin/env bash
 {{ includeTemplate "scripts-library" . }}
 
@@ -125,7 +128,7 @@ if [[ -n "${SIGNING_SSH_PROGRAM}" ]]; then
     fail "git signing helper missing at ${SIGNING_SSH_PROGRAM}"
   fi
 else
-  skip "no git signing helper configured for this OS"
+  skip "no git signing helper configured here; git signs with ssh-keygen via the agent"
 fi
 
 section "AI CLIs"

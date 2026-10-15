@@ -73,9 +73,11 @@
 {{- if and (.signing_key) (eq .signing_format "ssh") }}
 [gpg]
   format = "ssh"
+{{-   if eq (includeTemplate "machine-class" . | trim) "desktop" }}
 
 [gpg "ssh"]
   program = {{ .signing_ssh_program }}
+{{-   end }}
 {{- end }}
 
 {{- if and .work_email .work_gitdir }}

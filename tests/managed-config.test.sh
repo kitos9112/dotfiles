@@ -227,4 +227,58 @@ if [[ -f "${commit_hook}" ]]; then
 		"a commit that did not move HEAD is reported as such"
 fi
 
+echo "== git signing helper by profile =="
+gitconfig_data() {
+	jq -cn --arg profile "$1" '{chezmoi:{os:"linux",osRelease:{id:"ubuntu"}},machine_class:$profile,
+		name:"Test",personal_name:"Test",email:"t@example.com",personal_email:"t@example.com",
+		is_work:false,work_name:"",work_email:"",work_gitdir:"",editor:"vim",
+		signing_key:"ssh-ed25519 AAAATEST",signing_format:"ssh",signing_ssh_program:"/opt/1Password/op-ssh-sign"}'
+}
+server_gitconfig="$(DOTFILES_PROFILE=server render_template "${SOURCE_DIR}/dot_gitconfig.tmpl" "$(gitconfig_data server)")"
+desktop_gitconfig="$(DOTFILES_PROFILE=desktop render_template "${SOURCE_DIR}/dot_gitconfig.tmpl" "$(gitconfig_data desktop)")"
+assert_contains "${server_gitconfig}" 'format = "ssh"' "servers still sign commits with SSH keys"
+assert_not_contains "${server_gitconfig}" 'op-ssh-sign' "servers sign through the agent with ssh-keygen"
+assert_contains "${desktop_gitconfig}" 'program = /opt/1Password/op-ssh-sign' "desktops sign through op-ssh-sign"
+
+echo "== SSH agent forwarding =="
+# Unix socket paths are capped near 104 bytes, too short for a macOS TMPDIR.
+agent_root="$(mktemp -d /tmp/dotfiles-agent.XXXXXX)"
+agent_home="${agent_root}/home"
+agent_snippet="${agent_root}/ssh-agent.zsh"
+mkdir -p "${agent_home}/.ssh"
+render_for linux ubuntu server "${SOURCE_DIR}/dot_oh-my-zsh-custom/env.zsh.tmpl" |
+	sed -n '/^# ssh-agent$/,$p' >"${agent_snippet}"
+assert_contains "$(<"${agent_snippet}")" 'agent-forwarded.sock' "env.zsh renders the SSH agent block"
+
+agent_pid() { grep -o 'SSH_AGENT_PID=[0-9]*' <<<"$1" | cut -d= -f2 || true; }
+run_agent_block() {
+	env -i HOME="${agent_home}" PATH="${PATH}" "$@" zsh -dfc \
+		'source "$1" >"$2"; print -r -- "${SSH_AUTH_SOCK}"' _ "${agent_snippet}" "${agent_root}/agent.out"
+}
+ssh_connection='SSH_CONNECTION=192.0.2.1 50000 192.0.2.2 22'
+
+forwarded_pid="$(agent_pid "$(ssh-agent -a "${agent_root}/fwd.sock")")"
+assert_contains "$(run_agent_block "${ssh_connection}" SSH_AUTH_SOCK="${agent_root}/fwd.sock")" \
+	"${agent_home}/.ssh/agent-forwarded.sock" "SSH sessions keep the forwarded agent"
+assert_contains "$(readlink "${agent_home}/.ssh/agent-forwarded.sock")" "${agent_root}/fwd.sock" \
+	"the forwarded agent is pinned behind a fixed symlink"
+
+assert_contains "$(run_agent_block)" "${agent_home}/.ssh/ssh-agent.sock" "local shells use the local agent"
+local_pid="$(agent_pid "$(<"${agent_root}/agent.out")")"
+if [[ -n "${local_pid}" ]]; then
+	pass "local shells start an agent when none is running"
+else
+	fail "local shells start an agent when none is running"
+fi
+
+kill "${forwarded_pid}"
+for _ in {1..50}; do
+	kill -0 "${forwarded_pid}" 2>/dev/null || break
+	sleep 0.1
+done
+assert_contains "$(run_agent_block "${ssh_connection}")" "${agent_home}/.ssh/ssh-agent.sock" \
+	"SSH sessions without a live forwarded agent fall back to the local agent"
+pkill -f "ssh-agent -a ${agent_root}/" || true
+rm -rf "${agent_root}"
+
 finish_tests
