@@ -180,8 +180,10 @@ if [[ -f "${stray_hook}" ]]; then
 	stray_context="$(jq -r '.hookSpecificOutput.additionalContext' <<<"${stray_out}")"
 	assert_contains "${stray_context}" '/work/repo-worktrees/pensive-abc' \
 		"stray worktree sessions are told the convention path"
-	assert_contains "${stray_context}" 'git push origin HEAD:master' \
-		"stray worktree sessions treat the worktree as master"
+	assert_contains "${stray_context}" 'rebase onto origin/master and commit. Never push' \
+		"stray worktree sessions treat the worktree as master but never push"
+	assert_contains "${stray_context}" 'git -C /work/repo/.claude/worktrees/pensive-abc push origin HEAD:master' \
+		"stray worktree sessions hand over the push command"
 	assert_contains "${stray_context}" 'never bypass that through the shell' \
 		"stray worktree sessions do not bypass the edit guard"
 	normal_out="$(jq -n '{cwd: "/work/repo"}' | bash "${stray_hook}")"
