@@ -42,6 +42,7 @@ tasks:
       - bash tests/wireshark-profiles.test.sh
       - bash tests/backup-shell-history-to-1password.sh
       - bash tests/zsh-history-merge.test.sh
+      - bash tests/zsh-history-hook.test.sh
       - bash tests/agent-state-backup.test.sh
       - bash tests/scheduled-backups.test.sh
 

@@ -26,6 +26,14 @@ zsh-history-merge --output ~/.zsh_history ~/.zsh_history "${XDG_STATE_HOME:-$HOM
 
 If the history shrank on purpose, run once with `--accept-shrink` to upload and reset the baseline.
 
+## Entries swallowed by a trailing backslash
+
+Cancelling a command with Ctrl-C at a continuation prompt saves the line with its trailing backslash. Once that backslash is the last character on the line, for example after an editor trims trailing whitespace, zsh reads it back as a continuation and merges the next entry into it, so recalled commands show a `: 1757756836:0;` prefix. `~/.oh-my-zsh-custom/history.zsh` saves such lines without the backslash, and the backup repairs the archive with `zsh-history-merge --repair`. To repair the live file, close every shell and run:
+
+```bash
+zsh-history-merge --repair --output ~/.zsh_history ~/.zsh_history
+```
+
 ## Dependencies
 
 - Bash

@@ -454,6 +454,15 @@ test_dry_run_leaves_state_untouched() {
   assert_not_exists "${BASELINE_FILE}" "dry run should not write the baseline"
 }
 
+test_archive_is_repaired() {
+  setup_case "archive-repair"
+  printf ': 1:0;ssh host\\\n: 2:0;ipa x\n' >"${HOME_DIR}/.zsh_history"
+
+  run_script "${CASE_DIR}/stdout" "${CASE_DIR}/stderr" OP_ITEM="Shell History Backup"
+
+  assert_eq $': 1:0;ssh host\n: 2:0;ipa x' "$(cat "${ARCHIVE_FILE}")" "archive should split entries swallowed by a trailing backslash"
+}
+
 tests=(
   test_happy_path_both_histories
   test_happy_path_only_bash
@@ -475,6 +484,7 @@ tests=(
   test_small_shrink_from_deduplication_is_uploaded
   test_accept_shrink_resets_baseline
   test_dry_run_leaves_state_untouched
+  test_archive_is_repaired
 )
 
 for test_name in "${tests[@]}"; do
