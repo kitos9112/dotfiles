@@ -68,6 +68,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes jq zsh
+          sudo apt-get install --yes age zstd
           mkdir -p "${RUNNER_TEMP}/bin"
           GOBIN="${RUNNER_TEMP}/bin" go install github.com/go-task/task/v3/cmd/task@v3.45.4
           if [[ "${{ matrix.chezmoi }}" == latest ]]; then

@@ -28,15 +28,19 @@ need() { command -v "$1" >/dev/null || die "missing dependency: $1"; }
 usage() {
   cat <<'EOF'
 Usage:
-  encrypted-directory-backup create SOURCE ARCHIVE RECIPIENT --quiesced
+  encrypted-directory-backup create SOURCE ARCHIVE RECIPIENT --quiesced|--snapshot [--exclude PATH]...
   encrypted-directory-backup verify ARCHIVE VAULT_ID ITEM_ID
   encrypted-directory-backup restore ARCHIVE NEW_DIRECTORY VAULT_ID ITEM_ID
   encrypted-directory-backup send ARCHIVE HOST ABSOLUTE_REMOTE_DIRECTORY
 
 Creates tar.zst.age archives of all ordinary files without dereferencing symlinks.
 Unix socket nodes are omitted; other unsupported special files cause failure.
-SOURCE can be ~/.claude or ${CODEX_HOME:-$HOME/.codex}. Stop all writers first;
---quiesced acknowledges this requirement, it does not stop processes or snapshot.
+SOURCE can be ~/.claude or ${CODEX_HOME:-$HOME/.codex}. With --quiesced, stop all
+writers first; it acknowledges this requirement, it does not stop processes.
+--snapshot instead archives a copy-on-write clone of SOURCE taken next to ARCHIVE
+(APFS clonefile on macOS, cp --reflink=auto elsewhere), so writers may keep
+running. Each file is captured whole, but files are not captured at one instant.
+--exclude takes an exact path relative to SOURCE, without globs or "..".
 ARCHIVE and NEW_DIRECTORY must not exist; their parents must already exist.
 Restore puts the original source directory inside NEW_DIRECTORY (mode 0700).
 VAULT_ID and ITEM_ID select a 1Password Document containing the age identity.
@@ -55,6 +59,41 @@ output_path() {
   name="$(basename -- "$1")"
   [[ "$name" != . && "$name" != .. && "$name" != / ]] || return 1
   printf '%s/%s\n' "$parent" "$name"
+}
+
+valid_exclude() {
+  local part
+  [[ -n "$1" && "$1" != /* ]] || return 1
+  IFS=/ read -r -a parts <<<"$1"
+  for part in "${parts[@]}"; do
+    [[ -n "$part" && "$part" != . && "$part" != .. ]] || return 1
+  done
+}
+
+clone_into() {
+  if [[ "$(uname -s)" == Darwin ]]; then
+    /bin/cp -cRp -- "$1" "$2/"
+  else
+    cp -a --reflink=auto -- "$1" "$2/"
+  fi
+}
+
+snapshot_source() {
+  local root="$WORK/snapshot/${SOURCE##*/}" entry name rel skip
+  mkdir -p -- "$root"
+  chmod "$(stat -c %a -- "$SOURCE" 2>/dev/null || stat -f %Lp "$SOURCE")" -- "$root"
+  while IFS= read -r -d '' entry; do
+    name="${entry##*/}"
+    skip=0
+    for rel in ${excludes[@]+"${excludes[@]}"}; do
+      [[ "$rel" != "$name" ]] || skip=1
+    done
+    [[ "$skip" == 1 ]] || clone_into "$entry" "$root" 2>>"$WORK/cp-error" || return 1
+  done < <(find "$SOURCE" -mindepth 1 -maxdepth 1 -print0)
+  for rel in ${excludes[@]+"${excludes[@]}"}; do
+    [[ "$rel" != */* ]] || rm -rf -- "${root:?}/$rel"
+  done
+  printf '%s\n' "$root"
 }
 
 choose_tar() {
@@ -79,7 +118,16 @@ command_name="${1:---help}"
 case "$command_name" in
   --help|-h|help) usage; exit 0 ;;
   create)
-    [[ $# == 4 && "$4" == --quiesced ]] || { usage >&2; exit 2; }
+    [[ $# -ge 4 && ( "$4" == --quiesced || "$4" == --snapshot ) ]] || { usage >&2; exit 2; }
+    MODE="$4"
+    excludes=()
+    set -- "$1" "$2" "$3" "${@:5}"
+    while [[ $# -gt 3 ]]; do
+      [[ "$4" == --exclude && $# -ge 5 ]] || { usage >&2; exit 2; }
+      valid_exclude "$5" || die "exclude must be a relative path without empty, . or .. parts: '$5'"
+      excludes+=("$5")
+      set -- "$1" "$2" "$3" "${@:6}"
+    done
     need age; need zstd; choose_tar
     LINK='ln'
     command -v gln >/dev/null && LINK=gln
@@ -91,25 +139,34 @@ case "$command_name" in
     [[ ! -e "$ARCHIVE" && ! -L "$ARCHIVE" ]] || die 'archive destination already exists'
     case "$ARCHIVE" in "$SOURCE"/*) die 'archive destination must be outside the source' ;; esac
     WORK="$(mktemp -d "$(dirname -- "$ARCHIVE")/.encrypted-backup.XXXXXX")"
-    if ! find "$SOURCE" ! -type d ! -type f ! -type l ! -type s -print >"$WORK/special" 2>"$WORK/find-error"; then
+    TAR_ROOT="$SOURCE"
+    if [[ "$MODE" == --snapshot ]]; then
+      TAR_ROOT="$(snapshot_source)" || die 'snapshot clone failed (a file may have vanished during the copy); no archive published'
+    fi
+    if ! find "$TAR_ROOT" ! -type d ! -type f ! -type l ! -type s -print >"$WORK/special" 2>"$WORK/find-error"; then
       die 'source could not be inspected completely'
     fi
     [[ ! -s "$WORK/special" ]] || die 'source contains unsupported special files (such as FIFOs or devices); inspect the source'
-    if ! find "$SOURCE" -type s -print0 >"$WORK/sockets" 2>"$WORK/find-error"; then
+    if ! find "$TAR_ROOT" -type s -print0 >"$WORK/sockets" 2>"$WORK/find-error"; then
       die 'source sockets could not be inspected completely'
     fi
-    tar_args=(--create --format=posix --file - --directory "$(dirname -- "$SOURCE")" --no-wildcards --anchored)
+    tar_args=(--create --format=posix --file - --directory "$(dirname -- "$TAR_ROOT")" --no-wildcards --anchored)
+    if [[ "$MODE" == --quiesced ]]; then
+      for rel in ${excludes[@]+"${excludes[@]}"}; do
+        tar_args+=("--exclude=${SOURCE##*/}/$rel")
+      done
+    fi
     socket_count=0
     # Exclude exact socket paths, not names or globs that could omit data files.
     # Null-delimited discovery also supports filenames containing newlines.
     while IFS= read -r -d '' socket_path; do
-      tar_args+=("--exclude=${SOURCE##*/}/${socket_path#"$SOURCE"/}")
+      tar_args+=("--exclude=${SOURCE##*/}/${socket_path#"$TAR_ROOT"/}")
       socket_count=$((socket_count + 1))
     done <"$WORK/sockets"
     if [[ "$socket_count" -gt 0 ]]; then
       printf 'Omitting %s Unix socket node(s).\n' "$socket_count"
     fi
-    if ! "$TAR" "${tar_args[@]}" -- "$(basename -- "$SOURCE")" 2>"$WORK/tar-error" |
+    if ! "$TAR" "${tar_args[@]}" -- "$(basename -- "$TAR_ROOT")" 2>"$WORK/tar-error" |
       zstd -T0 -3 --stdout --quiet 2>"$WORK/zstd-error" |
       age --encrypt --recipient "$3" >"$WORK/archive.age" 2>"$WORK/age-error"; then
       die 'archive pipeline failed; no finished archive published'
