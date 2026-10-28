@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
+
+die() { printf 'Error: %s\n' "$*" >&2; exit 1; }
+usage() {
+  cat <<'EOF'
+Usage: backup-agent-state --check | --quiesced [--send]
+
+--check      Check local configuration, dependencies and the 1Password identity.
+--quiesced   Back up and verify Claude and Codex after you have stopped all writers.
+--send       Also transfer both verified archives to the configured SCP destination.
+
+Configuration: ${XDG_CONFIG_HOME:-$HOME/.config}/agent-state-backup.env (mode 0600)
+Override its path with AGENT_BACKUP_CONFIG. No backup runs without --quiesced.
+EOF
+}
+
+CHECK=0
+SEND=0
+case "${1:-}" in
+  --help|-h) usage; exit 0 ;;
+  --check) [[ $# == 1 ]] || { usage >&2; exit 2; }; CHECK=1 ;;
+  --quiesced)
+    if [[ $# == 2 && "$2" == --send ]]; then SEND=1
+    elif [[ $# != 1 ]]; then usage >&2; exit 2
+    fi
+    ;;
+  *) usage >&2; exit 2 ;;
+esac
+
+CONFIG="${AGENT_BACKUP_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/agent-state-backup.env}"
+[[ -f "$CONFIG" && ! -L "$CONFIG" && -O "$CONFIG" ]] || die "configuration must be an owned regular file: $CONFIG"
+mode="$(stat -c %a -- "$CONFIG" 2>/dev/null || stat -f %Lp "$CONFIG")"
+[[ "$mode" == 600 ]] || die "configuration must have mode 0600: $CONFIG"
+# shellcheck source=/dev/null
+source "$CONFIG"
+if [[ -n "${OP_ACCOUNT:-}" ]]; then
+  export OP_ACCOUNT
+fi
+for setting in BACKUP_RECIPIENT OP_VAULT OP_ITEM_ID BACKUP_ROOT CLAUDE_SOURCE CODEX_SOURCE; do
+  [[ -n "${!setting:-}" ]] || die "missing configuration: $setting"
+done
+if [[ "$SEND" == 1 ]]; then
+  [[ -n "${SCP_HOST:-}" && -n "${SCP_DIRECTORY:-}" ]] || die 'configure SCP_HOST and SCP_DIRECTORY before using --send'
+fi
+for dependency in age age-keygen zstd op; do
+  command -v "$dependency" >/dev/null || die "missing dependency: $dependency"
+done
+tar_bin="$(command -v gtar || command -v tar)"
+link_bin="$(command -v gln || command -v ln)"
+[[ "$("$tar_bin" --version 2>/dev/null)" == *'GNU tar'* ]] || die 'GNU tar is required'
+[[ "$("$link_bin" --version 2>/dev/null)" == *'GNU coreutils'* ]] || die 'GNU ln is required'
+UTILITY="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)/encrypted-directory-backup"
+[[ -x "$UTILITY" ]] || die 'install encrypted-directory-backup alongside this launcher'
+for source_dir in "$CLAUDE_SOURCE" "$CODEX_SOURCE"; do
+  [[ -d "$source_dir" && ! -L "${source_dir%/}" ]] || die "source must be an existing directory, not a symlink: $source_dir"
+done
+if ! vault_recipient="$(op document get "$OP_ITEM_ID" --vault "$OP_VAULT" 2>/dev/null | age-keygen -y 2>/dev/null)"; then
+  die 'cannot retrieve the identity; unlock 1Password and check op whoami'
+fi
+[[ "$vault_recipient" == "$BACKUP_RECIPIENT" ]] || die 'configured recipient does not match the identity in 1Password'
+if [[ "$CHECK" == 1 ]]; then
+  printf 'Configuration, dependencies and vault identity verified. No backup created.\n'
+  exit 0
+fi
+
+mkdir -p -- "$BACKUP_ROOT"
+run_dir="$(mktemp -d "$BACKUP_ROOT/$(date -u +%Y%m%dT%H%M%SZ).XXXXXX")"
+printf 'Run directory (retained on failure): %s\n' "$run_dir"
+for agent in claude codex; do
+  source_dir="$CLAUDE_SOURCE"
+  [[ "$agent" != codex ]] || source_dir="$CODEX_SOURCE"
+  archive="$run_dir/$agent.tar.zst.age"
+  "$UTILITY" create "$source_dir" "$archive" "$BACKUP_RECIPIENT" --quiesced
+  "$UTILITY" verify "$archive" "$OP_VAULT" "$OP_ITEM_ID"
+done
+printf 'Both archives verified: %s\n' "$run_dir"
+if [[ "$SEND" == 1 ]]; then
+  for agent in claude codex; do
+    "$UTILITY" send "$run_dir/$agent.tar.zst.age" "$SCP_HOST" "$SCP_DIRECTORY"
+  done
+fi

@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
+
+# Ambient tar options must never silently add exclusions or dereference links.
+unset TAR_OPTIONS ZSTD_CLEVEL ZSTD_NBTHREADS
+WORK=""
+INCOMPLETE_RESTORE=""
+REMOTE_WORK=""
+
+cleanup() {
+  if [[ -n "$REMOTE_WORK" ]]; then
+    # These paths use the restricted alphabet enforced by send. Never remove a
+    # finalized archive, including if the acknowledgement was lost on the wire.
+    ssh -o BatchMode=yes -o ConnectTimeout=10 -- "$REMOTE_HOST" \
+      "rm -f -- '$REMOTE_WORK/archive.part'; rmdir -- '$REMOTE_WORK'" >/dev/null 2>&1 || true
+  fi
+  [[ -z "$INCOMPLETE_RESTORE" ]] || rm -rf -- "$INCOMPLETE_RESTORE"
+  [[ -z "$WORK" ]] || rm -rf -- "$WORK"
+}
+trap cleanup EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+die() { printf 'Error: %s\n' "$*" >&2; exit 1; }
+need() { command -v "$1" >/dev/null || die "missing dependency: $1"; }
+usage() {
+  cat <<'EOF'
+Usage:
+  encrypted-directory-backup create SOURCE ARCHIVE RECIPIENT --quiesced
+  encrypted-directory-backup verify ARCHIVE VAULT_ID ITEM_ID
+  encrypted-directory-backup restore ARCHIVE NEW_DIRECTORY VAULT_ID ITEM_ID
+  encrypted-directory-backup send ARCHIVE HOST ABSOLUTE_REMOTE_DIRECTORY
+
+Creates tar.zst.age archives of all ordinary files without dereferencing symlinks.
+Unix socket nodes are omitted; other unsupported special files cause failure.
+SOURCE can be ~/.claude or ${CODEX_HOME:-$HOME/.codex}. Stop all writers first;
+--quiesced acknowledges this requirement, it does not stop processes or snapshot.
+ARCHIVE and NEW_DIRECTORY must not exist; their parents must already exist.
+Restore puts the original source directory inside NEW_DIRECTORY (mode 0700).
+VAULT_ID and ITEM_ID select a 1Password Document containing the age identity.
+Only trusted archives created by this utility are supported for restore.
+Send uses batch SSH authentication and creates a new private remote directory.
+HOST may be an SSH alias or user@host. Remote paths allow letters, digits,
+slashes, dots, underscores and hyphens. Configure other SSH options in ~/.ssh/config.
+EOF
+}
+
+# Normalize the existing parent without following the final component. This also
+# catches output nested in the source through a symlink in its parent path.
+output_path() {
+  local parent name
+  parent="$(cd -- "$(dirname -- "$1")" && pwd -P)" || return 1
+  name="$(basename -- "$1")"
+  [[ "$name" != . && "$name" != .. && "$name" != / ]] || return 1
+  printf '%s/%s\n' "$parent" "$name"
+}
+
+choose_tar() {
+  TAR=tar
+  command -v gtar >/dev/null && TAR=gtar
+  [[ "$("$TAR" --version)" == *'GNU tar'* ]] || die 'GNU tar is required (gtar on macOS)'
+}
+
+decrypt() {
+  op document get "$ITEM" --vault "$VAULT" 2>"$WORK/op-error" |
+    age --decrypt --identity - "$WORK/archive.age" 2>"$WORK/age-error"
+}
+
+verify_stream() {
+  # No filenames or secret-bearing dependency errors reach the terminal.
+  decrypt | zstd --decompress --stdout --quiet 2>"$WORK/zstd-error" |
+    "$TAR" --list --file - >/dev/null 2>"$WORK/tar-error"
+}
+
+command_name="${1:---help}"
+[[ $# == 0 ]] || shift
+case "$command_name" in
+  --help|-h|help) usage; exit 0 ;;
+  create)
+    [[ $# == 4 && "$4" == --quiesced ]] || { usage >&2; exit 2; }
+    need age; need zstd; choose_tar
+    LINK='ln'
+    command -v gln >/dev/null && LINK=gln
+    [[ "$("$LINK" --version 2>/dev/null)" == *'GNU coreutils'* ]] || die 'GNU ln is required (gln on macOS)'
+    [[ -d "$1" && ! -L "${1%/}" ]] || die 'source must be a directory, not a symlink'
+    SOURCE="$(cd -- "$1" && pwd -P)"
+    [[ "$SOURCE" != / ]] || die 'refusing to archive the filesystem root'
+    ARCHIVE="$(output_path "$2")" || die 'archive parent must exist and filename must be valid'
+    [[ ! -e "$ARCHIVE" && ! -L "$ARCHIVE" ]] || die 'archive destination already exists'
+    case "$ARCHIVE" in "$SOURCE"/*) die 'archive destination must be outside the source' ;; esac
+    WORK="$(mktemp -d "$(dirname -- "$ARCHIVE")/.encrypted-backup.XXXXXX")"
+    if ! find "$SOURCE" ! -type d ! -type f ! -type l ! -type s -print >"$WORK/special" 2>"$WORK/find-error"; then
+      die 'source could not be inspected completely'
+    fi
+    [[ ! -s "$WORK/special" ]] || die 'source contains unsupported special files (such as FIFOs or devices); inspect the source'
+    if ! find "$SOURCE" -type s -print0 >"$WORK/sockets" 2>"$WORK/find-error"; then
+      die 'source sockets could not be inspected completely'
+    fi
+    tar_args=(--create --format=posix --file - --directory "$(dirname -- "$SOURCE")" --no-wildcards --anchored)
+    socket_count=0
+    # Exclude exact socket paths, not names or globs that could omit data files.
+    # Null-delimited discovery also supports filenames containing newlines.
+    while IFS= read -r -d '' socket_path; do
+      tar_args+=("--exclude=${SOURCE##*/}/${socket_path#"$SOURCE"/}")
+      socket_count=$((socket_count + 1))
+    done <"$WORK/sockets"
+    if [[ "$socket_count" -gt 0 ]]; then
+      printf 'Omitting %s Unix socket node(s).\n' "$socket_count"
+    fi
+    if ! "$TAR" "${tar_args[@]}" -- "$(basename -- "$SOURCE")" 2>"$WORK/tar-error" |
+      zstd -T0 -3 --stdout --quiet 2>"$WORK/zstd-error" |
+      age --encrypt --recipient "$3" >"$WORK/archive.age" 2>"$WORK/age-error"; then
+      die 'archive pipeline failed; no finished archive published'
+    fi
+    [[ ! -s "$WORK/tar-error" ]] || die 'tar reported a warning; no finished archive published'
+    # -T prevents a concurrent directory/symlink collision from redirecting ln.
+    "$LINK" -T -- "$WORK/archive.age" "$ARCHIVE" || die 'archive publication failed; destination was not replaced'
+    printf 'Created: %s\n' "$ARCHIVE"
+    ;;
+  verify|restore)
+    if [[ "$command_name" == verify ]]; then
+      [[ $# == 3 ]] || { usage >&2; exit 2; }
+      ARCHIVE="$1"; VAULT="$2"; ITEM="$3"
+      WORK="$(mktemp -d "${TMPDIR:-/tmp}/.encrypted-backup.XXXXXX")"
+    else
+      [[ $# == 4 ]] || { usage >&2; exit 2; }
+      ARCHIVE="$1"; VAULT="$3"; ITEM="$4"
+      DESTINATION="$(output_path "$2")" || die 'restore parent must exist and directory name must be valid'
+      [[ ! -e "$DESTINATION" && ! -L "$DESTINATION" ]] || die 'restore destination already exists'
+      WORK="$(mktemp -d "$(dirname -- "$DESTINATION")/.encrypted-backup.XXXXXX")"
+    fi
+    need op; need age; need zstd; choose_tar
+    [[ -f "$ARCHIVE" ]] || die 'archive must be a regular file'
+    # The same private ciphertext is used for verification and extraction.
+    cp -- "$ARCHIVE" "$WORK/archive.age"
+    verify_stream || die 'archive authentication or stream verification failed'
+    if [[ "$command_name" == restore ]]; then
+      mkdir -m 700 -- "$DESTINATION" || die 'restore destination could not be reserved'
+      INCOMPLETE_RESTORE="$DESTINATION"
+      if ! decrypt | zstd --decompress --stdout --quiet 2>"$WORK/zstd-error" |
+        "$TAR" --extract --file - --directory "$DESTINATION" --no-same-owner --same-permissions 2>"$WORK/tar-error"; then
+        die 'restore failed; incomplete restore will be removed'
+      fi
+      INCOMPLETE_RESTORE=""
+      printf 'Restored for inspection: %s\n' "$DESTINATION"
+    else
+      printf 'Verified authentication and stream readability (not application consistency).\n'
+    fi
+    ;;
+  send)
+    [[ $# == 3 ]] || { usage >&2; exit 2; }
+    need ssh; need scp
+    [[ "$2" =~ ^[a-zA-Z0-9][a-zA-Z0-9._@-]*$ ]] || die 'use an SSH alias or user@host without shell metacharacters'
+    [[ "$3" =~ ^/[a-zA-Z0-9_./-]*$ ]] || die 'remote directory must be absolute and contain only letters, digits, / . _ -'
+    [[ -f "$1" ]] || die 'archive must be a regular file'
+    WORK="$(mktemp -d "${TMPDIR:-/tmp}/.encrypted-backup.XXXXXX")"
+    cp -- "$1" "$WORK/archive.age"
+    IFS= read -r header <"$WORK/archive.age" || die 'archive header is missing'
+    [[ "$header" == age-encryption.org/v1 ]] || die 'send accepts binary age archives only'
+    REMOTE_HOST="$2"
+    remote_directory="${3%/}/agent-backup.${WORK##*.}"
+    ssh -o BatchMode=yes -o ConnectTimeout=10 -- "$REMOTE_HOST" \
+      "umask 077; mkdir -- '$remote_directory'" || die 'could not reserve a new remote backup directory'
+    REMOTE_WORK="$remote_directory"
+    scp -B -o ConnectTimeout=10 -- "$WORK/archive.age" "$REMOTE_HOST:$REMOTE_WORK/archive.part" || die 'SCP failed; local archive retained'
+    ssh -o BatchMode=yes -o ConnectTimeout=10 -- "$REMOTE_HOST" \
+      "mv -- '$REMOTE_WORK/archive.part' '$REMOTE_WORK/archive.tar.zst.age'" || die 'remote finalization failed; local archive retained'
+    REMOTE_WORK=""
+    printf 'Transferred: %s:%s/archive.tar.zst.age\n' "$REMOTE_HOST" "$remote_directory"
+    ;;
+  *) usage >&2; exit 2 ;;
+esac
