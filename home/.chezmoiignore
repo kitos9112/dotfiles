@@ -38,3 +38,8 @@
 .config/iterm2
 .config/iterm2/**
 {{ end -}}
+
+{{ if ne .chezmoi.os "darwin" -}}
+# The Homebrew and JetBrains Toolbox paths in .zprofile exist only on macOS.
+.zprofile
+{{ end -}}

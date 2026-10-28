@@ -1,0 +1,5 @@
+# Python's certifi lacks CAs the system trusts; use a bundle of the system store.
+if [ -r "$HOME/.config/ssl/ca-bundle.pem" ]; then
+  export SSL_CERT_FILE="$HOME/.config/ssl/ca-bundle.pem"
+  export REQUESTS_CA_BUNDLE="$SSL_CERT_FILE"
+fi
