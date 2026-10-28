@@ -11,10 +11,26 @@ It copies only those files into a secure temporary directory, creates a single Z
 
 The ZIP filename stays stable on every run. Backup history comes from the 1Password item's version history, not from local retention logic.
 
+## Append-only archive and shrink guard
+
+zsh can rewrite `~/.zsh_history` with only part of its history when many shells exit at once, for example during a forced logout for an OS update. Two safeguards cover that:
+
+- Every run merges `~/.zsh_history` into `${XDG_STATE_HOME:-~/.local/state}/shell-history/zsh_history.archive` with `zsh-history-merge`. The archive is a time-ordered union of every command seen, so it never loses entries. The ZIP carries it as `.zsh_history.archive`.
+- After a successful upload the script records the number of entries in `zsh_history.count`. If a later `~/.zsh_history` holds fewer than 90% of that number, the script exits with status 3 without uploading. The archive is still updated.
+
+To recover after the guard fires, close every shell and restore from the archive:
+
+```bash
+zsh-history-merge --output ~/.zsh_history ~/.zsh_history "${XDG_STATE_HOME:-$HOME/.local/state}/shell-history/zsh_history.archive"
+```
+
+If the history shrank on purpose, run once with `--accept-shrink` to upload and reset the baseline.
+
 ## Dependencies
 
 - Bash
 - `zip`
+- `python3`, for `zsh-history-merge`
 - [1Password CLI (`op`)](https://developer.1password.com/docs/cli/)
 
 ## Authentication
@@ -147,7 +163,7 @@ The script overwrites the same 1Password Document item each run. To restore an o
 - The script targets an existing **Document** item because `op document edit` is the documented file-content replacement flow.
 - The unattended path is a 1Password service account token loaded from a local env file.
 - It backs up only `~/.bash_history` and `~/.zsh_history`.
-- It does not create dated archives or local retention state.
+- It does not create dated archives. The only local state is the zsh archive and the entry-count baseline.
 - It requires `zip`; it does not fall back to tar or other archive formats.
 - This repo does not auto-install scheduler persistence; cron/anacron setup is manual by design.
 

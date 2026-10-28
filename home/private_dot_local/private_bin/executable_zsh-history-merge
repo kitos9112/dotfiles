@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+"""Merge zsh EXTENDED_HISTORY files into one time-ordered union.
+
+Usage:
+  zsh-history-merge --output FILE INPUT [INPUT...]
+  zsh-history-merge --count FILE
+
+Identical records are kept once. Records sharing a timestamp keep the order in
+which they were first seen. Missing inputs count as empty, and FILE may also be
+an input, so an append-only archive can absorb a live history file. The output
+is replaced atomically with mode 0600. Bytes are preserved exactly, including
+zsh's metafied encoding.
+"""
+
+import argparse
+import os
+import re
+import sys
+import tempfile
+
+HEADER = re.compile(rb"^: (\d+):\d+;")
+
+
+def records(path):
+    try:
+        with open(path, "rb") as handle:
+            data = handle.read()
+    except FileNotFoundError:
+        return []
+    found = []
+    current = []
+    for line in data.splitlines():
+        continues = bool(current) and current[-1].endswith(b"\\")
+        if current and not continues and HEADER.match(line):
+            found.append(b"\n".join(current))
+            current = []
+        current.append(line)
+    if current:
+        found.append(b"\n".join(current))
+    return found
+
+
+def timestamp(record):
+    match = HEADER.match(record)
+    return int(match.group(1)) if match else 0
+
+
+def union(paths):
+    seen = set()
+    merged = []
+    for path in paths:
+        for record in records(path):
+            if record not in seen:
+                seen.add(record)
+                merged.append(record)
+    merged.sort(key=timestamp)
+    return merged
+
+
+def write_atomically(path, merged):
+    directory = os.path.dirname(os.path.abspath(path))
+    os.makedirs(directory, mode=0o700, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(prefix=".zsh-history-merge.", dir=directory)
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            for record in merged:
+                handle.write(record + b"\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.chmod(temporary, 0o600)
+        os.replace(temporary, path)
+    except BaseException:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+        raise
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--output")
+    group.add_argument("--count")
+    parser.add_argument("inputs", nargs="*")
+    args = parser.parse_args()
+
+    if args.count:
+        print(len(union([args.count])))
+        return 0
+    if not args.inputs:
+        parser.error("at least one INPUT is required with --output")
+    merged = union(args.inputs)
+    write_atomically(args.output, merged)
+    print(f"{len(merged)} records written to {args.output}", file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -41,6 +41,7 @@ tasks:
       - bash tests/go-tools.test.sh
       - bash tests/wireshark-profiles.test.sh
       - bash tests/backup-shell-history-to-1password.sh
+      - bash tests/zsh-history-merge.test.sh
 
   test-bootstrap:
     desc: Compatibility alias for the unified test task.

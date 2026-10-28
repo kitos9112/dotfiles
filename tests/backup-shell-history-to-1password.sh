@@ -11,13 +11,14 @@ REPO_ROOT="$(
   pwd -P
 )"
 TEMPLATE_PATH="${REPO_ROOT}/home/private_dot_local/private_bin/executable_backup-shell-history-to-1password.sh.tmpl"
+MERGE_PATH="${REPO_ROOT}/home/private_dot_local/private_bin/executable_zsh-history-merge"
 
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/backup-shell-history-tests.XXXXXX")"
 trap 'rm -rf "${TMP_ROOT}"' EXIT HUP INT TERM
 TEST_CHEZMOI_CONFIG="${TMP_ROOT}/empty-chezmoi.toml"
 : >"${TEST_CHEZMOI_CONFIG}"
 
-for dependency in bash chezmoi zip unzip; do
+for dependency in bash chezmoi zip unzip python3; do
   command -v "${dependency}" >/dev/null 2>&1 || {
     printf 'missing dependency for tests: %s\n' "${dependency}" >&2
     exit 127
@@ -150,7 +151,12 @@ setup_case() {
 OP_SERVICE_ACCOUNT_TOKEN=test-service-account-token
 OP_VAULT=vault-from-env
 EOF
+  STATE_DIR="${HOME_DIR}/.local/state/shell-history"
+  ARCHIVE_FILE="${STATE_DIR}/zsh_history.archive"
+  BASELINE_FILE="${STATE_DIR}/zsh_history.count"
   render_script "${SCRIPT_PATH}" "${data_json}"
+  cp "${MERGE_PATH}" "${CASE_DIR}/zsh-history-merge"
+  chmod 700 "${CASE_DIR}/zsh-history-merge"
   make_mock_op "${BIN_DIR}/op"
 }
 
@@ -172,6 +178,7 @@ run_script() {
   (
     export HOME="${HOME_DIR}"
     export XDG_CONFIG_HOME="${CONFIG_DIR}"
+    export XDG_STATE_HOME="${HOME_DIR}/.local/state"
     export TMPDIR="${TMP_CASE_DIR}"
     export PATH="${BIN_DIR}:/usr/bin:/bin"
     export OP_MOCK_LOG="${LOG_FILE}"
@@ -188,7 +195,7 @@ test_happy_path_both_histories() {
   run_script "${CASE_DIR}/stdout" "${CASE_DIR}/stderr" OP_ITEM="Shell History Backup"
 
   assert_file_exists "${CAPTURED_ARCHIVE}" "captured archive missing"
-  assert_eq $'.bash_history\n.zsh_history' "$(archive_entries "${CAPTURED_ARCHIVE}")" "archive should contain both histories"
+  assert_eq $'.bash_history\n.zsh_history\n.zsh_history.archive' "$(archive_entries "${CAPTURED_ARCHIVE}")" "archive should contain both histories and the zsh archive"
   assert_contains $'cmd\twhoami' "$(cat "${LOG_FILE}")" "expected whoami call"
   assert_contains $'cmd\tdocument\tedit\tShell History Backup\t' "$(cat "${LOG_FILE}")" "expected document edit call"
   assert_contains $'\t--vault\tvault-from-env' "$(cat "${LOG_FILE}")" "expected vault from env file"
@@ -209,7 +216,7 @@ test_happy_path_only_zsh() {
 
   run_script "${CASE_DIR}/stdout" "${CASE_DIR}/stderr" OP_ITEM="Shell History Backup"
 
-  assert_eq '.zsh_history' "$(archive_entries "${CAPTURED_ARCHIVE}")" "archive should contain only zsh history"
+  assert_eq $'.zsh_history\n.zsh_history.archive' "$(archive_entries "${CAPTURED_ARCHIVE}")" "archive should contain zsh history and its archive"
 }
 
 test_failure_when_no_histories_exist() {
@@ -230,6 +237,7 @@ test_failure_when_op_is_missing() {
   if (
     export HOME="${HOME_DIR}"
     export XDG_CONFIG_HOME="${CONFIG_DIR}"
+    export XDG_STATE_HOME="${HOME_DIR}/.local/state"
     export TMPDIR="${TMP_CASE_DIR}"
     export PATH="/usr/bin:/bin"
     "${SCRIPT_PATH}"
@@ -307,6 +315,7 @@ test_cleanup_of_temp_files_on_failure() {
   if (
     export HOME="${HOME_DIR}"
     export XDG_CONFIG_HOME="${CONFIG_DIR}"
+    export XDG_STATE_HOME="${HOME_DIR}/.local/state"
     export TMPDIR="${TMP_CASE_DIR}"
     export PATH="${BIN_DIR}:/usr/bin:/bin"
     export OP_MOCK_LOG="${LOG_FILE}"
@@ -364,6 +373,87 @@ test_optional_chezmoi_defaults_can_be_absent() {
   assert_contains 'DEFAULT_ARCHIVE_NAME="shell-history.zip"' "$(cat "${rendered}")" "expected the archive fallback"
 }
 
+zsh_records() {
+  local count=$1 start=${2:-1} i
+  for ((i = start; i < start + count; i++)); do
+    printf ': %s:0;command %s\n' "${i}" "${i}"
+  done
+}
+
+test_archive_keeps_records_lost_from_live_history() {
+  setup_case "archive-union"
+  mkdir -p "${STATE_DIR}"
+  zsh_records 3 1 >"${ARCHIVE_FILE}"
+  zsh_records 2 3 >"${HOME_DIR}/.zsh_history"
+
+  run_script "${CASE_DIR}/stdout" "${CASE_DIR}/stderr" OP_ITEM="Shell History Backup"
+
+  assert_eq "$(zsh_records 4 1)" "$(cat "${ARCHIVE_FILE}")" "archive should be the union of old archive and live history"
+  assert_permissions_600 "${ARCHIVE_FILE}" "archive should be private"
+  unzip -p "${CAPTURED_ARCHIVE}" .zsh_history.archive >"${CASE_DIR}/uploaded-archive"
+  assert_eq "$(zsh_records 4 1)" "$(cat "${CASE_DIR}/uploaded-archive")" "uploaded zip should carry the merged archive"
+}
+
+test_successful_upload_records_baseline() {
+  setup_case "baseline"
+  zsh_records 5 >"${HOME_DIR}/.zsh_history"
+
+  run_script "${CASE_DIR}/stdout" "${CASE_DIR}/stderr" OP_ITEM="Shell History Backup"
+
+  assert_eq "5" "$(cat "${BASELINE_FILE}")" "baseline should record the uploaded entry count"
+}
+
+test_shrunken_history_is_not_uploaded() {
+  setup_case "shrink-guard"
+  mkdir -p "${STATE_DIR}"
+  zsh_records 100 >"${ARCHIVE_FILE}"
+  printf '100\n' >"${BASELINE_FILE}"
+  zsh_records 5 200 >"${HOME_DIR}/.zsh_history"
+
+  if run_script "${CASE_DIR}/stdout" "${CASE_DIR}/stderr" OP_ITEM="Shell History Backup"; then
+    fail "script should refuse to upload a history that shrank"
+  fi
+
+  assert_contains "shrank from 100 to 5 entries" "$(cat "${CASE_DIR}/stderr")" "expected shrink guard message"
+  assert_eq '' "$(grep $'document\tedit' "${LOG_FILE}" || true)" "shrunken history must not be uploaded"
+  assert_eq "105" "$(python3 -I "${CASE_DIR}/zsh-history-merge" --count "${ARCHIVE_FILE}")" "archive should still absorb new commands"
+  assert_eq "100" "$(cat "${BASELINE_FILE}")" "baseline should be unchanged"
+}
+
+test_small_shrink_from_deduplication_is_uploaded() {
+  setup_case "shrink-tolerance"
+  mkdir -p "${STATE_DIR}"
+  printf '100\n' >"${BASELINE_FILE}"
+  zsh_records 95 >"${HOME_DIR}/.zsh_history"
+
+  run_script "${CASE_DIR}/stdout" "${CASE_DIR}/stderr" OP_ITEM="Shell History Backup"
+
+  assert_contains $'cmd\tdocument\tedit' "$(cat "${LOG_FILE}")" "a 5% shrink should still upload"
+  assert_eq "95" "$(cat "${BASELINE_FILE}")" "baseline should follow the uploaded count"
+}
+
+test_accept_shrink_resets_baseline() {
+  setup_case "accept-shrink"
+  mkdir -p "${STATE_DIR}"
+  printf '100\n' >"${BASELINE_FILE}"
+  zsh_records 5 >"${HOME_DIR}/.zsh_history"
+
+  run_script "${CASE_DIR}/stdout" "${CASE_DIR}/stderr" OP_ITEM="Shell History Backup" -- --accept-shrink
+
+  assert_contains $'cmd\tdocument\tedit' "$(cat "${LOG_FILE}")" "--accept-shrink should upload"
+  assert_eq "5" "$(cat "${BASELINE_FILE}")" "--accept-shrink should reset the baseline"
+}
+
+test_dry_run_leaves_state_untouched() {
+  setup_case "dry-run-state"
+  zsh_records 3 >"${HOME_DIR}/.zsh_history"
+
+  run_script "${CASE_DIR}/stdout" "${CASE_DIR}/stderr" OP_ITEM="Shell History Backup" -- --dry-run
+
+  assert_not_exists "${ARCHIVE_FILE}" "dry run should not write the archive"
+  assert_not_exists "${BASELINE_FILE}" "dry run should not write the baseline"
+}
+
 tests=(
   test_happy_path_both_histories
   test_happy_path_only_bash
@@ -379,6 +469,12 @@ tests=(
   test_baked_default_document_name
   test_env_overrides_baked_default
   test_optional_chezmoi_defaults_can_be_absent
+  test_archive_keeps_records_lost_from_live_history
+  test_successful_upload_records_baseline
+  test_shrunken_history_is_not_uploaded
+  test_small_shrink_from_deduplication_is_uploaded
+  test_accept_shrink_resets_baseline
+  test_dry_run_leaves_state_untouched
 )
 
 for test_name in "${tests[@]}"; do
