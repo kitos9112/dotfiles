@@ -63,6 +63,22 @@ for mode in --snapshot --quiesced; do
 	assert_file_exists "${case_dir}/src/drop/deep/big" "create ${mode} leaves the source untouched"
 done
 
+case_dir="${TMP_ROOT}/cron-path"
+mkdir -p "${case_dir}/src"
+printf 'keep\n' >"${case_dir}/src/keep.txt"
+chmod 755 "${case_dir}/src"
+cron_path="${BIN}:$(dirname -- "$(command -v age)"):$(dirname -- "${TAR}"):/usr/local/bin:/usr/bin:/bin"
+PATH="${cron_path}" encrypted-directory-backup create "${case_dir}/src" "${case_dir}/out.age" "${RECIPIENT}" --snapshot \
+	>/dev/null 2>"${case_dir}/stderr"
+assert_file_content "${case_dir}/stderr" "" "a snapshot under cron's PATH, with the system's own tools first, reports no errors"
+root_mode="$(age --decrypt --identity "${IDENTITY}" "${case_dir}/out.age" | zstd --decompress --stdout --quiet |
+	"${TAR}" --list --verbose --file - | awk '$NF == "src/" {print $1}')"
+if [[ "${root_mode}" == drwxr-xr-x ]]; then
+	pass "a snapshot keeps the source directory's own mode"
+else
+	fail "a snapshot keeps the source directory's own mode (got ${root_mode})"
+fi
+
 case_dir="${TMP_ROOT}/restore"
 mkdir -p "${case_dir}"
 make_source "${case_dir}/src"
