@@ -43,6 +43,7 @@ tasks:
       - bash tests/backup-shell-history-to-1password.sh
       - bash tests/zsh-history-merge.test.sh
       - bash tests/agent-state-backup.test.sh
+      - bash tests/scheduled-backups.test.sh
 
   test-bootstrap:
     desc: Compatibility alias for the unified test task.

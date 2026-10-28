@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
+
+usage() {
+  cat <<'EOF'
+Usage: dotfiles-scheduled-backups [--force]
+
+Runs each configured backup at most once every 20 hours, and retries a failed
+one after 4 hours. Meant to be called hourly from cron, so a machine that was
+asleep or off at a fixed time still catches up.
+
+Jobs:
+  shell-history  backup-shell-history-to-1password.sh
+                 (needs ~/.config/backup-shell-history-to-1password.env)
+  agent-state    backup-agent-state --scheduled
+                 (needs ${XDG_CONFIG_HOME:-~/.config}/agent-state-backup.env)
+
+State, stamps and per-job logs: ${XDG_STATE_HOME:-~/.state}/dotfiles-backups
+A failed job raises a desktop notification and makes the exit status non-zero.
+
+--force  Run every configured job now, ignoring the stamps.
+EOF
+}
+
+FORCE=0
+case "${1:-}" in
+  "") ;;
+  --force) FORCE=1 ;;
+  --help|-h) usage; exit 0 ;;
+  *) usage >&2; exit 2 ;;
+esac
+
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.state}"
+export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$PATH"
+BIN_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+STATE_DIR="$XDG_STATE_HOME/dotfiles-backups"
+SUCCESS_INTERVAL=$((20 * 3600))
+RETRY_INTERVAL=$((4 * 3600))
+LOG_LIMIT_BYTES=$((1024 * 1024))
+mkdir -p -- "$STATE_DIR"
+
+LOCK="$STATE_DIR/lock"
+if ! mkdir -- "$LOCK" 2>/dev/null; then
+  holder="$(cat -- "$LOCK/pid" 2>/dev/null || true)"
+  if [[ -n "$holder" ]] && kill -0 "$holder" 2>/dev/null; then
+    exit 0
+  fi
+  rm -rf -- "$LOCK"
+  mkdir -- "$LOCK" || exit 0
+fi
+printf '%s\n' "$$" >"$LOCK/pid"
+trap 'rm -rf -- "$LOCK"' EXIT
+
+notify() {
+  local message=$1
+  if [[ -n "${DOTFILES_BACKUP_NOTIFY:-}" ]]; then
+    "$DOTFILES_BACKUP_NOTIFY" "$message" || true
+  elif [[ "$(uname -s)" == Darwin ]]; then
+    osascript -e "display notification \"$message\" with title \"Dotfiles backup failed\"" >/dev/null 2>&1 || true
+  elif command -v notify-send >/dev/null; then
+    notify-send "Dotfiles backup failed" "$message" >/dev/null 2>&1 || true
+  fi
+}
+
+age_of() {
+  local stamp=$1 stamped
+  stamped="$(cat -- "$stamp" 2>/dev/null || true)"
+  [[ "$stamped" =~ ^[0-9]+$ ]] || { printf '%s\n' 999999999; return; }
+  printf '%s\n' "$(($(date +%s) - stamped))"
+}
+
+trim_log() {
+  local log=$1
+  if [[ -f "$log" && "$(wc -c <"$log")" -gt "$LOG_LIMIT_BYTES" ]]; then
+    tail -n 2000 -- "$log" >"$log.trim" && mv -f -- "$log.trim" "$log"
+  fi
+}
+
+failed=()
+run_job() {
+  local job=$1 config=$2
+  shift 2
+  local log="$STATE_DIR/$job.log"
+  trim_log "$log"
+  if [[ ! -f "$config" ]]; then
+    printf '%s skipped: not configured (%s missing)\n' "$(date -u +%FT%TZ)" "$config" >>"$log"
+    return 0
+  fi
+  if [[ "$FORCE" == 0 ]]; then
+    local since_success since_attempt
+    since_success="$(age_of "$STATE_DIR/$job.last-success")"
+    since_attempt="$(age_of "$STATE_DIR/$job.last-attempt")"
+    [[ "$since_success" -ge "$SUCCESS_INTERVAL" ]] || return 0
+    [[ "$since_attempt" -ge "$since_success" || "$since_attempt" -ge "$RETRY_INTERVAL" ]] || return 0
+  fi
+  date +%s >"$STATE_DIR/$job.last-attempt"
+  printf '%s starting: %s\n' "$(date -u +%FT%TZ)" "$*" >>"$log"
+  if "$@" >>"$log" 2>&1; then
+    date +%s >"$STATE_DIR/$job.last-success"
+    printf '%s finished\n' "$(date -u +%FT%TZ)" >>"$log"
+  else
+    local status=$?
+    printf '%s failed with status %s\n' "$(date -u +%FT%TZ)" "$status" >>"$log"
+    failed+=("$job")
+    notify "$job failed with status $status; see $log"
+  fi
+}
+
+run_job shell-history "$HOME/.config/backup-shell-history-to-1password.env" \
+  "$BIN_DIR/backup-shell-history-to-1password.sh"
+run_job agent-state "${XDG_CONFIG_HOME:-$HOME/.config}/agent-state-backup.env" \
+  "$BIN_DIR/backup-agent-state" --scheduled
+
+[[ "${#failed[@]}" == 0 ]]

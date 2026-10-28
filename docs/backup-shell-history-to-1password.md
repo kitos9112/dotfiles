@@ -120,37 +120,9 @@ Use:
 - Linux: `anacron`, invoked from your user `crontab`
 - macOS: user `cron`
 
-## Manual scheduling examples
+## Manual scheduling
 
-### Linux: anacron
-
-Create `~/.config/backup-shell-history-to-1password.anacrontab`:
-
-```text
-SHELL=/bin/bash
-PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
-1   5   backup-shell-history-to-1password   mkdir -p "$HOME/.local/state" && "$HOME/.local/bin/backup-shell-history-to-1password.sh" >>"$HOME/.local/state/backup-shell-history-to-1password.log" 2>&1
-```
-
-Then add this to your user crontab with `crontab -e`:
-
-```cron
-SHELL=/bin/bash
-PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
-@hourly /usr/bin/env anacron -s -t "$HOME/.config/backup-shell-history-to-1password.anacrontab" -S "$HOME/.local/state/anacron/backup-shell-history-to-1password"
-```
-
-This gives you daily execution with catch-up semantics when the machine was off.
-
-### macOS: cron
-
-Add this to your user crontab with `crontab -e`:
-
-```cron
-SHELL=/bin/bash
-PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
-17 3 * * * mkdir -p "$HOME/.local/state" && "$HOME/.local/bin/backup-shell-history-to-1password.sh" >>"$HOME/.local/state/backup-shell-history-to-1password.log" 2>&1
-```
+Schedule `dotfiles-scheduled-backups` rather than this script. It runs this backup and the agent state backup at most once every 20 hours, retries a failure after 4 hours, and raises a desktop notification when one fails. See [scheduled-backups.md](scheduled-backups.md).
 
 ## Restore notes
 
