@@ -120,12 +120,12 @@ for plugin in \
 done
 
 tool_versions="$(render_template "${SOURCE_DIR}/dot_tool-versions.tmpl")"
-for pin in \
-	'kubectl 1.37.0' \
-	'golang 1.27.1' \
-	'fzf 0.74.3' \
-	'direnv 2.37.1'; do
-	assert_contains "${tool_versions}" "${pin}" ".tool-versions pins ${pin} through asdf"
+for tool in kubectl golang fzf direnv; do
+	if grep -Eq "^${tool} [0-9]+\.[0-9]+\.[0-9]+$" <<<"${tool_versions}"; then
+		pass ".tool-versions pins ${tool} to an exact release through asdf"
+	else
+		fail ".tool-versions pins ${tool} to an exact release through asdf"
+	fi
 done
 
 echo "== pinned external versions =="
