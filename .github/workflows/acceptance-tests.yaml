@@ -16,7 +16,7 @@ permissions:
 jobs:
   go-tools:
     name: Go Tool Manifest
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -51,7 +51,7 @@ jobs:
 
   contracts:
     name: Contracts (chezmoi ${{ matrix.chezmoi }})
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
@@ -84,7 +84,7 @@ jobs:
 
   linux:
     name: Linux Smoke (${{ matrix.os }})
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     strategy:
       matrix:
@@ -167,7 +167,7 @@ jobs:
       - contracts
       - linux
       - macos
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Require every substantive acceptance job
         env:
