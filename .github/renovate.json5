@@ -72,9 +72,8 @@
     },
   ],
   vulnerabilityAlerts: {
-    // Do not delay known vulnerability fixes, but keep a human in the loop.
     minimumReleaseAge: null,
-    automerge: false,
+    automerge: true,
     labels: [
       'renovatebot',
       'security',
