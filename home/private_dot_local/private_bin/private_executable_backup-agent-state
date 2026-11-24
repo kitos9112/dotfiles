@@ -72,7 +72,16 @@ done
 tar_bin="$(command -v gtar || command -v tar)"
 link_bin="$(command -v gln || command -v ln)"
 [[ "$("$tar_bin" --version 2>/dev/null)" == *'GNU tar'* ]] || die 'GNU tar is required'
-[[ "$("$link_bin" --version 2>/dev/null)" == *'GNU coreutils'* ]] || die 'GNU ln is required'
+link_probe="$(mktemp -d)"
+: >"$link_probe/source"
+if "$link_bin" -T -- "$link_probe/source" "$link_probe/link" 2>/dev/null &&
+  ! "$link_bin" -T -- "$link_probe/source" "$link_probe/link" 2>/dev/null; then
+  link_ok=1
+else
+  link_ok=0
+fi
+rm -rf -- "$link_probe"
+[[ "$link_ok" == 1 ]] || die 'ln with GNU -T semantics is required (gln on macOS)'
 UTILITY="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)/encrypted-directory-backup"
 [[ -x "$UTILITY" ]] || die 'install encrypted-directory-backup alongside this launcher'
 

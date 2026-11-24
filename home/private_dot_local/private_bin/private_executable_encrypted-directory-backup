@@ -25,6 +25,17 @@ trap 'exit 143' TERM
 
 die() { printf 'Error: %s\n' "$*" >&2; exit 1; }
 need() { command -v "$1" >/dev/null || die "missing dependency: $1"; }
+ln_refuses_existing_target() {
+  local probe status=1
+  probe="$(mktemp -d)" || return 1
+  : >"$probe/source"
+  if "$1" -T -- "$probe/source" "$probe/link" 2>/dev/null &&
+    ! "$1" -T -- "$probe/source" "$probe/link" 2>/dev/null; then
+    status=0
+  fi
+  rm -rf -- "$probe"
+  return "$status"
+}
 usage() {
   cat <<'EOF'
 Usage:
@@ -131,7 +142,7 @@ case "$command_name" in
     need age; need zstd; choose_tar
     LINK='ln'
     command -v gln >/dev/null && LINK=gln
-    [[ "$("$LINK" --version 2>/dev/null)" == *'GNU coreutils'* ]] || die 'GNU ln is required (gln on macOS)'
+    ln_refuses_existing_target "$LINK" || die 'ln with GNU -T semantics is required (gln on macOS)'
     [[ -d "$1" && ! -L "${1%/}" ]] || die 'source must be a directory, not a symlink'
     SOURCE="$(cd -- "$1" && pwd -P)"
     [[ "$SOURCE" != / ]] || die 'refusing to archive the filesystem root'
