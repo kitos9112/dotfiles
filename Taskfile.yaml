@@ -5,7 +5,7 @@ version: "3"
 
 vars:
   RENOVATE_LOCAL_CONFIG: "tests/renovate-bot/local-config.js"
-  RENOVATE_IMAGE: "renovate/renovate:44.186.2@sha256:07cc53137718c142dcba8393d346d0e49dd3a2279d07c4f91bf82e51fb43e995"
+  RENOVATE_IMAGE: "renovate/renovate:44.227.4@sha256:fe058db9710840a4821f20190b3769e3ce709a049b8640aa2bf5f044969fe702"
 
 dotenv: ["~/.env"]
 
