@@ -1,0 +1,2 @@
+{{- $work := includeTemplate "work-profile" . | fromJson -}}
+{{- get $work "zsh" | default "" -}}

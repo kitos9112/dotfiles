@@ -1,0 +1,37 @@
+{{- /*
+Resolve the private work profile: shell setup and Ghostty commands that belong
+on work machines but not in this public repository.
+
+Resolution order:
+  1. work_profile, a table in local chezmoi.toml (also how tests inject one)
+  2. work-profile.yaml next to chezmoi.toml, when work_profile_op_document is
+     set. dotfiles-work-profile-sync copies it from that 1Password document,
+     so rendering never calls 1Password. A missing copy warns and renders
+     nothing.
+  3. empty
+
+Recognised keys:
+  zsh              text rendered to ~/.oh-my-zsh-custom/work.zsh
+  ghosttyCommands  entries in the .chezmoidata/ghostty.yaml format
+
+Returns JSON.
+
+Usage: {{ $work := includeTemplate "work-profile" . | fromJson }}
+*/ -}}
+{{- $profile := dict -}}
+{{- if hasKey . "work_profile" -}}
+{{-   $profile = .work_profile -}}
+{{- else if get . "work_profile_op_document" -}}
+{{-   $copy := joinPath (dir .chezmoi.configFile) "work-profile.yaml" -}}
+{{-   if stat $copy -}}
+{{-     $profile = include $copy | fromYaml | default dict -}}
+{{-   else -}}
+{{-     warnf "work profile copy %s is missing; run dotfiles-work-profile-sync" $copy -}}
+{{-   end -}}
+{{- end -}}
+{{- range $key, $_ := $profile -}}
+{{-   if not (has $key (list "zsh" "ghosttyCommands")) -}}
+{{-     fail (printf "work profile: unknown key %q, expected zsh or ghosttyCommands" $key) -}}
+{{-   end -}}
+{{- end -}}
+{{- $profile | toJson -}}

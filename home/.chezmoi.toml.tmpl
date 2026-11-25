@@ -58,14 +58,22 @@
 {{- $workEmail := "" -}}
 {{- $workName := "" -}}
 {{- $workGitdir := "" -}}
+{{- $workProfileOpDocument := "" -}}
+{{- $workProfileOpAccount := "" -}}
 {{- if $isWork -}}
 {{-   $workEmail  = get . "work_email"  | default "" -}}
 {{-   $workName   = get . "work_name"   | default "" -}}
 {{-   $workGitdir = get . "work_gitdir" | default "" -}}
+{{-   $workProfileOpDocument = get . "work_profile_op_document" | default "" -}}
+{{-   $workProfileOpAccount = get . "work_profile_op_account" | default "" -}}
 {{-   if stdinIsATTY -}}
 {{-     $workEmail  = promptStringOnce . "work_email"  "Work email" -}}
 {{-     $workName   = promptStringOnce . "work_name"   "Work display name" -}}
 {{-     $workGitdir = promptStringOnce . "work_gitdir" "Work git directory (e.g. ~/workspace/transficc/)" -}}
+{{-     $workProfileOpDocument = promptStringOnce . "work_profile_op_document" "1Password document holding the private work profile (title or ID), blank to skip" -}}
+{{-     if $workProfileOpDocument -}}
+{{-       $workProfileOpAccount = promptStringOnce . "work_profile_op_account" "1Password account holding that document (e.g. my.1password.com), blank for 1Password's choice" -}}
+{{-     end -}}
 {{-   end -}}
 {{- end -}}
 
@@ -88,6 +96,8 @@ progress = true
   work_email  = {{ $workEmail | quote }}
   work_name   = {{ $workName | quote }}
   work_gitdir = {{ $workGitdir | quote }}
+  work_profile_op_document = {{ $workProfileOpDocument | quote }} # See .chezmoitemplates/work-profile; empty skips it
+  work_profile_op_account = {{ $workProfileOpAccount | quote }} # Used only by dotfiles-work-profile-sync
 
   name = "{{ $personalName }}"
   {{- if not $isWork }}

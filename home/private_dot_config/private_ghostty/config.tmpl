@@ -25,4 +25,26 @@ shell-integration-features = cursor,sudo,title
 macos-option-as-alt = left
 # British keyboard: Option+3 produces #, but left Option is also used as Meta.
 keybind = alt+3=text:\x23
+# Quick terminal from any app; macOS asks for Accessibility access on first use.
+keybind = global:ctrl+alt+shift+super+q=toggle_quick_terminal
+
 {{ end -}}
+# Commands from .chezmoidata/ghostty.yaml and the private work profile:
+# ctrl+alt+shift+super+<key> types each one at the prompt, and the command
+# palette lists it by title.
+{{- $work := includeTemplate "work-profile" . | fromJson }}
+{{- $commands := concat .ghosttyCommands (get $work "ghosttyCommands" | default list) }}
+{{- $taken := dict "q" "the global quick terminal" }}
+{{- range $commands }}
+{{-   $key := toString .key }}
+{{-   if not (regexMatch "^[a-z0-9]$" $key) }}
+{{-     fail (printf "ghosttyCommands: key %q of %q must be a single a-z or 0-9" $key .title) }}
+{{-   end }}
+{{-   if hasKey $taken $key }}
+{{-     fail (printf "ghosttyCommands: key %q of %q is already used by %s" $key .title (get $taken $key)) }}
+{{-   end }}
+{{-   $_ := set $taken $key .title }}
+{{-   $text := printf "text:%s\\r" (.command | replace "\\" "\\\\" | replace "\"" "\\\"") }}
+keybind = ctrl+alt+shift+super+{{ $key }}={{ $text }}
+command-palette-entry = title:"{{ .title | replace "\\" "\\\\" | replace "\"" "\\\"" }}",description:"{{ .description | replace "\\" "\\\\" | replace "\"" "\\\"" }}",action:"{{ $text | replace "\\" "\\\\" | replace "\"" "\\\"" }}"
+{{- end }}

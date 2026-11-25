@@ -287,6 +287,8 @@ With that configuration:
 
 Existing installations should add those keys to `~/.config/chezmoi/chezmoi.toml` and then run `chezmoi apply`.
 
+Work-only shell aliases and Ghostty commands live in a private work profile rather than this repo. Set `work_profile_op_document` to the title or ID of a 1Password document holding YAML with `zsh` (rendered to `~/.oh-my-zsh-custom/work.zsh`) and `ghosttyCommands` (same format as `.chezmoidata/ghostty.yaml`), and optionally `work_profile_op_account` to the 1Password account that holds it. `dotfiles-work-profile-sync` copies the document to `work-profile.yaml` next to `chezmoi.toml`, and `chezmoi apply` renders from that copy, so applying never needs 1Password. Run the sync after editing the document. Without `work_profile_op_document`, neither file carries work content.
+
 ## Public-safe environment pointers
 
 The tracked `.env` file is allowed to exist in this public repository only for

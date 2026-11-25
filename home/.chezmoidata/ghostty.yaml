@@ -1,0 +1,16 @@
+# Shell commands Ghostty can fire on demand. Each entry becomes a keybind that
+# types the command at the prompt and presses Enter, plus a command-palette
+# entry (cmd+shift+p) with the same title. The Logi Options+ Actions Ring sends
+# the keybind, so promoting a command to the ring is a manual step there.
+#
+# Work-only commands go in the private work profile instead (see
+# .chezmoitemplates/work-profile); both lists share the same keys and format.
+#
+#   key:         a-z or 0-9, pressed with ctrl+alt+shift+super (cmd on macOS).
+#                Must be unique across both lists; "q" is taken by the global
+#                quick terminal.
+#   title:       palette title and the label to give the ring slot.
+#   description: palette subtitle.
+#   command:     typed verbatim into the focused pane.
+
+ghosttyCommands: []

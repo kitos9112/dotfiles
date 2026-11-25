@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+{{ includeTemplate "scripts-library" . }}
+# dotfiles-work-profile-sync: copy the private work profile from 1Password to
+# the local file chezmoi renders from, so `chezmoi apply` never calls 1Password.
+
+DEFAULT_DOCUMENT={{ get . "work_profile_op_document" | default "" | shellQuote }}
+DEFAULT_ACCOUNT={{ get . "work_profile_op_account" | default "" | shellQuote }}
+DEFAULT_FILE={{ joinPath (dir .chezmoi.configFile) "work-profile.yaml" | shellQuote }}
+SOURCE_DIR={{ .chezmoi.sourceDir | shellQuote }}
+
+usage() {
+  cat <<USAGE
+Usage: dotfiles-work-profile-sync [-d document] [-a account] [-f file]
+
+Copies the work profile document from 1Password to the local file that
+chezmoi reads. Run it after editing the document, then run chezmoi apply.
+
+  -d  1Password document title or ID (default: ${DEFAULT_DOCUMENT:-unset})
+  -a  1Password account, e.g. my.1password.com (default: ${DEFAULT_ACCOUNT:-the op default})
+  -f  local copy to write (default: ${DEFAULT_FILE})
+  -h  show this help
+USAGE
+}
+
+usage_error() {
+  log_error "$@"
+  exit 2
+}
+
+document="${DEFAULT_DOCUMENT}"
+account="${DEFAULT_ACCOUNT}"
+file="${DEFAULT_FILE}"
+
+while getopts ":d:a:f:h" opt; do
+  case "${opt}" in
+    d) document="${OPTARG}" ;;
+    a) account="${OPTARG}" ;;
+    f) file="${OPTARG}" ;;
+    h)
+      usage
+      exit 0
+      ;;
+    \?)
+      usage >&2
+      usage_error "Unknown option: -${OPTARG}"
+      ;;
+    :)
+      usage >&2
+      usage_error "Option -${OPTARG} requires an argument."
+      ;;
+  esac
+done
+
+if [[ -z "${document}" ]]; then
+  usage >&2
+  usage_error "No document: set work_profile_op_document in chezmoi.toml or pass -d."
+fi
+
+for required in op chezmoi; do
+  if ! command -v "${required}" >/dev/null 2>&1; then
+    log_error "${required} is required but not installed."
+    exit 127
+  fi
+done
+
+umask 077
+mkdir -p "$(dirname -- "${file}")"
+candidate="$(mktemp "${file}.XXXXXX")"
+trap 'rm -f "${candidate}"' EXIT HUP INT TERM
+
+op_args=(document get "${document}")
+if [[ -n "${account}" ]]; then
+  op_args+=(--account "${account}")
+fi
+
+log_task "Reading '${document}' from 1Password"
+if ! op "${op_args[@]}" >"${candidate}"; then
+  error "Could not read '${document}' from 1Password; ${file} is unchanged."
+fi
+
+# The same template chezmoi applies, so a bad document fails here instead of
+# breaking every later chezmoi apply.
+if ! WORK_PROFILE_CANDIDATE="${candidate}" chezmoi --progress=false --source "${SOURCE_DIR}" execute-template \
+  '{{ "{{" }} $p := include (env "WORK_PROFILE_CANDIDATE") | fromYaml | default dict {{ "}}" }}{{ "{{" }} includeTemplate "work-profile" (dict "work_profile" $p) {{ "}}" }}' \
+  >/dev/null; then
+  error "'${document}' is not a valid work profile; ${file} is unchanged."
+fi
+
+if [[ -f "${file}" ]] && cmp -s "${candidate}" "${file}"; then
+  log_green "Work profile already up to date: ${file}"
+  exit 0
+fi
+
+mv -f -- "${candidate}" "${file}"
+log_green "Work profile updated: ${file}"
+log_info "Run 'chezmoi apply' to render it."
