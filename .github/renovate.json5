@@ -12,10 +12,10 @@
     'helpers:pinGitHubActionDigests',
   ],
   timezone: 'Europe/London',
-  dependencyDashboard: true,
-  dependencyDashboardTitle: 'Renovate Dashboard',
-  // Hold routine updates long enough for compromised releases to be detected
-  // or withdrawn. Security alerts still open immediately for manual review.
+  dependencyDashboard: {
+    enabled: true,
+    title: 'Renovate Dashboard',
+  },
   minimumReleaseAge: '14 days',
   internalChecksFilter: 'strict',
   labels: [
@@ -25,8 +25,6 @@
   suppressNotifications: [
     'prIgnoreNotification',
   ],
-  // GitHub requires the stable Acceptance Gate check. Other informational or
-  // cosmetic checks do not prevent an otherwise safe dependency update.
   ignoreTests: false,
   platformAutomerge: true,
   rebaseWhen: 'auto',
@@ -39,7 +37,7 @@
       datasourceTemplate: 'docker',
       description: 'Track the pinned local Renovate image',
       managerFilePatterns: [
-        '/^Taskfile\.yaml$/',
+        '/^Taskfile.yaml$/',
       ],
       matchStrings: [
         'RENOVATE_IMAGE:\\s*"(?<depName>renovate/renovate):(?<currentValue>[^"@]+)@(?<currentDigest>sha256:[a-f0-9]{64})"',
@@ -130,7 +128,6 @@
       matchDepNames: [
         'Homebrew/install',
       ],
-      // git-refs digests have no release timestamp to age against.
       minimumReleaseAge: null,
       schedule: [
         '* * 1 * *',
