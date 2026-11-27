@@ -72,6 +72,8 @@ jobs:
           GITHUB_TOKEN: "${{ steps.generate-token.outputs.token }}"
           MARKDOWN_CONFIG_FILE: .markdownlint.yaml
           YAML_CONFIG_FILE: .yamllint.yaml
+          # chezmoi templates are not valid source until rendered.
+          FILTER_REGEX_EXCLUDE: '.*\.tmpl$'
           VALIDATE_NATURAL_LANGUAGE: false
           VALIDATE_GIT_COMMITLINT: false
           VALIDATE_TRIVY: false
